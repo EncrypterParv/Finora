@@ -1,13 +1,143 @@
 "use client";
 
 import React, { useState } from "react";
+import { AppShell, NavSection } from "@/components/layout/AppShell";
+import { IntelligenceOverview } from "@/components/dashboard/IntelligenceOverview";
 import { CalendarView } from "@/components/calendar/CalendarView";
+import { TransactionLedger } from "@/components/transactions/TransactionLedger";
+import { BudgetView } from "@/components/budgets/BudgetView";
+import { GoalsView } from "@/components/goals/GoalsView";
+import { BehaviouralInsightsView } from "@/components/insights/BehaviouralInsightsView";
+import { StatementImportView } from "@/components/import/StatementImportView";
+import { PricingView } from "@/components/pricing/PricingView";
 import { TransactionDetailDrawer } from "@/components/transactions/TransactionDetailDrawer";
 import { CalendarViewResponse } from "@/types/calendar";
-import { TransactionDetail } from "@/types/transaction";
-import { LayoutDashboard, Calendar as CalIcon, Target, UploadCloud, PieChart } from "lucide-react";
+import { CanonicalTransaction, TransactionDetail } from "@/types/transaction";
 
-// Initial seed calendar demonstration data
+// Rich initial dataset representing continuous realistic banking history
+const initialTransactions: CanonicalTransaction[] = [
+  {
+    id: "tx-1",
+    user_id: "user-1",
+    account_id: "acc-1",
+    occurred_at: "2026-10-01T09:15:00Z",
+    amount: 125000.0,
+    currency: "INR",
+    transaction_type: "CREDIT",
+    raw_description: "ACH CREDIT SALARY TECH CORP INDIA PVT LTD",
+    merchant_name: "TechCorp Payroll",
+    category_name: "Income",
+    reference_id: "NEFT-HSBC-SAL-202610",
+    source: "BANK_API",
+    created_at: "2026-10-01T09:15:00Z",
+  },
+  {
+    id: "tx-2",
+    user_id: "user-1",
+    account_id: "acc-1",
+    occurred_at: "2026-10-02T14:32:00Z",
+    amount: 450.0,
+    currency: "INR",
+    transaction_type: "DEBIT",
+    raw_description: "UPI/AHMED-KUMAR/TRANSFER@okhdfcbank",
+    merchant_name: "Ahmed Kumar",
+    category_name: "Personal",
+    reference_id: "UPI-AK-1002",
+    source: "BANK_API",
+    created_at: "2026-10-02T14:32:00Z",
+  },
+  {
+    id: "tx-3",
+    user_id: "user-1",
+    account_id: "acc-1",
+    occurred_at: "2026-10-02T18:20:00Z",
+    amount: 850.0,
+    currency: "INR",
+    transaction_type: "DEBIT",
+    raw_description: "BBPS ELECTRICITY BILL TATA POWER MUMBAI",
+    merchant_name: "Electricity",
+    category_name: "Bills & Utilities",
+    reference_id: "BBPS-ELE-202610",
+    source: "BANK_API",
+    created_at: "2026-10-02T18:20:00Z",
+  },
+  {
+    id: "tx-4",
+    user_id: "user-1",
+    account_id: "acc-1",
+    occurred_at: "2026-10-03T20:15:00Z",
+    amount: 2800.0,
+    currency: "INR",
+    transaction_type: "DEBIT",
+    raw_description: "POS TOIT BREWPUB INDIRANAGAR BANGALORE IN",
+    merchant_name: "Toit Brewpub",
+    category_name: "Food & Dining",
+    reference_id: "POS-DIN-1004",
+    source: "BANK_API",
+    created_at: "2026-10-03T20:15:00Z",
+  },
+  {
+    id: "tx-5",
+    user_id: "user-1",
+    account_id: "acc-1",
+    occurred_at: "2026-10-03T23:45:00Z",
+    amount: 650.0,
+    currency: "INR",
+    transaction_type: "DEBIT",
+    raw_description: "UBER INDIA RIDES PVT LTD BANGALORE",
+    merchant_name: "Uber Premier",
+    category_name: "Transportation",
+    reference_id: "UBR-90129",
+    source: "BANK_API",
+    created_at: "2026-10-03T23:45:00Z",
+  },
+  {
+    id: "tx-6",
+    user_id: "user-1",
+    account_id: "acc-1",
+    occurred_at: "2026-10-04T11:30:00Z",
+    amount: 1200.0,
+    currency: "INR",
+    transaction_type: "DEBIT",
+    raw_description: "BLUE TOKAI COFFEE ROASTERS KORAMANGALA",
+    merchant_name: "Blue Tokai Coffee",
+    category_name: "Food & Dining",
+    reference_id: "BT-9902",
+    source: "BANK_API",
+    created_at: "2026-10-04T11:30:00Z",
+  },
+  {
+    id: "tx-7",
+    user_id: "user-1",
+    account_id: "acc-1",
+    occurred_at: "2026-10-05T04:30:00Z",
+    amount: 649.0,
+    currency: "INR",
+    transaction_type: "DEBIT",
+    raw_description: "SI NETFLIX ENTERTAINMENT SERVICES IN",
+    merchant_name: "Netflix Subscription",
+    category_name: "Entertainment",
+    reference_id: "SI-NFLX-202610",
+    source: "BANK_API",
+    created_at: "2026-10-05T04:30:00Z",
+  },
+  {
+    id: "tx-8",
+    user_id: "user-1",
+    account_id: "acc-1",
+    occurred_at: "2026-10-06T13:10:00Z",
+    amount: 450.0,
+    currency: "INR",
+    transaction_type: "DEBIT",
+    raw_description: "UPI/SWIGGY/ORDER-49201@icici",
+    merchant_name: "Swiggy Daily",
+    category_name: "Food & Dining",
+    reference_id: "UPI-SWG-1008",
+    source: "BANK_API",
+    created_at: "2026-10-06T13:10:00Z",
+  },
+];
+
 const initialCalendarData: CalendarViewResponse = {
   mode: "month",
   start_date: "2026-10-01",
@@ -28,7 +158,7 @@ const initialCalendarData: CalendarViewResponse = {
       is_projected: false,
       events: [
         {
-          id: "tx-demo-1",
+          id: "tx-1",
           time_label: "09:15",
           occurred_at: "2026-10-01T09:15:00Z",
           amount: 125000.0,
@@ -53,7 +183,7 @@ const initialCalendarData: CalendarViewResponse = {
       is_projected: false,
       events: [
         {
-          id: "tx-demo-2",
+          id: "tx-2",
           time_label: "14:32",
           occurred_at: "2026-10-02T14:32:00Z",
           amount: 450.0,
@@ -61,12 +191,12 @@ const initialCalendarData: CalendarViewResponse = {
           transaction_type: "DEBIT",
           merchant_name: "Ahmed Kumar",
           category_name: "Personal",
-          category_color: "#EC4899",
-          category_icon: "Tag",
+          category_color: "#F43F5E",
+          category_icon: "User",
           intensity_score: 0.15,
         },
         {
-          id: "tx-demo-3",
+          id: "tx-3",
           time_label: "18:20",
           occurred_at: "2026-10-02T18:20:00Z",
           amount: 850.0,
@@ -91,7 +221,7 @@ const initialCalendarData: CalendarViewResponse = {
       is_projected: false,
       events: [
         {
-          id: "tx-demo-4",
+          id: "tx-4",
           time_label: "20:15",
           occurred_at: "2026-10-03T20:15:00Z",
           amount: 2800.0,
@@ -104,7 +234,7 @@ const initialCalendarData: CalendarViewResponse = {
           intensity_score: 0.75,
         },
         {
-          id: "tx-demo-5",
+          id: "tx-5",
           time_label: "23:45",
           occurred_at: "2026-10-03T23:45:00Z",
           amount: 650.0,
@@ -129,7 +259,7 @@ const initialCalendarData: CalendarViewResponse = {
       is_projected: false,
       events: [
         {
-          id: "tx-demo-6",
+          id: "tx-6",
           time_label: "11:30",
           occurred_at: "2026-10-04T11:30:00Z",
           amount: 1200.0,
@@ -154,7 +284,7 @@ const initialCalendarData: CalendarViewResponse = {
       is_projected: false,
       events: [
         {
-          id: "tx-demo-7",
+          id: "tx-7",
           time_label: "04:30",
           occurred_at: "2026-10-05T04:30:00Z",
           amount: 649.0,
@@ -179,7 +309,7 @@ const initialCalendarData: CalendarViewResponse = {
       is_projected: false,
       events: [
         {
-          id: "tx-demo-8",
+          id: "tx-8",
           time_label: "13:10",
           occurred_at: "2026-10-06T13:10:00Z",
           amount: 450.0,
@@ -207,35 +337,16 @@ const initialCalendarData: CalendarViewResponse = {
   ],
 };
 
-export default function HomePage() {
+export default function AppHome() {
+  const [activeSection, setActiveSection] = useState<NavSection>("overview");
   const [selectedTx, setSelectedTx] = useState<TransactionDetail | null>(null);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
 
   const handleSelectTransaction = (txId: string) => {
-    // Find in demo
-    let foundEvent = null;
-    for (const d of initialCalendarData.days) {
-      const match = d.events.find((e) => e.id === txId);
-      if (match) {
-        foundEvent = match;
-        break;
-      }
-    }
-
-    if (foundEvent) {
+    const found = initialTransactions.find((t) => t.id === txId);
+    if (found) {
       setSelectedTx({
-        id: foundEvent.id,
-        user_id: "user-1",
-        account_id: "acc-1",
-        occurred_at: foundEvent.occurred_at,
-        amount: foundEvent.amount,
-        currency: foundEvent.currency,
-        transaction_type: foundEvent.transaction_type,
-        raw_description: foundEvent.merchant_name,
-        merchant_name: foundEvent.merchant_name,
-        category_name: foundEvent.category_name,
-        reference_id: `REF-${foundEvent.id.toUpperCase()}`,
-        source: "BANK_API",
-        created_at: foundEvent.occurred_at,
+        ...found,
         monthly_budget_allocated: 50000.0,
         monthly_budget_spent: 28450.0,
         monthly_budget_utilization_pct: 56.9,
@@ -246,58 +357,59 @@ export default function HomePage() {
     }
   };
 
+  const handleSimulateSync = () => {
+    setIsSyncing(true);
+    setTimeout(() => {
+      setIsSyncing(false);
+    }, 1200);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
-      {/* Top Navigation */}
-      <nav className="border-b border-slate-800/80 bg-slate-900/50 backdrop-blur sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
-              FC
-            </div>
-            <span className="font-bold tracking-tight text-lg text-white">
-              FinancialCall
-            </span>
-            <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-              Behaviour Intelligence
-            </span>
-          </div>
+    <AppShell
+      activeSection={activeSection}
+      onNavigate={setActiveSection}
+      onSyncBank={handleSimulateSync}
+      isSyncing={isSyncing}
+    >
+      {/* Dynamic Screen Routing based on active section */}
+      {activeSection === "overview" && (
+        <IntelligenceOverview
+          onNavigateToCalendar={() => setActiveSection("calendar")}
+          onNavigateToGoals={() => setActiveSection("goals")}
+        />
+      )}
 
-          <div className="flex items-center gap-1 md:gap-3 text-xs font-medium text-slate-400">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 text-white">
-              <CalIcon className="w-3.5 h-3.5 text-indigo-400" />
-              Calendar
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-800/60 hover:text-white transition">
-              <LayoutDashboard className="w-3.5 h-3.5" />
-              Dashboard
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-800/60 hover:text-white transition">
-              <Target className="w-3.5 h-3.5" />
-              FIRE Goals
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-800/60 hover:text-white transition">
-              <UploadCloud className="w-3.5 h-3.5" />
-              Import Statement
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content Area */}
-      <main className="flex-1">
+      {activeSection === "calendar" && (
         <CalendarView
           calendarData={initialCalendarData}
           onSelectTransaction={handleSelectTransaction}
-          onSyncBank={() => alert("Simulating HSBC Banking sync...")}
+          onSyncBank={handleSimulateSync}
+          isSyncing={isSyncing}
         />
-      </main>
+      )}
 
-      {/* Detail Drawer */}
+      {activeSection === "transactions" && (
+        <TransactionLedger
+          transactions={initialTransactions}
+          onSelectTransaction={handleSelectTransaction}
+        />
+      )}
+
+      {activeSection === "budgets" && <BudgetView />}
+
+      {activeSection === "goals" && <GoalsView />}
+
+      {activeSection === "insights" && <BehaviouralInsightsView />}
+
+      {activeSection === "import" && <StatementImportView />}
+
+      {activeSection === "pricing" && <PricingView />}
+
+      {/* Slide-over Transaction Detail Drawer with Progressive Disclosure */}
       <TransactionDetailDrawer
         transaction={selectedTx}
         onClose={() => setSelectedTx(null)}
       />
-    </div>
+    </AppShell>
   );
 }
