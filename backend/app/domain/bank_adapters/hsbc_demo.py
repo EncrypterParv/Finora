@@ -70,6 +70,8 @@ class HSBCDemoAdapter(BankAdapter):
         now = datetime.now(timezone.utc)
         if since is None:
             since = now - timedelta(days=60)
+        elif since.tzinfo is None:
+            since = since.replace(tzinfo=timezone.utc)
 
         # Deterministic pseudo-random generation based on seed
         rng = random.Random(seed)

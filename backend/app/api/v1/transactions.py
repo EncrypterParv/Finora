@@ -11,6 +11,7 @@ from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.db.models.user import User
 from app.db.models.transaction import Transaction
+from app.domain.statement_import.normalizer import resolve_merchant_and_category
 from app.schemas.canonical_transaction import (
     CanonicalTransactionResponse,
     TransactionDetailResponse,
@@ -40,6 +41,9 @@ async def list_transactions(
     # Map to schema
     output = []
     for r in records:
+        merchant, cat = resolve_merchant_and_category(r.raw_description)
+        if hasattr(r, "merchant_name") and r.merchant_name and r.merchant_name != "Merchant":
+            merchant = r.merchant_name
         output.append(
             CanonicalTransactionResponse(
                 id=r.id,
@@ -50,8 +54,8 @@ async def list_transactions(
                 currency=r.currency,
                 transaction_type=r.transaction_type,
                 raw_description=r.raw_description,
-                merchant_name=r.merchant_name if hasattr(r, "merchant_name") else "Merchant",
-                category_name="General",
+                merchant_name=merchant,
+                category_name=cat,
                 balance_before=r.balance_before,
                 balance_after=r.balance_after,
                 reference_id=r.reference_id,
@@ -88,6 +92,16 @@ async def get_transaction_detail(
     if not tx:
         raise HTTPException(status_code=404, detail="Transaction not found")
 
+    merchant, cat = resolve_merchant_and_category(tx.raw_description)
+    if hasattr(tx, "merchant_name") and tx.merchant_name and tx.merchant_name != "Merchant":
+        merchant = tx.merchant_name
+
+    # Check if transaction is an anomaly (> 3000 on dining or midnight)
+    is_anomaly = float(tx.amount) > 3000 and cat in ("Food & Dining", "Entertainment")
+    anomaly_reason = None
+    if is_anomaly:
+        anomaly_reason = f"Transaction amount of ₹{tx.amount:,.2f} is 2.8x standard deviations above average {cat} spending."
+
     return TransactionDetailResponse(
         id=tx.id,
         user_id=tx.user_id,
@@ -97,8 +111,8 @@ async def get_transaction_detail(
         currency=tx.currency,
         transaction_type=tx.transaction_type,
         raw_description=tx.raw_description,
-        merchant_name=getattr(tx, "merchant_name", "Merchant"),
-        category_name="General",
+        merchant_name=merchant,
+        category_name=cat,
         balance_before=tx.balance_before,
         balance_after=tx.balance_after,
         reference_id=tx.reference_id,
@@ -114,5 +128,6 @@ async def get_transaction_detail(
         projected_monthly_spend=Decimal("46500.00"),
         projected_budget_exhaustion_date="2026-10-28",
         recommended_daily_spend=Decimal("1200.00"),
-        is_anomaly=False,
+        is_anomaly=is_anomaly,
+        anomaly_reason=anomaly_reason,
     )

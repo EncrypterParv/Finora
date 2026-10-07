@@ -89,7 +89,6 @@ async def sync_bank_account(
                 currency=canonical_in.currency,
                 transaction_type=canonical_in.transaction_type.value,
                 raw_description=canonical_in.raw_description,
-                merchant_name=canonical_in.merchant_name,
                 balance_after=canonical_in.balance_after,
                 reference_id=canonical_in.reference_id,
                 source=canonical_in.source.value,

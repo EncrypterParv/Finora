@@ -6,8 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_router
 from app.core.config import settings
-from app.core.database import Base, engine
+from app.core.database import Base, engine, AsyncSessionLocal
 import app.db.models.base  # Register all models
+from app.db.seeder import seed_demo_data_if_empty
 
 
 @asynccontextmanager
@@ -16,6 +17,10 @@ async def lifespan(app: FastAPI):
     # Ensure tables are created for SQLite / Local Dev
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    
+    async with AsyncSessionLocal() as session:
+        await seed_demo_data_if_empty(session)
+
     yield
     await engine.dispose()
 

@@ -75,7 +75,6 @@ async def upload_statement(
             currency=item.currency,
             transaction_type=item.transaction_type.value,
             raw_description=item.raw_description,
-            merchant_name=item.merchant_name,
             balance_after=item.balance_after,
             reference_id=item.reference_id,
             source=item.source.value,

@@ -26,7 +26,7 @@ class FinancialFeatureExtractor:
             }
 
         df = pd.DataFrame(transactions)
-        df["occurred_at"] = pd.to_datetime(df["occurred_at"])
+        df["occurred_at"] = pd.to_datetime(df["occurred_at"], utc=True)
         df["amount"] = df["amount"].astype(float)
         
         now = datetime.now(timezone.utc)
