@@ -130,6 +130,7 @@ function AppHomeContent() {
         <IntelligenceOverview
           onNavigateToCalendar={() => handleNavigate("calendar")}
           onNavigateToGoals={() => handleNavigate("goals")}
+          onNavigateToImport={() => handleNavigate("import")}
         />
       )}
 

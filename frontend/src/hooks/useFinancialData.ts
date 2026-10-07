@@ -9,7 +9,10 @@ import {
   createBudget,
   fetchGoals,
   createGoal,
+  fetchIntelligenceOverview,
   fetchBehaviourScore,
+  fetchForecast,
+  fetchBehaviouralChanges,
   fetchRecommendations,
   fetchAnomalies,
   triggerBankSync,
@@ -26,7 +29,10 @@ export const queryKeys = {
   transactionDetail: (id: string) => ["transaction", id] as const,
   budgets: () => ["budgets"] as const,
   goals: () => ["goals"] as const,
+  intelligenceOverview: () => ["analytics", "overview"] as const,
   behaviourScore: () => ["analytics", "score"] as const,
+  forecast: () => ["analytics", "forecast"] as const,
+  behaviouralChanges: () => ["analytics", "changes"] as const,
   recommendations: () => ["analytics", "recommendations"] as const,
   anomalies: () => ["analytics", "anomalies"] as const,
 };
@@ -92,11 +98,32 @@ export function useCreateGoalMutation() {
   });
 }
 
-// 6. Analytics Hooks
+// 6. Analytics & Behavioural Intelligence Hooks
+export function useIntelligenceOverviewQuery() {
+  return useQuery({
+    queryKey: queryKeys.intelligenceOverview(),
+    queryFn: () => fetchIntelligenceOverview(),
+  });
+}
+
 export function useBehaviourScoreData() {
   return useQuery({
     queryKey: queryKeys.behaviourScore(),
     queryFn: () => fetchBehaviourScore(),
+  });
+}
+
+export function useSpendingForecastQuery() {
+  return useQuery({
+    queryKey: queryKeys.forecast(),
+    queryFn: () => fetchForecast(),
+  });
+}
+
+export function useBehaviouralChangesQuery() {
+  return useQuery({
+    queryKey: queryKeys.behaviouralChanges(),
+    queryFn: () => fetchBehaviouralChanges(),
   });
 }
 
@@ -121,7 +148,6 @@ export function useBankSyncMutation() {
     mutationFn: ({ accountId, institutionId }: { accountId?: string; institutionId?: string }) =>
       triggerBankSync(accountId, institutionId),
     onSuccess: () => {
-      // Invalidate all financial queries after sync
       queryClient.invalidateQueries({ queryKey: ["calendar"] });
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["budgets"] });

@@ -2,7 +2,14 @@ import { CalendarViewResponse, CalendarViewMode } from "@/types/calendar";
 import { CanonicalTransaction, TransactionDetail } from "@/types/transaction";
 import { BudgetResponse, BudgetCreate } from "@/types/budget";
 import { GoalResponse, GoalCreate } from "@/types/goal";
-import { BehaviourScoreDTO, RecommendationDTO, AnomalyAlertDTO } from "@/types/analytics";
+import {
+  BehaviourScoreDTO,
+  RecommendationDTO,
+  AnomalyAlertDTO,
+  IntelligenceOverviewDTO,
+  ForecastDTO,
+  BehaviourShiftDTO,
+} from "@/types/analytics";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
@@ -85,10 +92,34 @@ export async function createGoal(data: GoalCreate): Promise<GoalResponse> {
   return res.json();
 }
 
+export async function fetchIntelligenceOverview(): Promise<IntelligenceOverviewDTO> {
+  const res = await fetch(`${API_BASE}/analytics/overview`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch intelligence overview: ${res.status} ${res.statusText}`);
+  }
+  return res.json();
+}
+
 export async function fetchBehaviourScore(): Promise<BehaviourScoreDTO> {
   const res = await fetch(`${API_BASE}/analytics/score`);
   if (!res.ok) {
     throw new Error(`Failed to fetch behavioural score: ${res.status} ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function fetchForecast(): Promise<ForecastDTO> {
+  const res = await fetch(`${API_BASE}/analytics/forecast`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch spending forecast: ${res.status} ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function fetchBehaviouralChanges(): Promise<BehaviourShiftDTO[]> {
+  const res = await fetch(`${API_BASE}/analytics/changes`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch behavioural changes: ${res.status} ${res.statusText}`);
   }
   return res.json();
 }
