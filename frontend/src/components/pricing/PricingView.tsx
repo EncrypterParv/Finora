@@ -1,15 +1,24 @@
 "use client";
 
 import React, { useState } from "react";
-import { PLAN_CONFIGS, PlanTier } from "@/lib/entitlements";
-import { Check, Sparkles, ShieldCheck, Zap, Users, Building } from "lucide-react";
+import { PLAN_CONFIGS, PlanTier, getPlanCapabilities } from "@/lib/entitlements";
+import { Check, Sparkles, ShieldCheck, Zap, Users, Building, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
-export const PricingView: React.FC = () => {
+interface PricingViewProps {
+  currentPlan?: PlanTier;
+  onSelectPlan?: (tier: PlanTier) => void;
+}
+
+export const PricingView: React.FC<PricingViewProps> = ({
+  currentPlan = "INDIVIDUAL_PRO",
+  onSelectPlan,
+}) => {
   const [selectedBilling, setSelectedBilling] = useState<"monthly" | "annual">("annual");
-  const [activePlan, setActivePlan] = useState<PlanTier>("INDIVIDUAL_PRO");
+  const [activePlan, setActivePlan] = useState<PlanTier>(currentPlan);
+  const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
 
   const plans: {
     id: PlanTier;
@@ -90,6 +99,13 @@ export const PricingView: React.FC = () => {
     },
   ];
 
+  const handleTierSelect = (tier: PlanTier) => {
+    setActivePlan(tier);
+    onSelectPlan?.(tier);
+    setFeedbackMsg(`Plan upgraded to ${PLAN_CONFIGS[tier].tierName}. All associated capabilities unlocked.`);
+    setTimeout(() => setFeedbackMsg(null), 4000);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
@@ -104,6 +120,14 @@ export const PricingView: React.FC = () => {
           Upgrade your analysis depth, historical modeling span, and scenario simulation capabilities. No dark patterns or artificial limits.
         </p>
 
+        {/* Feedback Alert */}
+        {feedbackMsg && (
+          <div className="p-3 bg-indigo-950/60 border border-indigo-500/40 rounded-xl text-xs text-indigo-200 flex items-center justify-center gap-2 animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0" />
+            <span>{feedbackMsg}</span>
+          </div>
+        )}
+
         {/* Billing switcher */}
         <div className="pt-2 flex items-center justify-center gap-3">
           <span
@@ -116,7 +140,8 @@ export const PricingView: React.FC = () => {
           </span>
           <button
             onClick={() => setSelectedBilling(selectedBilling === "monthly" ? "annual" : "monthly")}
-            className="w-11 h-6 bg-slate-800 rounded-full p-1 transition flex items-center"
+            aria-label="Toggle annual billing"
+            className="w-11 h-6 bg-slate-800 rounded-full p-1 transition flex items-center focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
             <div
               className={`w-4 h-4 rounded-full bg-indigo-500 transition-transform ${
@@ -145,10 +170,10 @@ export const PricingView: React.FC = () => {
           return (
             <Card
               key={p.id}
-              className={`p-5 flex flex-col justify-between relative ${
+              className={`p-5 flex flex-col justify-between relative transition-all ${
                 isCurrent
                   ? "border-indigo-500 bg-slate-900/90 shadow-xl shadow-indigo-500/10 ring-1 ring-indigo-500/50"
-                  : "bg-slate-900/60"
+                  : "bg-slate-900/60 hover:border-slate-700"
               }`}
             >
               {p.badge && (
@@ -201,7 +226,7 @@ export const PricingView: React.FC = () => {
                   size="sm"
                   variant={isCurrent ? "secondary" : "primary"}
                   className="w-full"
-                  onClick={() => setActivePlan(p.id)}
+                  onClick={() => handleTierSelect(p.id)}
                 >
                   {isCurrent ? "Current Plan" : "Select Tier"}
                 </Button>

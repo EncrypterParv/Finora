@@ -2,30 +2,83 @@
 
 import React from "react";
 import { formatCurrency } from "@/lib/utils";
-import { Sparkles, AlertTriangle, ShieldCheck, Flame, Brain, BarChart2, Activity } from "lucide-react";
+import {
+  Sparkles,
+  AlertTriangle,
+  ShieldCheck,
+  Flame,
+  Brain,
+  BarChart2,
+  Activity,
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
+import { useAnomaliesData, useBehaviourScoreData } from "@/hooks/useFinancialData";
 
 export const BehaviouralInsightsView: React.FC = () => {
-  const anomalies = [
-    {
-      id: "anom-1",
-      merchant: "Toit Brewpub Bangalore",
-      amount: 3800,
-      occurred_at: "2026-10-03T20:15:00Z",
-      confidence: 0.94,
-      reason: "Transaction amount ₹3,800 is 2.8x standard deviations above your 30-day dining average (₹1,350).",
-    },
-    {
-      id: "anom-2",
-      merchant: "Late Night Swiggy Order",
-      amount: 1450,
-      occurred_at: "2026-10-06T23:45:00Z",
-      confidence: 0.88,
-      reason: "Unusual transaction timing (11:45 PM) with sub-category variance.",
-    },
-  ];
+  const {
+    data: anomalies,
+    isLoading: isAnomaliesLoading,
+    isError: isAnomaliesError,
+    refetch: refetchAnomalies,
+  } = useAnomaliesData();
+
+  const {
+    data: scoreData,
+    isLoading: isScoreLoading,
+    isError: isScoreError,
+    refetch: refetchScore,
+  } = useBehaviourScoreData();
+
+  const isLoading = isAnomaliesLoading || isScoreLoading;
+  const isError = isAnomaliesError || isScoreError;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-6">
+          <LoadingSkeleton height="h-8" width="w-64" />
+          <LoadingSkeleton height="h-8" width="w-32" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <LoadingSkeleton height="h-24" />
+          <LoadingSkeleton height="h-24" />
+          <LoadingSkeleton height="h-24" />
+          <LoadingSkeleton height="h-24" />
+        </div>
+        <LoadingSkeleton height="h-64" />
+      </div>
+    );
+  }
+
+  if (isError || !scoreData) {
+    return (
+      <Card className="p-12 text-center space-y-4">
+        <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+          <AlertCircle className="w-6 h-6" />
+        </div>
+        <h3 className="text-base font-bold text-white">Unable to compute Behavioural Analytics</h3>
+        <p className="text-xs text-slate-400 max-w-sm mx-auto">
+          Failed to process statistical anomaly detection model.
+        </p>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => {
+            refetchAnomalies();
+            refetchScore();
+          }}
+          icon={<RefreshCw className="w-3.5 h-3.5" />}
+        >
+          Retry
+        </Button>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -57,32 +110,40 @@ export const BehaviouralInsightsView: React.FC = () => {
           <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
             Weekend Spend Ratio
           </span>
-          <p className="text-2xl font-bold font-mono text-purple-400">46.2%</p>
-          <span className="text-[10px] text-slate-500">Normal benchmark: &lt; 35%</span>
+          <p className="text-2xl font-bold font-mono text-purple-400">
+            {(scoreData.weekend_vs_weekday_ratio * 100).toFixed(1)}%
+          </p>
+          <span className="text-[10px] text-slate-500">Benchmark: &lt; 35%</span>
         </Card>
 
         <Card className="p-4 space-y-1">
           <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
             Impulse Index
           </span>
-          <p className="text-2xl font-bold font-mono text-amber-400">0.24</p>
+          <p className="text-2xl font-bold font-mono text-amber-400">
+            {scoreData.impulse_spending_index.toFixed(2)}
+          </p>
           <span className="text-[10px] text-slate-500">Sub-₹500 micro-orders</span>
         </Card>
 
         <Card className="p-4 space-y-1">
           <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-            Category Entropy
+            Savings Rate
           </span>
-          <p className="text-2xl font-bold font-mono text-indigo-300">0.78</p>
-          <span className="text-[10px] text-slate-500">Discretionary dispersion</span>
+          <p className="text-2xl font-bold font-mono text-indigo-300">
+            {scoreData.savings_rate_pct.toFixed(1)}%
+          </p>
+          <span className="text-[10px] text-slate-500">Of total inflow</span>
         </Card>
 
         <Card className="p-4 space-y-1">
           <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-            Runway Multiplier
+            Runway Capacity
           </span>
-          <p className="text-2xl font-bold font-mono text-emerald-400">3.1x</p>
-          <span className="text-[10px] text-slate-500">Monthly expense buffer</span>
+          <p className="text-2xl font-bold font-mono text-emerald-400">
+            {scoreData.runway_days} Days
+          </p>
+          <span className="text-[10px] text-slate-500">Expense buffer</span>
         </Card>
       </div>
 
@@ -91,36 +152,42 @@ export const BehaviouralInsightsView: React.FC = () => {
         <div className="flex items-center justify-between">
           <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
             <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-            Detected Statistical Anomalies ({anomalies.length})
+            Detected Statistical Anomalies ({anomalies?.length || 0})
           </h2>
           <Badge variant="warning" size="sm">Z-Score &gt; 2.5</Badge>
         </div>
 
         <div className="space-y-3">
-          {anomalies.map((anom) => (
-            <Card key={anom.id} className="p-5 border-l-4 border-l-amber-500 bg-slate-900/80 space-y-2">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-sm font-bold text-white">{anom.merchant}</h4>
-                  <p className="text-[11px] font-mono text-slate-400">
-                    {new Date(anom.occurred_at).toLocaleString("en-IN")}
-                  </p>
+          {anomalies && anomalies.length > 0 ? (
+            anomalies.map((anom) => (
+              <Card key={anom.id} className="p-5 border-l-4 border-l-amber-500 bg-slate-900/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-white">{anom.merchant}</h4>
+                    <p className="text-[11px] font-mono text-slate-400">
+                      {new Date(anom.occurred_at).toLocaleString("en-IN")}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-base font-bold font-mono text-amber-300">
+                      -{formatCurrency(anom.amount)}
+                    </span>
+                    <span className="text-[10px] text-slate-500 block font-mono">
+                      {(anom.confidence * 100).toFixed(0)}% Confidence
+                    </span>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-base font-bold font-mono text-amber-300">
-                    -{formatCurrency(anom.amount)}
-                  </span>
-                  <span className="text-[10px] text-slate-500 block font-mono">
-                    {(anom.confidence * 100).toFixed(0)}% Confidence
-                  </span>
-                </div>
-              </div>
 
-              <p className="text-xs text-slate-300 bg-slate-950/60 p-3 rounded-lg border border-slate-800 leading-relaxed">
-                {anom.reason}
-              </p>
+                <p className="text-xs text-slate-300 bg-slate-950/60 p-3 rounded-lg border border-slate-800 leading-relaxed">
+                  {anom.reason}
+                </p>
+              </Card>
+            ))
+          ) : (
+            <Card className="p-8 text-center text-slate-500 text-xs italic">
+              No statistical anomalies detected in current active period.
             </Card>
-          ))}
+          )}
         </div>
       </div>
     </div>

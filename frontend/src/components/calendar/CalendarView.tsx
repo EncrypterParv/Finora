@@ -15,28 +15,132 @@ import {
   TrendingDown,
   RefreshCw,
   Sparkles,
+  AlertCircle,
+  Filter,
 } from "lucide-react";
 import { Tabs } from "@/components/ui/Tabs";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { useCalendarData } from "@/hooks/useFinancialData";
 
 interface CalendarViewProps {
-  calendarData: CalendarViewResponse;
   onSelectTransaction?: (id: string) => void;
   onSyncBank?: () => void;
   isSyncing?: boolean;
 }
 
 export const CalendarView: React.FC<CalendarViewProps> = ({
-  calendarData,
   onSelectTransaction,
   onSyncBank,
   isSyncing,
 }) => {
-  const [viewMode, setViewMode] = useState<CalendarViewMode>(calendarData.mode || "month");
+  const [viewMode, setViewMode] = useState<CalendarViewMode>("month");
+  const [currentDate, setCurrentDate] = useState<Date>(new Date(2026, 9, 1)); // October 2026 default
   const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
+  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
 
-  const activeDay = calendarData.days[selectedDayIndex] || calendarData.days[0];
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth() + 1;
+
+  const {
+    data: calendarData,
+    isLoading,
+    isError,
+    refetch,
+  } = useCalendarData(viewMode, year, month);
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ];
+
+  const handlePrevMonth = () => {
+    setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    setSelectedDayIndex(0);
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+    setSelectedDayIndex(0);
+  };
+
+  const handleToday = () => {
+    setCurrentDate(new Date(2026, 9, 7)); // Current app anchor date
+    setSelectedDayIndex(0);
+  };
+
+  const categories = [
+    "ALL",
+    "Food & Dining",
+    "Entertainment",
+    "Bills & Utilities",
+    "Transportation",
+    "Shopping",
+    "Income",
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-6">
+          <LoadingSkeleton height="h-8" width="w-64" />
+          <LoadingSkeleton height="h-8" width="w-48" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+          <LoadingSkeleton height="h-24" />
+          <LoadingSkeleton height="h-24" />
+          <LoadingSkeleton height="h-24" />
+          <LoadingSkeleton height="h-24" />
+        </div>
+        <LoadingSkeleton height="h-96" />
+      </div>
+    );
+  }
+
+  if (isError || !calendarData) {
+    return (
+      <Card className="p-12 text-center space-y-4">
+        <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+          <AlertCircle className="w-6 h-6" />
+        </div>
+        <h3 className="text-base font-bold text-white">Unable to load Financial Calendar</h3>
+        <p className="text-xs text-slate-400 max-w-sm mx-auto">
+          We encountered a connection error while fetching your temporal money flows.
+        </p>
+        <Button size="sm" variant="secondary" onClick={() => refetch()} icon={<RefreshCw className="w-3.5 h-3.5" />}>
+          Retry Connection
+        </Button>
+      </Card>
+    );
+  }
+
+  // Filter events in days if a specific category is selected
+  const filteredDays = calendarData.days.map((day) => {
+    if (selectedCategory === "ALL") return day;
+    const matchingEvents = day.events.filter(
+      (e) => e.category_name.toLowerCase() === selectedCategory.toLowerCase()
+    );
+    const dayDebit = matchingEvents
+      .filter((e) => e.transaction_type === "DEBIT")
+      .reduce((acc, curr) => acc + curr.amount, 0);
+    const dayCredit = matchingEvents
+      .filter((e) => e.transaction_type === "CREDIT")
+      .reduce((acc, curr) => acc + curr.amount, 0);
+
+    return {
+      ...day,
+      events: matchingEvents,
+      total_debit: dayDebit,
+      total_credit: dayCredit,
+      net_flow: dayCredit - dayDebit,
+      transaction_count: matchingEvents.length,
+    };
+  });
+
+  const activeDay = filteredDays[selectedDayIndex] || filteredDays[0];
 
   return (
     <div className="space-y-6">
@@ -61,8 +165,34 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           </div>
         </div>
 
-        {/* View Mode Tabs (Day, Week, Month) */}
-        <div className="flex items-center gap-3 self-start md:self-auto">
+        {/* Temporal Stepper & Mode Switcher */}
+        <div className="flex flex-wrap items-center gap-3 self-start md:self-auto">
+          {/* Month / Year Stepper */}
+          <div className="flex items-center gap-1 bg-slate-900/90 border border-slate-800 rounded-xl p-1">
+            <button
+              onClick={handlePrevMonth}
+              aria-label="Previous month"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="px-2 text-xs font-bold font-mono text-slate-200">
+              {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+            </span>
+            <button
+              onClick={handleNextMonth}
+              aria-label="Next month"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          <Button size="sm" variant="secondary" onClick={handleToday} className="text-xs">
+            Today
+          </Button>
+
+          {/* View Mode Tabs (Day, Week, Month) */}
           <Tabs<CalendarViewMode>
             options={[
               { id: "day", label: "Day View", icon: <Clock className="w-3.5 h-3.5" /> },
@@ -121,18 +251,40 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         </Card>
       </div>
 
+      {/* Category Filter Pills */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        <span className="text-xs text-slate-500 font-medium flex items-center gap-1 pr-1">
+          <Filter className="w-3.5 h-3.5" /> Filter:
+        </span>
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              selectedCategory === cat
+                ? "bg-indigo-600 text-white font-semibold shadow-sm"
+                : "bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-white"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
       {/* ========================================================== */}
       {/* 1. DAY VIEW MODE */}
       {/* ========================================================== */}
       {viewMode === "day" && (
         <div className="space-y-4">
           {/* Day Selector Ribbon */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-            {calendarData.days.slice(0, 14).map((d, idx) => (
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" role="tablist" aria-label="Day selection">
+            {filteredDays.slice(0, 14).map((d, idx) => (
               <button
                 key={d.date}
+                role="tab"
+                aria-selected={selectedDayIndex === idx}
                 onClick={() => setSelectedDayIndex(idx)}
-                className={`px-3.5 py-2 rounded-xl text-left border shrink-0 transition ${
+                className={`px-3.5 py-2 rounded-xl text-left border shrink-0 transition focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   selectedDayIndex === idx
                     ? "bg-indigo-600 border-indigo-500 text-white shadow-md"
                     : "bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700"
@@ -151,17 +303,17 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           <Card className="p-6">
             <div className="flex items-center justify-between pb-4 border-b border-slate-800">
               <div>
-                <h3 className="text-base font-bold text-white">{activeDay.date_label}</h3>
+                <h3 className="text-base font-bold text-white">{activeDay?.date_label}</h3>
                 <p className="text-xs text-slate-400">
-                  {activeDay.transaction_count} transaction{activeDay.transaction_count !== 1 ? "s" : ""} · Net Flow:{" "}
-                  <span className={activeDay.net_flow >= 0 ? "text-emerald-400" : "text-slate-200"}>
-                    {activeDay.net_flow >= 0 ? "+" : ""}
-                    {formatCurrency(activeDay.net_flow)}
+                  {activeDay?.transaction_count || 0} transaction{activeDay?.transaction_count !== 1 ? "s" : ""} · Net Flow:{" "}
+                  <span className={(activeDay?.net_flow || 0) >= 0 ? "text-emerald-400" : "text-slate-200"}>
+                    {(activeDay?.net_flow || 0) >= 0 ? "+" : ""}
+                    {formatCurrency(activeDay?.net_flow || 0)}
                   </span>
                 </p>
               </div>
 
-              {activeDay.spending_intensity > 0.6 && (
+              {(activeDay?.spending_intensity || 0) > 0.6 && (
                 <Badge variant="warning" icon={<Flame className="w-3 h-3" />}>
                   High Burn Day
                 </Badge>
@@ -170,12 +322,15 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
             {/* Hour-by-hour transaction list */}
             <div className="mt-6 space-y-3">
-              {activeDay.events.length > 0 ? (
+              {activeDay && activeDay.events.length > 0 ? (
                 activeDay.events.map((ev) => (
                   <div
                     key={ev.id}
                     onClick={() => onSelectTransaction?.(ev.id)}
-                    className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-slate-700 cursor-pointer transition"
+                    onKeyDown={(e) => e.key === "Enter" && onSelectTransaction?.(ev.id)}
+                    tabIndex={0}
+                    role="button"
+                    className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-slate-700 cursor-pointer transition focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-1 rounded border border-slate-800">
@@ -223,7 +378,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       {/* ========================================================== */}
       {viewMode === "week" && (
         <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
-          {calendarData.days.slice(0, 7).map((daySummary) => (
+          {filteredDays.slice(0, 7).map((daySummary) => (
             <div
               key={daySummary.date}
               className="min-h-[360px] rounded-xl border border-slate-800 bg-slate-900/60 p-3.5 flex flex-col justify-between"
@@ -271,7 +426,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       {/* ========================================================== */}
       {viewMode === "month" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-          {calendarData.days.map((daySummary: CalendarDaySummary) => (
+          {filteredDays.map((daySummary: CalendarDaySummary) => (
             <div
               key={daySummary.date}
               className={`min-h-[145px] rounded-xl border p-3 flex flex-col justify-between transition-all ${
