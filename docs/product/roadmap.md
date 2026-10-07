@@ -22,10 +22,17 @@ gantt
     Live Budget Pacing & FIRE Simulator :done,    p3_4, 2026-10-07, 2026-10-07
     Database Demo Profile Seeder        :done,    p3_5, 2026-10-07, 2026-10-07
     
-    section Phase 4: Production & Scale
-    Multi-bank aggregator OAuth flow    :         p4_1, 2026-10-15, 2026-11-01
-    Automated Playwright E2E testing    :         p4_2, 2026-11-01, 2026-11-15
-    Production AWS/Cloud deployment     :         p4_3, 2026-11-15, 2026-12-01
+    section Phase 4: Behavioural Intelligence
+    Multi-Window Feature Store          :done,    p4_1, 2026-10-07, 2026-10-07
+    Uncertainty & DOW EMA Forecasts     :done,    p4_2, 2026-10-07, 2026-10-07
+    Behavioural Shift & Change Engine   :done,    p4_3, 2026-10-07, 2026-10-07
+    Evidence-Ranked Recommendations     :done,    p4_4, 2026-10-07, 2026-10-07
+    Data Sufficiency Validation         :done,    p4_5, 2026-10-07, 2026-10-07
+
+    section Phase 5: Production & Scale
+    Multi-Bank Aggregator (AA / Plaid)  :         p5_1, 2026-10-15, 2026-11-01
+    Automated Playwright E2E Testing    :         p5_2, 2026-11-01, 2026-11-15
+    AWS ECS / Cloud Run Containerization:         p5_3, 2026-11-15, 2026-12-01
 ```
 
 ---
@@ -53,7 +60,16 @@ gantt
 - Statement Ingestion Portal: Drag-and-drop CSV parser with SHA-256 deduplication and cache invalidation.
 - Comprehensive accessibility enhancements (ARIA dialogs, focus rings, keyboard escape handling).
 
-### Phase 4: Scale & Production Hardening (Planned)
-- Account aggregator integrations (Account Aggregator / Plaid / Open Banking).
+### Phase 4: Financial Behaviour Intelligence & Forecasting (Delivered)
+- Multi-window rolling feature engineering (7d, 30d, 90d daily velocity, Herfindahl-Hirschman concentration index, weekend velocity multipliers, impulse index).
+- Multi-horizon forecasting with day-of-week cyclicality and 80% prediction uncertainty intervals.
+- Statistical and category-aware anomaly detector with duplicate charge detection and materiality filtering.
+- Rolling behavioural change detector comparing active 30-day windows with 60-day historical baselines.
+- Evidence-grounded, ranked recommendation engine structured with explicit triggers, evidence, monthly financial impact, and concrete actions.
+- Transparent data sufficiency rules preventing manufactured insights on insufficient history.
+- Full Next.js frontend intelligence dashboard with responsive metrics, forecast bands, and actionable nudges.
+
+### Phase 5: Scale & Production Hardening (Planned)
+- Account aggregator integrations (India AA / Open Banking / Plaid).
 - End-to-end automated UI test harnesses with Playwright.
-- Multi-region infrastructure deployment and database read replicas.
+- Containerization (Docker, Docker Compose), CI/CD quality gates, and cloud deployment on AWS ECS/Cloud Run.
