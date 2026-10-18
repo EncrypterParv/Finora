@@ -6,7 +6,6 @@ import {
   AlertTriangle,
   ArrowUpRight,
   Check,
-  CircleGauge,
   Info,
   Lightbulb,
   PieChart,

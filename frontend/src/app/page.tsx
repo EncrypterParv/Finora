@@ -104,7 +104,7 @@ function AppHomeContent() {
         `Synced with HSBC: ${result.transactions_added} new transactions ingested.`
       );
       setTimeout(() => setSyncFeedback(null), 4000);
-    } catch (err: unknown) {
+    } catch {
       setSyncFeedback("Simulated HSBC sync completed.");
       setTimeout(() => setSyncFeedback(null), 3000);
     }

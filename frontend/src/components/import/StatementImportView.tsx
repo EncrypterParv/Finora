@@ -3,11 +3,9 @@
 import React, { useState, useRef } from "react";
 import {
   UploadCloud,
-  FileText,
   CheckCircle2,
   AlertCircle,
   RefreshCw,
-  ArrowRight,
   ShieldCheck,
   Calendar,
 } from "lucide-react";
@@ -24,7 +22,6 @@ export const StatementImportView: React.FC<StatementImportViewProps> = ({
   onNavigateToCalendar,
 }) => {
   const [step, setStep] = useState<"upload" | "review" | "complete">("upload");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadResult, setUploadResult] = useState<{
     filename: string;
     transactions_parsed: number;
@@ -37,7 +34,6 @@ export const StatementImportView: React.FC<StatementImportViewProps> = ({
   const uploadMutation = useStatementUploadMutation();
 
   const handleFileChange = async (file: File) => {
-    setSelectedFile(file);
     setErrorMessage(null);
 
     try {

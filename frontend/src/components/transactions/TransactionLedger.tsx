@@ -1,15 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { CanonicalTransaction } from "@/types/transaction";
 import { formatCurrency } from "@/lib/utils";
 import {
   Search,
-  Filter,
-  ArrowDownLeft,
-  ArrowUpRight,
-  Tag,
-  Calendar,
   Download,
   ArrowUpDown,
   RefreshCw,
@@ -19,7 +13,6 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { useTransactionsList } from "@/hooks/useFinancialData";
 
 interface TransactionLedgerProps {
