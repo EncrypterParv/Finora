@@ -4,7 +4,8 @@ import { QueryProvider } from "@/components/providers/QueryProvider";
 
 export const metadata: Metadata = {
   title: "Finora — Financial Behaviour Intelligence",
-  description: "Next-generation financial calendar, behaviour intelligence, and FIRE goal platform.",
+  description: "A clear view of your cash flow, spending behaviour, and long-term financial goals.",
+  applicationName: "Finora",
 };
 
 export default function RootLayout({
@@ -13,8 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen bg-slate-950 text-slate-100 antialiased selection:bg-indigo-500/30 selection:text-indigo-200">
+    <html lang="en">
+      <body className="min-h-screen bg-[#f7f6f2] text-[#1c2024] antialiased">
         <QueryProvider>
           {children}
         </QueryProvider>
