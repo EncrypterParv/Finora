@@ -6,12 +6,10 @@ import {
   PieChart,
   AlertCircle,
   CheckCircle2,
-  TrendingUp,
   Sparkles,
   Plus,
   RefreshCw,
   X,
-  Flame,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";

@@ -7,14 +7,11 @@ import {
   X,
   Sparkles,
   AlertTriangle,
-  TrendingUp,
   Calendar,
   Hash,
   FileText,
   ShieldCheck,
-  CheckCircle2,
   Receipt,
-  Layers,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";

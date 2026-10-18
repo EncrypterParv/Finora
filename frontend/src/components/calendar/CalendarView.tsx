@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { CalendarViewResponse, CalendarViewMode, CalendarDaySummary } from "@/types/calendar";
+import { CalendarViewMode, CalendarDaySummary } from "@/types/calendar";
 import { TransactionEventBlockView } from "./TransactionEventBlock";
 import { formatCurrency } from "@/lib/utils";
 import {
@@ -10,9 +10,6 @@ import {
   Calendar as CalIcon,
   Flame,
   Clock,
-  ArrowDownLeft,
-  ArrowUpRight,
-  TrendingDown,
   RefreshCw,
   Sparkles,
   AlertCircle,
@@ -23,7 +20,6 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { useCalendarData } from "@/hooks/useFinancialData";
 
 interface CalendarViewProps {
@@ -34,8 +30,6 @@ interface CalendarViewProps {
 
 export const CalendarView: React.FC<CalendarViewProps> = ({
   onSelectTransaction,
-  onSyncBank,
-  isSyncing,
 }) => {
   const [viewMode, setViewMode] = useState<CalendarViewMode>("month");
   const [currentDate, setCurrentDate] = useState<Date>(new Date(2026, 9, 1)); // October 2026 default

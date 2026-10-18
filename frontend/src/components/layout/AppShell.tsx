@@ -11,11 +11,9 @@ import {
   CreditCard,
   Sparkles,
   RefreshCw,
-  Search,
   ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
 
 export type NavSection =
   | "overview"

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { PLAN_CONFIGS, PlanTier, getPlanCapabilities } from "@/lib/entitlements";
-import { Check, Sparkles, ShieldCheck, Zap, Users, Building, CheckCircle2 } from "lucide-react";
+import { PLAN_CONFIGS, PlanTier } from "@/lib/entitlements";
+import { Check, Sparkles, Zap, Users, Building, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";

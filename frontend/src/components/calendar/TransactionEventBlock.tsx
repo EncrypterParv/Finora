@@ -1,7 +1,6 @@
 import React from "react";
 import { CalendarEventBlock } from "@/types/calendar";
 import { formatCurrency } from "@/lib/utils";
-import { ArrowDownLeft, ArrowUpRight, Tag } from "lucide-react";
 
 interface TransactionEventBlockProps {
   event: CalendarEventBlock;

@@ -4,18 +4,13 @@ import React from "react";
 import { formatCurrency } from "@/lib/utils";
 import {
   Sparkles,
-  TrendingDown,
   TrendingUp,
   AlertTriangle,
   Lightbulb,
-  ShieldAlert,
-  ArrowRight,
   PieChart,
-  Calendar,
   Layers,
   RefreshCw,
   AlertCircle,
-  Clock,
   CheckCircle2,
   Info,
 } from "lucide-react";
