@@ -46,6 +46,12 @@ Detailed system documentation is available in `docs/`:
 - [Product Requirements (PRD)](docs/product/requirements.md)
 - [Engineering Roadmap](docs/product/roadmap.md)
 
+Engineering and agent workflow:
+- [Agent context](docs/agents/context.md)
+- [Agent roles](docs/agents/roles.md)
+- [Contribution guide](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+
 ---
 
 ## 🚀 Getting Started
@@ -63,7 +69,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 # Run automated tests
-pytest
+DEBUG=false python -m pytest -q
 
 # Launch FastAPI development server
 uvicorn app.main:app --reload --port 8000
@@ -80,6 +86,11 @@ npm install
 
 # Run development server
 npm run dev
+
+# Validate frontend changes
+npm run lint
+npm run typecheck
+npm run build
 ```
 Client interface available at: `http://localhost:3000`
 
