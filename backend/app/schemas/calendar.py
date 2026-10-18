@@ -5,7 +5,6 @@ from decimal import Decimal
 from enum import Enum
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from app.schemas.canonical_transaction import CanonicalTransactionResponse
 
 
 class CalendarViewMode(str, Enum):

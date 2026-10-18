@@ -168,7 +168,7 @@ class HSBCDemoAdapter(BankAdapter):
                         amount=cost,
                         currency="INR",
                         is_debit=True,
-                        narration=f"POS DINING RESTAURANT BANGALORE IN",
+                        narration="POS DINING RESTAURANT BANGALORE IN",
                         merchant_raw="Toit Brewpub",
                         balance_after=current_balance - cost,
                         reference_number=f"POS-DIN-{tx_counter}",

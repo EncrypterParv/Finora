@@ -1,9 +1,9 @@
 """Analytics, Behaviour Score, Forecasting, Anomalies, and Recommendations endpoints."""
 
-from datetime import date, datetime, timezone
+from datetime import date
 from decimal import Decimal
-from typing import List, Optional
-from fastapi import APIRouter, Depends, Query
+from typing import List
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 

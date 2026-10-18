@@ -3,9 +3,9 @@
 import csv
 import io
 import re
-from datetime import datetime, timezone
+from datetime import timezone
 from decimal import Decimal
-from typing import List, Optional
+from typing import List
 from dateutil import parser as date_parser
 from app.domain.statement_import.normalizer import resolve_merchant_and_category
 from app.schemas.canonical_transaction import (
