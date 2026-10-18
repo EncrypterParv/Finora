@@ -22,7 +22,7 @@ import {
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
+import { IntelligenceOverviewSkeleton } from "@/components/dashboard/IntelligenceOverviewSkeleton";
 import {
   useIntelligenceOverviewQuery,
 } from "@/hooks/useFinancialData";
@@ -45,27 +45,8 @@ export const IntelligenceOverview: React.FC<IntelligenceOverviewProps> = ({
     refetch,
   } = useIntelligenceOverviewQuery();
 
-  if (isLoading) {
-    return (
-      <div className="space-y-8">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-6">
-          <LoadingSkeleton height="h-8" width="w-64" />
-          <LoadingSkeleton height="h-8" width="w-32" />
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5">
-          <LoadingSkeleton height="h-24" />
-          <LoadingSkeleton height="h-24" />
-          <LoadingSkeleton height="h-24" />
-          <LoadingSkeleton height="h-24" />
-          <LoadingSkeleton height="h-24" />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <LoadingSkeleton height="h-32" />
-          <LoadingSkeleton height="h-32" />
-          <LoadingSkeleton height="h-32" />
-        </div>
-      </div>
-    );
+  if (isLoading && !overview) {
+    return <IntelligenceOverviewSkeleton />;
   }
 
   if (isError || !overview) {
