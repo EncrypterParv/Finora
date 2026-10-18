@@ -36,7 +36,7 @@ export const PLAN_CONFIGS: Record<PlanTier, PlanCapabilities> = {
     teamCollaboration: false,
   },
   TEAMS: {
-    tierName: "FinancialCall for Teams",
+    tierName: "Finora for Teams",
     badgeLabel: "Teams",
     maxAccounts: 999,
     maxHistoricalMonths: 120,
@@ -47,7 +47,7 @@ export const PLAN_CONFIGS: Record<PlanTier, PlanCapabilities> = {
     teamCollaboration: true,
   },
   ENTERPRISE: {
-    tierName: "FinancialCall Enterprise",
+    tierName: "Finora Enterprise",
     badgeLabel: "Enterprise",
     maxAccounts: 9999,
     maxHistoricalMonths: 999,

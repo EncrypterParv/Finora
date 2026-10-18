@@ -1,4 +1,4 @@
-# Security & Privacy Architecture — FinancialCall
+# Security & Privacy Architecture — Finora
 
 ## 1. Security First Principles
 

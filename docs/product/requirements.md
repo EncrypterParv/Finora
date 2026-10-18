@@ -1,10 +1,10 @@
-# Product Requirements Document (PRD) — FinancialCall
+# Product Requirements Document (PRD) — Finora
 
 ## 1. Problem Statement & Mission
 
 Traditional personal finance apps treat user spending as a passive accounting ledger: list of numbers, simple category pie charts, and retrospective notifications after overspending has already occurred.
 
-**FinancialCall transforms financial tracking into an active behavioural intelligence and decision engine.** By fusing a **Financial Calendar** (representing the temporal reality of cash flow) with **predictive ML analytics** and **FIRE goal projection**, it actively shapes positive financial habits.
+**Finora transforms financial tracking into an active behavioural intelligence and decision engine.** By fusing a **Financial Calendar** (representing the temporal reality of cash flow) with **predictive ML analytics** and **FIRE goal projection**, it actively shapes positive financial habits.
 
 ---
 

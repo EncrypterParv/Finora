@@ -1,8 +1,8 @@
-# Pricing Architecture & Entitlements — FinancialCall
+# Pricing Architecture & Entitlements — Finora
 
 ## 1. Plan Structure & Capabilities Matrix
 
-FinancialCall uses a centralized, capability-driven entitlement model rather than scattered conditional checks.
+Finora uses a centralized, capability-driven entitlement model rather than scattered conditional checks.
 
 | Feature Domain | Individual (Starter) | Individual Pro | Teams | Enterprise |
 | :--- | :--- | :--- | :--- | :--- |

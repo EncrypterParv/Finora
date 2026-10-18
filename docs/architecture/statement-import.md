@@ -1,4 +1,4 @@
-# Historical Statement Ingestion Architecture — FinancialCall
+# Historical Statement Ingestion Architecture — Finora
 
 ## 1. Overview & Ingestion Life Cycle
 

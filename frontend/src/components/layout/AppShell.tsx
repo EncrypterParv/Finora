@@ -68,7 +68,7 @@ export const AppShell: React.FC<AppShellProps> = ({
             </div>
             <div className="flex flex-col">
               <span className="font-bold tracking-tight text-sm md:text-base text-white leading-tight">
-                FinancialCall
+                Finora
               </span>
               <span className="text-[10px] text-slate-400 font-medium">
                 Behaviour Intelligence
@@ -161,7 +161,7 @@ export const AppShell: React.FC<AppShellProps> = ({
       {/* Footer */}
       <footer className="border-t border-slate-800/80 bg-slate-950 py-6 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p>© 2026 FinancialCall — Financial Behaviour Intelligence</p>
+          <p>© 2026 Finora — Financial Behaviour Intelligence</p>
           <div className="flex items-center gap-4 text-[11px] text-slate-400">
             <span className="flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />

@@ -1,8 +1,8 @@
-# Canonical Transaction Pipeline & Flow — FinancialCall
+# Canonical Transaction Pipeline & Flow — Finora
 
 ## 1. Architectural Philosophy
 
-Every transaction entering FinancialCall—regardless of originating from a live bank sync (HSBCDemoAdapter), CSV batch file, Excel workbook, or PDF bank statement—**must pass through an identical canonical normalization pipeline**.
+Every transaction entering Finora—regardless of originating from a live bank sync (HSBCDemoAdapter), CSV batch file, Excel workbook, or PDF bank statement—**must pass through an identical canonical normalization pipeline**.
 
 No raw source formats are persisted directly as separate entities. The system maintains a singular domain model of money in motion.
 

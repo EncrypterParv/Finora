@@ -1,4 +1,4 @@
-# FinancialCall 💰📅
+# Finora
 
 > **Financial Behaviour Intelligence Platform**  
 > *Transforming transaction tracking into an active decision engine through temporal calendar dynamics and predictive machine learning.*
@@ -19,7 +19,7 @@ flowchart LR
     H -.-> A
 ```
 
-Unlike generic personal finance dashboards that treat money as a static ledger, **FinancialCall** introduces:
+Unlike generic personal finance dashboards that treat money as a static ledger, **Finora** introduces:
 1. **The Financial Calendar**: A first-class, dense temporal interface mapping cash-flows onto daily/weekly schedules with real-time spending intensity heatmaps.
 2. **Canonical Transaction Architecture**: A unified ingestion pipeline transforming heterogeneous inputs (Simulated Bank Streams, CSV, XLSX, PDF) into an immutable, deduplicated domain model.
 3. **Predictive Behavioural Intelligence**: Statistical velocity modeling, budget exhaustion projections, Isolation Forest anomaly alerts, and dynamic FIRE (Financial Independence) scenarios.

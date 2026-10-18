@@ -3,7 +3,7 @@ import "./globals.css";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 
 export const metadata: Metadata = {
-  title: "FinancialCall — Financial Behaviour Intelligence",
+  title: "Finora — Financial Behaviour Intelligence",
   description: "Next-generation financial calendar, behaviour intelligence, and FIRE goal platform.",
 };
 

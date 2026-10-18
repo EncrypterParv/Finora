@@ -1,8 +1,8 @@
-# Machine Learning & Behavioural Analytics Architecture — FinancialCall
+# Machine Learning & Behavioural Analytics Architecture — Finora
 
 ## 1. Intelligence Vision & Guiding Philosophy
 
-FinancialCall rejects "AI theater" (e.g. wrapping trivial sum queries in LLM prompts or training opaque neural networks on sparse tabular data). 
+Finora rejects "AI theater" (e.g. wrapping trivial sum queries in LLM prompts or training opaque neural networks on sparse tabular data).
 
 Instead, our intelligence subsystem follows a **three-tier progressive architecture**:
 1. **Tier 1: Deterministic & Statistical Modeling** (Rolling aggregates, EMA, rate-of-change, linear trendlines).
