@@ -1,30 +1,164 @@
 @import "tailwindcss";
 
 :root {
-  --background: 222 47% 7%;
-  --foreground: 210 40% 98%;
-  --card: 222 47% 10%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222 47% 10%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 239 84% 67%;
+  --finora-canvas: #f7f6f2;
+  --finora-surface: #ffffff;
+  --finora-surface-muted: #f1f0eb;
+  --finora-ink: #1c2024;
+  --finora-ink-soft: #596168;
+  --finora-ink-muted: #7a838a;
+  --finora-border: #e3e4df;
+  --finora-border-strong: #cdd1cc;
+  --finora-brand: #3546a8;
+  --finora-brand-dark: #27357f;
+  --finora-brand-soft: #eef0ff;
+  --finora-positive: #2f6b45;
+  --finora-positive-soft: #edf4ed;
+  --finora-warning: #8a641e;
+  --finora-warning-soft: #fbf4df;
+  --finora-negative: #a04646;
+  --finora-negative-soft: #faeeee;
+  --background: 45 20% 96%;
+  --foreground: 210 12% 13%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 12% 13%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 12% 13%;
+  --primary: 231 52% 43%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 217 33% 17%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217 33% 17%;
-  --muted-foreground: 215 20% 65%;
-  --accent: 217 33% 17%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 63% 31%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217 33% 17%;
-  --input: 217 33% 17%;
-  --ring: 239 84% 67%;
-  --radius: 0.75rem;
+  --secondary: 45 14% 94%;
+  --secondary-foreground: 210 12% 13%;
+  --muted: 45 14% 94%;
+  --muted-foreground: 210 7% 42%;
+  --accent: 231 52% 95%;
+  --accent-foreground: 231 52% 32%;
+  --destructive: 0 43% 46%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 45 9% 88%;
+  --input: 45 9% 88%;
+  --ring: 231 52% 43%;
+  --radius: 0.625rem;
+}
+
+* {
+  border-color: var(--finora-border);
+}
+
+html {
+  background: var(--finora-canvas);
+  color-scheme: light;
 }
 
 body {
-  background-color: #030712;
-  color: #f8fafc;
+  margin: 0;
+  background: var(--finora-canvas);
+  color: var(--finora-ink);
+  font-family: "Inter", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+::selection {
+  background: #dfe3ff;
+  color: var(--finora-ink);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--finora-brand);
+  outline-offset: 3px;
+}
+
+/* Transitional theme bridge for the existing feature screens. */
+.finora-shell [class*="bg-slate-950"]:not(button):not(button *),
+.finora-shell [class*="bg-slate-900"]:not(button):not(button *),
+.finora-shell [class*="bg-slate-800"]:not(button):not(button *) {
+  background-color: var(--finora-surface) !important;
+}
+
+.finora-shell [class*="bg-slate-950"]:not(button):not(button *) {
+  background-color: var(--finora-canvas) !important;
+}
+
+.finora-shell [class*="bg-slate-800"]:not(button):not(button *) {
+  background-color: var(--finora-surface-muted) !important;
+}
+
+.finora-shell [class*="border-slate-8"],
+.finora-shell [class*="border-slate-7"],
+.finora-shell [class*="border-slate-6"] {
+  border-color: var(--finora-border) !important;
+}
+
+.finora-shell [class*="text-white"]:not(button):not(button *),
+.finora-shell [class*="text-slate-100"]:not(button):not(button *),
+.finora-shell [class*="text-slate-200"]:not(button):not(button *),
+.finora-shell [class*="text-slate-300"]:not(button):not(button *) {
+  color: var(--finora-ink) !important;
+}
+
+.finora-shell [class*="text-slate-400"]:not(button):not(button *),
+.finora-shell [class*="text-slate-500"]:not(button):not(button *) {
+  color: var(--finora-ink-soft) !important;
+}
+
+.finora-shell [class*="bg-gradient"] {
+  background-image: none !important;
+}
+
+.finora-shell [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+}
+
+.finora-shell [class*="shadow-lg"],
+.finora-shell [class*="shadow-xl"],
+.finora-shell [class*="shadow-2xl"] {
+  box-shadow: 0 2px 8px rgba(28, 32, 36, 0.04) !important;
+}
+
+.finora-data {
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.finora-enter {
+  animation: finora-enter 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes finora-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
