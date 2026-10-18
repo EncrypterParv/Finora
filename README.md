@@ -83,6 +83,26 @@ npm run dev
 ```
 Client interface available at: `http://localhost:3000`
 
+### 3. Quality Checks
+
+Run these checks before opening a pull request:
+
+```bash
+# Frontend
+cd frontend
+npm run lint
+npm run typecheck
+npm run build
+
+# Backend
+cd backend
+pip install -r requirements-dev.txt
+ruff check app tests
+pytest
+```
+
+The frontend lint command uses ESLint's flat configuration with the Next.js and TypeScript rulesets. The backend Ruff configuration starts with high-signal import, undefined-name, syntax, and basic Pyflakes checks; broader style modernization can be introduced separately without making the initial quality gate noisy.
+
 ---
 
 ## 🛡️ Security & Privacy Principles
