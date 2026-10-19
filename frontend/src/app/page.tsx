@@ -14,9 +14,38 @@ import { TransactionDetailDrawer } from "@/components/transactions/TransactionDe
 import { useBankSyncMutation } from "@/hooks/useFinancialData";
 import { PlanTier } from "@/lib/entitlements";
 
+const navSections: NavSection[] = [
+  "overview",
+  "calendar",
+  "transactions",
+  "budgets",
+  "goals",
+  "insights",
+  "import",
+  "pricing",
+];
+
+function getNavigationFromLocation(): { section: NavSection; txId: string | null } {
+  if (typeof window === "undefined") {
+    return { section: "overview", txId: null };
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const tabParam = params.get("tab");
+  const section = navSections.includes(tabParam as NavSection)
+    ? (tabParam as NavSection)
+    : "overview";
+
+  return { section, txId: params.get("tx") };
+}
+
 function AppHomeContent() {
-  const [activeSection, setActiveSection] = useState<NavSection>("overview");
-  const [selectedTxId, setSelectedTxId] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<NavSection>(
+    () => getNavigationFromLocation().section
+  );
+  const [selectedTxId, setSelectedTxId] = useState<string | null>(
+    () => getNavigationFromLocation().txId
+  );
   const [currentPlan, setCurrentPlan] = useState<PlanTier>("INDIVIDUAL_PRO");
   const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
 
@@ -25,36 +54,11 @@ function AppHomeContent() {
   // Synchronize navigation state with browser URL search params
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const tabParam = params.get("tab") as NavSection | null;
-      const txParam = params.get("tx");
-
-      if (
-        tabParam &&
-        [
-          "overview",
-          "calendar",
-          "transactions",
-          "budgets",
-          "goals",
-          "insights",
-          "import",
-          "pricing",
-        ].includes(tabParam)
-      ) {
-        setActiveSection(tabParam);
-      }
-
-      if (txParam) {
-        setSelectedTxId(txParam);
-      }
-
       // Handle popstate for back/forward navigation
       const handlePopState = () => {
-        const currentParams = new URLSearchParams(window.location.search);
-        const currentTab = (currentParams.get("tab") as NavSection) || "overview";
-        setActiveSection(currentTab);
-        setSelectedTxId(currentParams.get("tx"));
+        const navigation = getNavigationFromLocation();
+        setActiveSection(navigation.section);
+        setSelectedTxId(navigation.txId);
       };
 
       window.addEventListener("popstate", handlePopState);

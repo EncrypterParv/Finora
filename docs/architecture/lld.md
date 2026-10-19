@@ -1,4 +1,4 @@
-# Low-Level Design (LLD) — FinancialCall
+# Low-Level Design (LLD) — Finora
 
 ## 1. Module & Directory Structure
 

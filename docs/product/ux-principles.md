@@ -1,8 +1,8 @@
-# UX Principles & Philosophy — FinancialCall
+# UX Principles & Philosophy — Finora
 
 ## 1. Core Philosophy: Complexity in the System, Simplicity in the Experience
 
-FinancialCall is an intelligence platform, not an accounting spreadsheet or a crypto playground. It handles sophisticated statistical models, time-series forecasting, and behavioural categorization behind the scenes so the user can make immediate, confident financial decisions.
+Finora is an intelligence platform, not an accounting spreadsheet or a crypto playground. It handles sophisticated statistical models, time-series forecasting, and behavioural categorization behind the scenes so the user can make immediate, confident financial decisions.
 
 ```mermaid
 flowchart LR
@@ -16,7 +16,7 @@ flowchart LR
 
 ## 2. The Five Fast Answers
 
-Every interface surface in FinancialCall is engineered to answer five questions within seconds:
+Every interface surface in Finora is engineered to answer five questions within seconds:
 1. **Where is my money going?** *(Time-axis Financial Calendar & Merchant Clarity)*
 2. **How am I behaving?** *(Discretionary vs Essential ratio, Weekend splurge index, Velocity)*
 3. **Am I on track?** *(Daily budget pace vs remaining runway)*
@@ -27,7 +27,7 @@ Every interface surface in FinancialCall is engineered to answer five questions 
 
 ## 3. Behavioural Psychology & Tone Guidelines
 
-- **Calm, Analytical, Non-Judgmental**: Financial anxiety is real. FinancialCall acts as an objective, trusted analyst.
+- **Calm, Analytical, Non-Judgmental**: Financial anxiety is real. Finora acts as an objective, trusted analyst.
   - ❌ *Never say*: "You are wasting money on dining out!"
   - ✅ *Always say*: "Dining spend is currently 18% above your usual baseline. A ₹42/day adjustment keeps your month-end on target."
 - **Progressive Disclosure**:

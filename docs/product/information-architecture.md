@@ -1,10 +1,10 @@
-# Information Architecture — FinancialCall
+# Information Architecture — Finora
 
 ## 1. Product Navigation Tree
 
 ```mermaid
 graph TD
-    App[FinancialCall Application]
+    App[Finora Application]
     
     subgraph PrimarySections [Primary Product Surfaces]
         Overview[1. Intelligence Overview\nHealth, Deltas, Forecasts, Nudges]

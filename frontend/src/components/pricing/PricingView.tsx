@@ -67,7 +67,7 @@ export const PricingView: React.FC<PricingViewProps> = ({
     },
     {
       id: "TEAMS",
-      title: "FinancialCall for Teams",
+      title: "Finora for Teams",
       priceMonthly: 1999,
       priceAnnual: 1599,
       description: "Collaborative financial calendars and shared budgets for households and small teams.",
@@ -83,7 +83,7 @@ export const PricingView: React.FC<PricingViewProps> = ({
     },
     {
       id: "ENTERPRISE",
-      title: "FinancialCall Enterprise",
+      title: "Finora Enterprise",
       priceMonthly: 4999,
       priceAnnual: 3999,
       description: "Dedicated security, compliance reporting, custom bank hooks, and multi-entity governance.",

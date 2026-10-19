@@ -1,26 +1,23 @@
 "use client";
 
 import React from "react";
-import { formatCurrency } from "@/lib/utils";
 import {
-  Sparkles,
-  TrendingUp,
+  AlertCircle,
   AlertTriangle,
+  ArrowUpRight,
+  Check,
+  Info,
   Lightbulb,
   PieChart,
-  Layers,
   RefreshCw,
-  AlertCircle,
-  CheckCircle2,
-  Info,
+  TrendingUp,
 } from "lucide-react";
-import { Card } from "@/components/ui/Card";
+import { formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
-import {
-  useIntelligenceOverviewQuery,
-} from "@/hooks/useFinancialData";
+import { Card } from "@/components/ui/Card";
+import { IntelligenceOverviewSkeleton } from "@/components/dashboard/IntelligenceOverviewSkeleton";
+import { useIntelligenceOverviewQuery } from "@/hooks/useFinancialData";
 
 interface IntelligenceOverviewProps {
   onNavigateToCalendar?: () => void;
@@ -28,58 +25,39 @@ interface IntelligenceOverviewProps {
   onNavigateToImport?: () => void;
 }
 
+const changeLabel = (change: number) => (change > 0 ? `+${change}%` : `${change}%`);
+
 export const IntelligenceOverview: React.FC<IntelligenceOverviewProps> = ({
   onNavigateToCalendar,
   onNavigateToGoals,
   onNavigateToImport,
 }) => {
-  const {
-    data: overview,
-    isLoading,
-    isError,
-    refetch,
-  } = useIntelligenceOverviewQuery();
+  const { data: overview, isLoading, isError, refetch } = useIntelligenceOverviewQuery();
 
-  if (isLoading) {
-    return (
-      <div className="space-y-8">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-6">
-          <LoadingSkeleton height="h-8" width="w-64" />
-          <LoadingSkeleton height="h-8" width="w-32" />
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5">
-          <LoadingSkeleton height="h-24" />
-          <LoadingSkeleton height="h-24" />
-          <LoadingSkeleton height="h-24" />
-          <LoadingSkeleton height="h-24" />
-          <LoadingSkeleton height="h-24" />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <LoadingSkeleton height="h-32" />
-          <LoadingSkeleton height="h-32" />
-          <LoadingSkeleton height="h-32" />
-        </div>
-      </div>
-    );
+  if (isLoading && !overview) {
+    return <IntelligenceOverviewSkeleton />;
   }
 
   if (isError || !overview) {
     return (
-      <Card className="p-12 text-center space-y-4">
-        <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
-          <AlertCircle className="w-6 h-6" />
+      <Card className="mx-auto max-w-xl p-12 text-center">
+        <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-[#faeeee] text-[#a04646]">
+          <AlertCircle className="h-5 w-5" />
         </div>
-        <h3 className="text-base font-bold text-white">Unable to generate Behavioural Intelligence</h3>
-        <p className="text-xs text-slate-400 max-w-sm mx-auto">
-          Failed to process behavioural feature store vectors and live forecast models.
+        <h3 className="mt-5 text-lg font-semibold tracking-[-0.02em] text-[#1c2024]">
+          Your overview could not load
+        </h3>
+        <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[#596168]">
+          Finora could not reach the intelligence service. Your data is unchanged; try again when you are ready.
         </p>
         <Button
           size="sm"
           variant="secondary"
           onClick={() => refetch()}
-          icon={<RefreshCw className="w-3.5 h-3.5" />}
+          icon={<RefreshCw className="h-3.5 w-3.5" />}
+          className="mt-6"
         >
-          Retry Pipeline
+          Try again
         </Button>
       </Card>
     );
@@ -99,356 +77,244 @@ export const IntelligenceOverview: React.FC<IntelligenceOverviewProps> = ({
     data_sufficiency: dataSuff,
   } = overview;
 
+  const navigateForRecommendation = (actionType: string) => {
+    if (actionType === "WEEKEND_PACING" || actionType === "BEHAVIOURAL_NUDGE") {
+      onNavigateToCalendar?.();
+    } else if (actionType === "SAVINGS_TRANSFER") {
+      onNavigateToGoals?.();
+    } else if (actionType === "STATEMENT_IMPORT") {
+      onNavigateToImport?.();
+    } else {
+      onNavigateToCalendar?.();
+    }
+  };
+
   return (
-    <div className="space-y-8">
-      {/* 0. Data Sufficiency Advisory (Honest Guidance) */}
+    <div className="space-y-10">
       {dataSuff && dataSuff.status !== "SUFFICIENT" && (
-        <div className="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 flex items-center justify-between gap-3 text-xs text-indigo-200">
-          <div className="flex items-center gap-2.5">
-            <Info className="w-4 h-4 text-indigo-400 shrink-0" />
+        <div className="flex flex-col gap-4 border border-[#d7dcff] bg-[#eef0ff] px-4 py-3.5 text-sm text-[#3546A8] sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-2.5">
+            <Info className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
-              <strong>Baseline building:</strong> {dataSuff.total_transaction_count} transaction(s) recorded across {dataSuff.history_span_days} day(s). {dataSuff.guidance_message}
+              <strong className="font-semibold">Building your baseline.</strong> {dataSuff.total_transaction_count} transaction(s) across {dataSuff.history_span_days} day(s). {dataSuff.guidance_message}
             </span>
           </div>
           {onNavigateToImport && (
-            <Button size="sm" variant="secondary" onClick={onNavigateToImport}>
-              Import Statements
+            <Button size="sm" variant="outline" onClick={onNavigateToImport} className="shrink-0 border-[#bfc6f5]">
+              Import statements
             </Button>
           )}
         </div>
       )}
 
-      {/* 1. Header with Executive Summary */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800/80 pb-6">
+      <header className="flex flex-col justify-between gap-6 border-b border-[#dfe1dc] pb-8 lg:flex-row lg:items-end">
         <div>
-          <div className="flex items-center gap-2.5">
-            <div className="p-2.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-400">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white">
-                  Financial Behaviour Intelligence
-                </h1>
-                <Badge variant="brand">Autonomous Pipeline</Badge>
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Observed cash-flow vectors, behavioural shifts, and month-end trajectory
-              </p>
-            </div>
-          </div>
+          <h1 className="max-w-2xl text-3xl font-semibold tracking-[-0.04em] text-[#1c2024] md:text-4xl">
+            A clearer view of your financial position.
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#596168] md:text-base">
+            Liquidity, behaviour, and month-end pace in one measured view.
+          </p>
         </div>
-
-        <div className="flex items-center gap-3">
+        <div className="flex items-end gap-4 lg:pb-1">
           <div className="text-right">
-            <span className="text-[11px] text-slate-500 uppercase tracking-wider block font-semibold">
-              Financial Health Index
+            <span className="block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7a838a]">
+              Behaviour score
             </span>
-            <span className="text-xl font-bold font-mono text-emerald-400">
-              {scoreData.score} <span className="text-xs font-normal text-slate-400">/ 100</span>
+            <span className="finora-data mt-1 block text-3xl font-semibold text-[#3546A8]">
+              {scoreData.score}<span className="ml-1 text-sm font-normal tracking-normal text-[#7a838a]">/ 100</span>
             </span>
-            <span className="text-[10px] text-slate-400 block font-medium">
-              Archetype: {scoreData.behavioural_archetype}
-            </span>
+            <span className="mt-1 block text-xs text-[#596168]">{scoreData.behavioural_archetype}</span>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* ========================================================== */}
-      {/* 1. FINANCIAL POSITION SUMMARY */}
-      {/* ========================================================== */}
-      <section className="space-y-3">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-          <Layers className="w-3.5 h-3.5 text-indigo-400" />
-          1. Current Financial Position
-        </h2>
+      <section aria-labelledby="position-heading" className="space-y-4">
+        <div className="flex items-center justify-between gap-4">
+          <h2 id="position-heading" className="text-lg font-semibold tracking-[-0.025em] text-[#1c2024]">
+            Current position
+          </h2>
+          <span className="hidden text-xs text-[#7a838a] sm:block">Updated from your latest transactions</span>
+        </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5">
-          <Card className="p-4">
-            <span className="text-[11px] text-slate-400 font-medium">Liquid Balance</span>
-            <p className="text-xl font-bold font-mono text-white mt-1">
+        <div className="grid grid-cols-1 gap-px overflow-hidden border border-[#e3e4df] bg-[#e3e4df] sm:grid-cols-2 xl:grid-cols-[1.35fr_repeat(4,minmax(0,1fr))]">
+          <div className="bg-white p-5">
+            <span className="text-xs font-medium text-[#596168]">Liquid balance</span>
+            <p className="finora-data mt-3 text-3xl font-semibold tracking-[-0.06em] text-[#1c2024]">
               {formatCurrency(liquid_balance)}
             </p>
-            <span className="text-[10px] text-emerald-400 flex items-center gap-1 mt-1">
-              <CheckCircle2 className="w-3 h-3" /> Safe liquid reserve
+            <span className="mt-3 flex items-center gap-1.5 text-xs text-[#2f6b45]">
+              <Check className="h-3.5 w-3.5" /> Healthy liquid reserve
             </span>
-          </Card>
-
-          <Card className="p-4">
-            <span className="text-[11px] text-slate-400 font-medium">Monthly Inflow</span>
-            <p className="text-xl font-bold font-mono text-emerald-400 mt-1">
-              +{formatCurrency(monthly_inflow)}
-            </p>
-            <span className="text-[10px] text-slate-500 mt-1 block">Salary & credits</span>
-          </Card>
-
-          <Card className="p-4">
-            <span className="text-[11px] text-slate-400 font-medium">Month-to-Date Outflow</span>
-            <p className="text-xl font-bold font-mono text-slate-100 mt-1">
-              -{formatCurrency(month_to_date_spend)}
-            </p>
-            <span className="text-[10px] text-slate-500 mt-1 block">
-              Daily pace: {formatCurrency(forecast.daily_projected_rate)}/day
-            </span>
-          </Card>
-
-          <Card className="p-4">
-            <span className="text-[11px] text-slate-400 font-medium">Effective Savings Rate</span>
-            <p className="text-xl font-bold font-mono text-indigo-300 mt-1">
-              {effective_savings_rate.toFixed(1)}%
-            </p>
-            <span className="text-[10px] text-indigo-400 mt-1 block">Derived from live debits</span>
-          </Card>
-
-          <Card className="p-4">
-            <span className="text-[11px] text-slate-400 font-medium">Runway Capacity</span>
-            <p className="text-xl font-bold font-mono text-amber-300 mt-1">
-              {runway_days} Days
-            </p>
-            <span className="text-[10px] text-slate-500 mt-1 block">
-              At current daily burn rate
-            </span>
-          </Card>
+          </div>
+          <div className="bg-white p-5">
+            <span className="text-xs font-medium text-[#596168]">Monthly inflow</span>
+            <p className="finora-data mt-3 text-xl font-semibold text-[#2f6b45]">+{formatCurrency(monthly_inflow)}</p>
+            <span className="mt-3 block text-xs text-[#7a838a]">Salary and credits</span>
+          </div>
+          <div className="bg-white p-5">
+            <span className="text-xs font-medium text-[#596168]">Month-to-date outflow</span>
+            <p className="finora-data mt-3 text-xl font-semibold text-[#1c2024]">-{formatCurrency(month_to_date_spend)}</p>
+            <span className="mt-3 block text-xs text-[#7a838a]">{formatCurrency(forecast.daily_projected_rate)}/day pace</span>
+          </div>
+          <div className="bg-white p-5">
+            <span className="text-xs font-medium text-[#596168]">Effective savings rate</span>
+            <p className="finora-data mt-3 text-xl font-semibold text-[#3546A8]">{effective_savings_rate.toFixed(1)}%</p>
+            <span className="mt-3 block text-xs text-[#7a838a]">From live debits</span>
+          </div>
+          <div className="bg-white p-5">
+            <span className="text-xs font-medium text-[#596168]">Runway capacity</span>
+            <p className="finora-data mt-3 text-xl font-semibold text-[#8a641e]">{runway_days} days</p>
+            <span className="mt-3 block text-xs text-[#7a838a]">At current burn rate</span>
+          </div>
         </div>
       </section>
 
-      {/* ========================================================== */}
-      {/* 2. WHAT CHANGED (BEHAVIOURAL SHIFTS) */}
-      {/* ========================================================== */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
-            2. What Changed (Observed Behavioural Shifts)
-          </h2>
-          <span className="text-[11px] text-slate-500">Active 30d vs 60d Baseline</span>
+      <section aria-labelledby="shifts-heading" className="space-y-4">
+        <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+          <div>
+            <h2 id="shifts-heading" className="text-lg font-semibold tracking-[-0.025em] text-[#1c2024]">Recent behaviour</h2>
+            <p className="mt-1 text-sm text-[#596168]">What changed against your historical baseline.</p>
+          </div>
+          <span className="text-xs text-[#7a838a]">Active 30d vs 60d baseline</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {shifts && shifts.length > 0 ? (
-            shifts.map((shift, idx) => (
-              <Card
-                key={idx}
-                className={`p-4 border-l-4 ${
-                  shift.impact_rating === "CONCERNING"
-                    ? "border-l-amber-500 bg-amber-950/10"
-                    : shift.impact_rating === "POSITIVE"
-                    ? "border-l-emerald-500 bg-emerald-950/10"
-                    : "border-l-slate-700 bg-slate-900/60"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-200">{shift.metric_name}</span>
-                  <Badge variant={shift.impact_rating === "CONCERNING" ? "warning" : "positive"}>
-                    {shift.percentage_change > 0 ? `+${shift.percentage_change}%` : `${shift.percentage_change}%`}
-                  </Badge>
-                </div>
-                <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                  {shift.summary}
-                </p>
-              </Card>
-            ))
-          ) : (
-            <Card className="p-5 text-center col-span-3 text-slate-400 text-xs italic">
-              Behavioural metrics are stable within normal standard deviation bounds across active and baseline windows.
-            </Card>
+        <div className="divide-y divide-[#e3e4df] border-y border-[#e3e4df] bg-white">
+          {shifts && shifts.length > 0 ? shifts.map((shift) => (
+            <article key={`${shift.dimension}-${shift.metric_name}`} className="grid gap-3 px-4 py-4 sm:grid-cols-[minmax(180px,0.8fr)_minmax(0,2fr)_auto] sm:items-center sm:px-5">
+              <div className="flex items-center gap-2">
+                <span className={`h-2 w-2 rounded-full ${shift.impact_rating === "CONCERNING" ? "bg-[#c7852c]" : shift.impact_rating === "POSITIVE" ? "bg-[#4f8a62]" : "bg-[#9ba3a8]"}`} />
+                <span className="text-sm font-semibold text-[#1c2024]">{shift.metric_name}</span>
+              </div>
+              <p className="text-sm leading-6 text-[#596168]">{shift.summary}</p>
+              <Badge variant={shift.impact_rating === "CONCERNING" ? "warning" : shift.impact_rating === "POSITIVE" ? "positive" : "neutral"}>
+                {changeLabel(shift.percentage_change)}
+              </Badge>
+            </article>
+          )) : (
+            <div className="px-5 py-8 text-sm text-[#596168]">No meaningful behavioural shifts detected in the current comparison window.</div>
           )}
         </div>
       </section>
 
-      {/* ========================================================== */}
-      {/* 3 & 4. WHAT IS LIKELY NEXT + WHY */}
-      {/* ========================================================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* What is likely next (Forecast with Uncertainty) */}
-        <Card className="p-5 space-y-4 bg-gradient-to-br from-indigo-950/30 via-slate-900 to-slate-900 border-indigo-900/40 flex flex-col justify-between">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-400" />
-                3. What is Likely Next (Spending Forecast)
-              </h3>
-              <Badge variant={forecast.budget_risk_level === "SAFE" ? "positive" : "warning"}>
-                {forecast.budget_risk_level === "SAFE" ? "Safe Trajectory" : "Pacing Risk"}
-              </Badge>
+      <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+        <section aria-labelledby="forecast-heading" className="border border-[#d7dcff] bg-[#f0f2ff] p-6 md:p-7">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 id="forecast-heading" className="text-lg font-semibold tracking-[-0.025em] text-[#1c2024]">Month-end outlook</h2>
+              <p className="mt-1 text-sm text-[#596168]">A measured projection from your current spending velocity.</p>
             </div>
+            <Badge variant={forecast.budget_risk_level === "SAFE" ? "positive" : "warning"}>
+              {forecast.budget_risk_level === "SAFE" ? "On track" : "Pacing risk"}
+            </Badge>
+          </div>
 
-            <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800 space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-xs text-slate-400 block font-medium">Projected Month-End Spend</span>
-                  <span className="text-2xl font-bold font-mono text-indigo-200">
-                    {formatCurrency(forecast.expected_total_burn)}
-                  </span>
+          <div className="mt-8 grid gap-6 sm:grid-cols-2">
+            <div>
+              <span className="text-xs font-medium text-[#596168]">Projected month-end spend</span>
+              <p className="finora-data mt-2 text-3xl font-semibold tracking-[-0.05em] text-[#1c2024]">{formatCurrency(forecast.expected_total_burn)}</p>
+            </div>
+            <div className="sm:text-right">
+              <span className="text-xs font-medium text-[#596168]">{forecast.confidence_level_pct}% confidence range</span>
+              <p className="finora-data mt-2 text-sm font-semibold text-[#3546A8]">{formatCurrency(forecast.lower_bound_80)} – {formatCurrency(forecast.upper_bound_80)}</p>
+            </div>
+          </div>
+
+          <div className="mt-7 flex flex-wrap items-center justify-between gap-3 border-t border-[#d7dcff] pt-4 text-xs text-[#596168]">
+            <span>{forecast.remaining_days_in_month} days remaining</span>
+            <span className="finora-data">{formatCurrency(forecast.daily_projected_rate)}/day expected pace</span>
+          </div>
+          <p className="mt-5 text-sm leading-6 text-[#596168]">{forecast.status_summary}</p>
+        </section>
+
+        <section aria-labelledby="drivers-heading" className="border border-[#e3e4df] bg-white p-6 md:p-7">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 id="drivers-heading" className="text-lg font-semibold tracking-[-0.025em] text-[#1c2024]">Spending drivers</h2>
+              <p className="mt-1 text-sm text-[#596168]">The categories shaping your current pattern.</p>
+            </div>
+            <PieChart className="h-5 w-5 text-[#7a838a]" />
+          </div>
+
+          <div className="mt-6 space-y-4">
+            {scoreData.top_discretionary_categories.slice(0, 3).map((category) => (
+              <div key={category.category}>
+                <div className="flex items-center justify-between gap-4 text-sm">
+                  <span className="font-medium text-[#1c2024]">{category.category}</span>
+                  <span className="finora-data text-xs text-[#596168]">{category.percentage.toFixed(1)}%</span>
                 </div>
-                <div className="text-right">
-                  <span className="text-xs text-slate-400 block font-medium">80% Confidence Range</span>
-                  <span className="text-xs font-semibold font-mono text-slate-300">
-                    {formatCurrency(forecast.lower_bound_80)} – {formatCurrency(forecast.upper_bound_80)}
-                  </span>
+                <div className="mt-2 h-1.5 bg-[#f1f0eb]">
+                  <div className="h-full bg-[#3546A8]" style={{ width: `${Math.min(100, category.percentage)}%` }} />
                 </div>
+                <div className="mt-1 text-xs text-[#7a838a]">{category.amount ? formatCurrency(category.amount) : "No amount recorded"}</div>
               </div>
-
-              <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-                <span>{forecast.remaining_days_in_month} days remaining in cycle</span>
-                <span>Expected daily velocity: {formatCurrency(forecast.daily_projected_rate)}/day</span>
-              </div>
+            ))}
+            <div className="border-t border-[#e3e4df] pt-4 text-sm leading-6 text-[#596168]">
+              Weekend burn is <strong className="font-semibold text-[#1c2024]">{scoreData.weekend_velocity_multiplier.toFixed(1)}x</strong> weekday pacing, with a category concentration index of <strong className="finora-data font-semibold text-[#1c2024]">{scoreData.category_concentration_hhi.toFixed(3)}</strong>.
             </div>
-
-            <p className="text-xs text-slate-300 leading-relaxed">
-              {forecast.status_summary}
-            </p>
           </div>
-
-          <div className="pt-3 border-t border-slate-800/60 flex items-center justify-between text-[10px] text-slate-500">
-            <span>Method: {forecast.methodology}</span>
-            <span>Version: {forecast.model_version}</span>
-          </div>
-        </Card>
-
-        {/* Why (Drivers & Ratios) */}
-        <Card className="p-5 space-y-4 flex flex-col justify-between">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <PieChart className="w-4 h-4 text-slate-400" />
-                4. Why (Top Drivers & Concentration)
-              </h3>
-              <Badge variant="neutral">
-                {(scoreData.discretionary_ratio * 100).toFixed(0)}% Discretionary
-              </Badge>
-            </div>
-
-            <ul className="space-y-3 text-xs text-slate-300">
-              {scoreData.top_discretionary_categories.map((cat, idx) => (
-                <li key={idx} className="flex items-start gap-2.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 mt-1 shrink-0" />
-                  <div>
-                    <strong className="text-white">{cat.category}:</strong> Contributes {cat.percentage.toFixed(1)}% of discretionary outflow
-                    {cat.amount ? ` (${formatCurrency(cat.amount)})` : ""}.
-                  </div>
-                </li>
-              ))}
-              <li className="flex items-start gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-purple-400 mt-1 shrink-0" />
-                <div>
-                  <strong className="text-white">Weekend Pacing:</strong> Weekend daily burn is{" "}
-                  <span className="text-purple-300 font-semibold">{scoreData.weekend_velocity_multiplier.toFixed(1)}x</span> higher than weekday pacing ({(scoreData.weekend_vs_weekday_ratio * 100).toFixed(1)}% of total debit volume).
-                </div>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-indigo-400 mt-1 shrink-0" />
-                <div>
-                  <strong className="text-white">Category Concentration (HHI):</strong> Index at {scoreData.category_concentration_hhi.toFixed(3)}.
-                </div>
-              </li>
-            </ul>
-          </div>
-
-          <div className="pt-3 border-t border-slate-800 text-[10px] text-slate-500">
-            Archetype Classification: <strong className="text-slate-300">{scoreData.behavioural_archetype}</strong>
-          </div>
-        </Card>
+        </section>
       </div>
 
-      {/* ========================================================== */}
-      {/* 5. WHAT SHOULD I DO? (ACTIONABLE NUDGES) */}
-      {/* ========================================================== */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <Lightbulb className="w-3.5 h-3.5 text-emerald-400" />
-            5. What Should I Do? (Ranked Actions)
-          </h2>
-          <span className="text-xs text-slate-500">Evidence-Based Interventions</span>
+      <section aria-labelledby="actions-heading" className="space-y-4">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h2 id="actions-heading" className="text-lg font-semibold tracking-[-0.025em] text-[#1c2024]">Suggested actions</h2>
+            <p className="mt-1 text-sm text-[#596168]">Small, evidence-based moves that can improve your month.</p>
+          </div>
+          <Lightbulb className="h-5 w-5 text-[#8a641e]" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {recommendations && recommendations.length > 0 ? (
-            recommendations.map((rec) => (
-              <Card key={rec.id} className="p-5 flex flex-col justify-between hoverable border-slate-800">
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <Badge variant={rec.priority === "HIGH" ? "warning" : "brand"}>
-                      {rec.priority === "HIGH" ? "High Priority" : "Optimization"}
-                    </Badge>
-                    {rec.financial_impact_monthly > 0 && (
-                      <span className="text-xs font-mono font-bold text-emerald-400">
-                        +{formatCurrency(rec.financial_impact_monthly)}/mo
-                      </span>
-                    )}
-                  </div>
-                  
-                  <h4 className="text-sm font-bold text-white">{rec.title}</h4>
-                  
-                  <div className="text-xs space-y-1.5 text-slate-300 bg-slate-950/50 p-2.5 rounded-lg border border-slate-800/80">
-                    <p><strong className="text-slate-400">Trigger:</strong> {rec.trigger}</p>
-                    <p><strong className="text-slate-400">Evidence:</strong> {rec.evidence}</p>
-                  </div>
-
-                  <p className="text-xs text-slate-300 leading-relaxed font-medium">
-                    {rec.suggested_action}
-                  </p>
+        <div className="grid gap-px overflow-hidden border border-[#e3e4df] bg-[#e3e4df] md:grid-cols-3">
+          {recommendations && recommendations.length > 0 ? recommendations.slice(0, 3).map((recommendation) => (
+            <article key={recommendation.id} className="flex flex-col justify-between bg-white p-5">
+              <div>
+                <div className="flex items-center justify-between gap-3">
+                  <Badge variant={recommendation.priority === "HIGH" ? "warning" : "brand"}>
+                    {recommendation.priority === "HIGH" ? "Priority" : "Opportunity"}
+                  </Badge>
+                  {recommendation.financial_impact_monthly > 0 && (
+                    <span className="finora-data text-xs font-semibold text-[#2f6b45]">+{formatCurrency(recommendation.financial_impact_monthly)}/mo</span>
+                  )}
                 </div>
-
-                <div className="pt-4 mt-4 border-t border-slate-800">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="w-full"
-                    onClick={() => {
-                      if (rec.action_type === "WEEKEND_PACING" || rec.action_type === "BEHAVIOURAL_NUDGE") {
-                        onNavigateToCalendar?.();
-                      } else if (rec.action_type === "SAVINGS_TRANSFER") {
-                        onNavigateToGoals?.();
-                      } else if (rec.action_type === "STATEMENT_IMPORT") {
-                        onNavigateToImport?.();
-                      } else {
-                        onNavigateToCalendar?.();
-                      }
-                    }}
-                  >
-                    {rec.action_label || "Take Action"}
-                  </Button>
-                </div>
-              </Card>
-            ))
-          ) : (
-            <Card className="p-6 text-center col-span-3 text-slate-500 text-xs italic">
-              No active behavioural anomalies or urgent nudges detected.
-            </Card>
+                <h3 className="mt-4 text-sm font-semibold leading-5 text-[#1c2024]">{recommendation.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-[#596168]">{recommendation.suggested_action}</p>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => navigateForRecommendation(recommendation.action_type)} className="mt-6 w-full justify-between">
+                {recommendation.action_label || "Review action"}
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </Button>
+            </article>
+          )) : (
+            <div className="bg-white px-5 py-8 text-sm text-[#596168] md:col-span-3">No active recommendations right now. Finora will surface one when your behaviour changes enough to support a useful action.</div>
           )}
         </div>
       </section>
 
-      {/* ========================================================== */}
-      {/* 6. CONTEXTUAL ANOMALIES (IF ANY FLAGGED) */}
-      {/* ========================================================== */}
       {anomalies && anomalies.length > 0 && (
-        <section className="space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-            6. Material Spending Anomalies
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {anomalies.map((a, idx) => (
-              <Card key={idx} className="p-4 border-l-4 border-l-rose-500 bg-rose-950/10 flex items-start justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-white">{a.merchant_name}</span>
-                    <Badge variant={a.severity === "CRITICAL" ? "negative" : "warning"}>
-                      {a.severity}
-                    </Badge>
+        <section aria-labelledby="anomalies-heading" className="space-y-4">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <h2 id="anomalies-heading" className="text-lg font-semibold tracking-[-0.025em] text-[#1c2024]">Transactions worth a closer look</h2>
+              <p className="mt-1 text-sm text-[#596168]">Material outliers identified against your category baselines.</p>
+            </div>
+            <TrendingUp className="h-5 w-5 text-[#a04646]" />
+          </div>
+          <div className="divide-y divide-[#e3e4df] border-y border-[#e3e4df] bg-white">
+            {anomalies.map((anomaly) => (
+              <article key={anomaly.transaction_id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#a04646]" />
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-sm font-semibold text-[#1c2024]">{anomaly.merchant_name}</h3>
+                      <Badge variant={anomaly.severity === "CRITICAL" ? "negative" : "warning"}>{anomaly.severity}</Badge>
+                    </div>
+                    <p className="mt-1 text-sm leading-6 text-[#596168]">{anomaly.reason}</p>
                   </div>
-                  <p className="text-xs text-slate-300">{a.reason}</p>
-                  <span className="text-[11px] text-slate-400 block pt-1">{a.action_prompt}</span>
                 </div>
-                <div className="text-right shrink-0 font-mono">
-                  <span className="text-sm font-bold text-white">{formatCurrency(a.amount)}</span>
-                  <span className="text-[10px] text-slate-500 block">{(a.confidence_score * 100).toFixed(0)}% Conf.</span>
-                </div>
-              </Card>
+                <span className="finora-data shrink-0 text-sm font-semibold text-[#1c2024]">{formatCurrency(anomaly.amount)}</span>
+              </article>
             ))}
           </div>
         </section>

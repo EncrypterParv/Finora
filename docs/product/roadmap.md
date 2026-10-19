@@ -1,8 +1,8 @@
-# Engineering & Product Roadmap — FinancialCall
+# Engineering & Product Roadmap — Finora
 
 ```mermaid
 gantt
-    title FinancialCall Development Roadmap
+    title Finora Development Roadmap
     dateFormat  YYYY-MM-DD
     section Phase 1: Foundation
     System Architecture & HLD/LLD       :done,    p1_1, 2026-10-01, 2026-10-07

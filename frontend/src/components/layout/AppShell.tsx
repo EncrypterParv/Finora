@@ -2,18 +2,19 @@
 
 import React from "react";
 import {
-  LayoutDashboard,
-  Calendar as CalIcon,
-  ListOrdered,
-  Target,
-  PieChart,
-  UploadCloud,
+  Calendar as CalendarIcon,
   CreditCard,
-  Sparkles,
+  LayoutDashboard,
+  ListOrdered,
+  PieChart,
   RefreshCw,
   ShieldCheck,
+  Sparkles,
+  Target,
+  UploadCloud,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { FinoraMark } from "@/components/brand/FinoraMark";
 
 export type NavSection =
   | "overview"
@@ -33,6 +34,20 @@ interface AppShellProps {
   children: React.ReactNode;
 }
 
+const primaryNav = [
+  { id: "overview" as NavSection, label: "Overview", icon: <LayoutDashboard className="h-4 w-4" /> },
+  { id: "calendar" as NavSection, label: "Calendar", icon: <CalendarIcon className="h-4 w-4" /> },
+  { id: "transactions" as NavSection, label: "Transactions", icon: <ListOrdered className="h-4 w-4" /> },
+  { id: "budgets" as NavSection, label: "Budgets", icon: <PieChart className="h-4 w-4" /> },
+  { id: "goals" as NavSection, label: "FIRE & Goals", icon: <Target className="h-4 w-4" /> },
+  { id: "insights" as NavSection, label: "Insights", icon: <Sparkles className="h-4 w-4" /> },
+];
+
+const secondaryNav = [
+  { id: "import" as NavSection, label: "Import", icon: <UploadCloud className="h-3.5 w-3.5" /> },
+  { id: "pricing" as NavSection, label: "Plans", icon: <CreditCard className="h-3.5 w-3.5" /> },
+];
+
 export const AppShell: React.FC<AppShellProps> = ({
   activeSection,
   onNavigate,
@@ -40,107 +55,92 @@ export const AppShell: React.FC<AppShellProps> = ({
   isSyncing = false,
   children,
 }) => {
-  const primaryNav = [
-    { id: "overview" as NavSection, label: "Overview", icon: <LayoutDashboard className="w-4 h-4" /> },
-    { id: "calendar" as NavSection, label: "Calendar", icon: <CalIcon className="w-4 h-4" /> },
-    { id: "transactions" as NavSection, label: "Transactions", icon: <ListOrdered className="w-4 h-4" /> },
-    { id: "budgets" as NavSection, label: "Budgets & Burn", icon: <PieChart className="w-4 h-4" /> },
-    { id: "goals" as NavSection, label: "FIRE & Goals", icon: <Target className="w-4 h-4" /> },
-    { id: "insights" as NavSection, label: "Behavioural ML", icon: <Sparkles className="w-4 h-4" /> },
-  ];
-
-  const secondaryNav = [
-    { id: "import" as NavSection, label: "Import", icon: <UploadCloud className="w-3.5 h-3.5" /> },
-    { id: "pricing" as NavSection, label: "Plans", icon: <CreditCard className="w-3.5 h-3.5" /> },
-  ];
-
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-indigo-500/30 selection:text-indigo-200">
-      {/* Top Universal Navbar */}
-      <header className="sticky top-0 z-40 border-b border-slate-800/90 bg-slate-950/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-4">
-          {/* Brand */}
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center font-bold text-white shadow-md shadow-indigo-500/20">
-              FC
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold tracking-tight text-sm md:text-base text-white leading-tight">
-                FinancialCall
-              </span>
-              <span className="text-[10px] text-slate-400 font-medium">
-                Behaviour Intelligence
-              </span>
-            </div>
-          </div>
+    <div className="finora-shell min-h-screen bg-[#f7f6f2] text-[#1c2024]">
+      <header className="sticky top-0 z-40 border-b border-[#e3e4df] bg-[#f7f6f2]/95 backdrop-blur-sm">
+        <div className="mx-auto flex h-[72px] w-full max-w-[1440px] items-center gap-5 px-5 md:px-8">
+          <button
+            type="button"
+            onClick={() => onNavigate("overview")}
+            className="shrink-0 rounded-[8px] text-left"
+            aria-label="Go to Finora overview"
+          >
+            <FinoraMark size="md" />
+          </button>
 
-          {/* Primary Navigation Tabs */}
-          <nav className="hidden lg:flex items-center gap-1 bg-slate-900/90 border border-slate-800/80 p-1 rounded-xl">
-            {primaryNav.map((item) => {
-              const isActive = activeSection === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => onNavigate(item.id)}
-                  className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                    isActive
-                      ? "bg-indigo-600 text-white shadow-sm font-semibold"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
-                  }`}
-                >
-                  <span className={isActive ? "text-white" : "text-slate-400"}>{item.icon}</span>
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
+          <nav className="hidden min-w-0 flex-1 items-center justify-center lg:flex" aria-label="Primary navigation">
+            <div className="flex items-center gap-1 rounded-[9px] border border-[#e3e4df] bg-white p-1">
+              {primaryNav.map((item) => {
+                const active = activeSection === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => onNavigate(item.id)}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex items-center gap-2 rounded-[6px] px-3 py-2 text-xs font-medium transition-colors ${
+                      active
+                        ? "bg-[#3546A8] text-white"
+                        : "text-[#596168] hover:bg-[#f1f0eb] hover:text-[#1c2024]"
+                    }`}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </nav>
 
-          {/* Actions & Utilities */}
-          <div className="flex items-center gap-2 md:gap-3 shrink-0">
-            {/* Secondary links */}
-            <div className="hidden md:flex items-center gap-1">
-              {secondaryNav.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => onNavigate(item.id)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg transition ${
-                    activeSection === item.id
-                      ? "text-indigo-400 bg-indigo-500/10"
-                      : "text-slate-400 hover:text-white hover:bg-slate-900"
-                  }`}
-                >
-                  {item.icon}
-                  <span>{item.label}</span>
-                </button>
-              ))}
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            <div className="hidden items-center gap-1 md:flex">
+              {secondaryNav.map((item) => {
+                const active = activeSection === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => onNavigate(item.id)}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex items-center gap-1.5 rounded-[6px] px-2.5 py-2 text-xs font-medium transition-colors ${
+                      active
+                        ? "bg-[#eef0ff] text-[#3546A8]"
+                        : "text-[#596168] hover:bg-[#f1f0eb] hover:text-[#1c2024]"
+                    }`}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Simulated HSBC Sync Button */}
             <Button
               size="sm"
               variant="secondary"
               onClick={onSyncBank}
               disabled={isSyncing}
-              icon={<RefreshCw className={`w-3.5 h-3.5 text-indigo-400 ${isSyncing ? "animate-spin" : ""}`} />}
-              className="text-xs"
+              icon={<RefreshCw className={`h-3.5 w-3.5 text-[#3546A8] ${isSyncing ? "animate-spin" : ""}`} />}
+              className="whitespace-nowrap"
             >
-              {isSyncing ? "Syncing..." : "Sync HSBC"}
+              {isSyncing ? "Syncing" : "Sync demo bank"}
             </Button>
           </div>
         </div>
 
-        {/* Mobile Navigation bar */}
-        <div className="lg:hidden border-t border-slate-800/60 px-4 py-2 flex items-center gap-2 overflow-x-auto scrollbar-none">
+        <div className="flex gap-1 overflow-x-auto border-t border-[#e3e4df] px-5 py-2 scrollbar-none lg:hidden" aria-label="Mobile navigation">
           {primaryNav.concat(secondaryNav).map((item) => {
-            const isActive = activeSection === item.id;
+            const active = activeSection === item.id;
             return (
               <button
                 key={item.id}
+                type="button"
                 onClick={() => onNavigate(item.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap shrink-0 transition ${
-                  isActive
-                    ? "bg-indigo-600 text-white font-semibold"
-                    : "text-slate-400 bg-slate-900 border border-slate-800 hover:text-white"
+                aria-current={active ? "page" : undefined}
+                className={`flex shrink-0 items-center gap-1.5 rounded-[6px] px-3 py-2 text-xs font-medium transition-colors ${
+                  active
+                    ? "bg-[#3546A8] text-white"
+                    : "border border-[#e3e4df] bg-white text-[#596168] hover:text-[#1c2024]"
                 }`}
               >
                 {item.icon}
@@ -151,24 +151,19 @@ export const AppShell: React.FC<AppShellProps> = ({
         </div>
       </header>
 
-      {/* Main Surface */}
-      <main className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
-        {children}
+      <main className="mx-auto w-full max-w-[1440px] px-5 py-8 md:px-8 md:py-10">
+        <div className="finora-enter">{children}</div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-6 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p>© 2026 FinancialCall — Financial Behaviour Intelligence</p>
-          <div className="flex items-center gap-4 text-[11px] text-slate-400">
-            <span className="flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              Zero Real Credentials Stored
+      <footer className="border-t border-[#e3e4df] bg-white/70">
+        <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-3 px-5 py-6 text-xs text-[#7a838a] md:flex-row md:items-center md:justify-between md:px-8">
+          <p>© 2026 Finora. Financial decisions, made clearer.</p>
+          <div className="flex flex-wrap items-center gap-4 text-[11px]">
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="h-3.5 w-3.5 text-[#2f6b45]" />
+              Simulated banking mode
             </span>
-            <span>•</span>
-            <span>Simulated Banking Mode</span>
-            <span>•</span>
-            <span>Deterministic ML Core</span>
+            <span>Deterministic intelligence core</span>
           </div>
         </div>
       </footer>

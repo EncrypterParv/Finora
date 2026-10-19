@@ -1,8 +1,8 @@
-# Bank Adapter Architecture — FinancialCall
+# Bank Adapter Architecture — Finora
 
 ## 1. Design Overview
 
-FinancialCall interacts with external banking systems strictly via the **Adapter Pattern**. 
+Finora interacts with external banking systems strictly via the **Adapter Pattern**.
 
 ### Critical Safety Invariants
 - **Zero Real Banking Secrets**: The system will never ask for, transmit, or store real banking passwords, 2FA tokens, or PINs.

@@ -1,4 +1,4 @@
-# Database Architecture & Schema Design — FinancialCall
+# Database Architecture & Schema Design — Finora
 
 ## 1. Database Entity-Relationship (ER) Diagram
 

@@ -1,8 +1,8 @@
-# Design System & Token Specifications — FinancialCall
+# Design System & Token Specifications — Finora
 
 ## 1. Visual Identity & Atmosphere
 
-FinancialCall uses a high-density, typography-first financial aesthetic engineered for readability and cognitive calm.
+Finora uses a high-density, typography-first financial aesthetic engineered for readability and cognitive calm.
 
 ### Semantic Financial Palette
 ```mermaid

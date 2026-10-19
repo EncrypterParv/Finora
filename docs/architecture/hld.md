@@ -1,8 +1,8 @@
-# System High-Level Design (HLD) — FinancialCall
+# System High-Level Design (HLD) — Finora
 
 ## 1. Executive Summary & Vision
 
-**FinancialCall** is a **Financial Behaviour Intelligence Platform**, not a generic banking clone or basic expense tracker. 
+**Finora** is a **Financial Behaviour Intelligence Platform**, not a generic banking clone or basic expense tracker.
 
 ### The Core Value Loop
 ```mermaid
