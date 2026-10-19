@@ -1,8 +1,7 @@
 """Canonical Transaction query and detail endpoints."""
 
-from datetime import datetime, timezone
 from decimal import Decimal
-from typing import List, Optional
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select

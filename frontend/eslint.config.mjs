@@ -12,5 +12,10 @@ export default defineConfig([
       "@typescript-eslint/no-unused-vars": "error",
     },
   },
-  globalIgnores([".next/**", "out/**", "build/**", "node_modules/**", "next-env.d.ts"]),
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+  ]),
 ]);

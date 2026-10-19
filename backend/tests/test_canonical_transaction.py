@@ -2,7 +2,6 @@
 
 from datetime import datetime, timezone
 from decimal import Decimal
-import pytest
 from app.domain.statement_import.deduplicator import compute_dedup_hash
 from app.domain.statement_import.normalizer import (
     normalize_raw_bank_transaction,

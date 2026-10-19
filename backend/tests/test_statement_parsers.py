@@ -1,7 +1,6 @@
 """Tests for Statement Ingestion and CSV parsing."""
 
 from decimal import Decimal
-import pytest
 from app.domain.statement_import.parser import StatementParser
 from app.schemas.canonical_transaction import TransactionType
 

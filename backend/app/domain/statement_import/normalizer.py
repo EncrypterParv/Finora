@@ -1,9 +1,7 @@
 """Normalization engine converting varied inputs into CanonicalTransactionCreate."""
 
 import re
-from datetime import datetime
-from decimal import Decimal
-from typing import Dict, Optional, Tuple
+from typing import Tuple
 from app.schemas.canonical_transaction import (
     CanonicalTransactionCreate,
     TransactionSource,
