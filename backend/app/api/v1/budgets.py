@@ -4,14 +4,14 @@ from datetime import date
 from decimal import Decimal
 import uuid
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.db.models.user import User
-from app.db.models.budget import Budget, BudgetCategory
+from app.db.models.budget import Budget
 from app.domain.ml.forecaster import SpendingForecaster
 from app.schemas.budget import BudgetCreate, BudgetResponse
 

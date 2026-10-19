@@ -3,17 +3,12 @@
 import React from "react";
 import { formatCurrency } from "@/lib/utils";
 import {
-  Sparkles,
   AlertTriangle,
   ShieldCheck,
   Flame,
   Brain,
-  BarChart2,
-  Activity,
   AlertCircle,
   RefreshCw,
-  Layers,
-  PieChart,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";

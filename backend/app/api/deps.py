@@ -1,6 +1,6 @@
 """API Dependencies for authentication and database sessions."""
 
-from typing import AsyncGenerator, Optional
+from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 import jwt

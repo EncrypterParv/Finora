@@ -1,8 +1,6 @@
 """Statement file upload and historical import endpoints."""
 
-from decimal import Decimal
 import uuid
-from typing import List
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select

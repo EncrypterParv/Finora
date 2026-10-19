@@ -7,7 +7,6 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.seeder import seed_demo_data_if_empty
-from app.domain.ml.anomaly import AnomalyDetector
 from app.domain.ml.change_detection import BehaviourChangeDetector
 from app.domain.ml.features import FinancialFeatureExtractor
 from app.domain.ml.forecaster import SpendingForecaster

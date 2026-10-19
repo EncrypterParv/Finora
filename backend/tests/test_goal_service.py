@@ -2,7 +2,6 @@
 
 from datetime import date
 from decimal import Decimal
-import pytest
 from app.domain.services.goal_service import FinancialGoalSimulator
 
 

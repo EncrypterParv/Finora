@@ -84,7 +84,6 @@ class FinancialFeatureExtractor:
 
         # Separate Debits, Credits, Transfers
         debits_all = df[df["transaction_type"] == "DEBIT"]
-        credits_all = df[df["transaction_type"] == "CREDIT"]
 
         debits_window = df_window[df_window["transaction_type"] == "DEBIT"]
         credits_window = df_window[df_window["transaction_type"] == "CREDIT"]

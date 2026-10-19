@@ -2,10 +2,8 @@
 
 from datetime import date
 from decimal import Decimal
-import pytest
 from app.domain.ml.forecaster import SpendingForecaster
 from app.domain.ml.anomaly import AnomalyDetector
-from app.domain.ml.features import FinancialFeatureExtractor
 
 
 def test_spending_forecaster_month_end():

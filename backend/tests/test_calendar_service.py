@@ -2,7 +2,6 @@
 
 from datetime import date, datetime, timezone
 from decimal import Decimal
-import pytest
 from app.domain.services.calendar_service import FinancialCalendarService
 from app.schemas.calendar import CalendarViewMode
 

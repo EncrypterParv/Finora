@@ -1,6 +1,5 @@
 """Tests for Bank Adapter interface and HSBC Demo Adapter."""
 
-from decimal import Decimal
 import pytest
 from app.domain.bank_adapters.factory import BankAdapterFactory
 from app.domain.bank_adapters.hsbc_demo import HSBCDemoAdapter

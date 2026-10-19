@@ -2,7 +2,6 @@
 
 from datetime import date, timedelta
 from decimal import Decimal
-import math
 from typing import List, Optional, Tuple
 from app.schemas.goal import GoalProjectionScenario
 
