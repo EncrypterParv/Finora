@@ -1,3 +1,14 @@
+import { isDemoSession } from "./demo-session";
+import {
+  demoOverview,
+  demoTransactions,
+  demoBudgets,
+  demoGoals,
+  demoCreateBudget,
+  demoCreateGoal,
+  demoCalendar,
+  demoTransactionDetail,
+} from "./demo-data";
 import { CalendarViewResponse, CalendarViewMode } from "@/types/calendar";
 import { CanonicalTransaction, TransactionDetail } from "@/types/transaction";
 import { BudgetResponse, BudgetCreate } from "@/types/budget";
@@ -11,48 +22,64 @@ import {
   BehaviourShiftDTO,
 } from "@/types/analytics";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
 export async function fetchCalendarView(
   mode: CalendarViewMode = "month",
   year?: number,
-  month?: number
+  month?: number,
 ): Promise<CalendarViewResponse> {
+  if (isDemoSession()) return demoCalendar(mode, year, month);
   const params = new URLSearchParams({ mode });
   if (year) params.append("year", year.toString());
   if (month) params.append("month", month.toString());
 
   const res = await fetch(`${API_BASE}/calendar/view?${params.toString()}`);
   if (!res.ok) {
-    throw new Error(`Failed to fetch calendar view: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `Failed to fetch calendar view: ${res.status} ${res.statusText}`,
+    );
   }
   return res.json();
 }
 
 export async function fetchTransactions(
   limit: number = 50,
-  offset: number = 0
+  offset: number = 0,
 ): Promise<CanonicalTransaction[]> {
+  if (isDemoSession())
+    return [...demoTransactions]
+      .sort((a, b) => b.occurred_at.localeCompare(a.occurred_at))
+      .slice(offset, offset + limit);
   const params = new URLSearchParams({
     limit: limit.toString(),
     offset: offset.toString(),
   });
   const res = await fetch(`${API_BASE}/transactions?${params.toString()}`);
   if (!res.ok) {
-    throw new Error(`Failed to fetch transactions: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `Failed to fetch transactions: ${res.status} ${res.statusText}`,
+    );
   }
   return res.json();
 }
 
-export async function fetchTransactionDetail(id: string): Promise<TransactionDetail> {
+export async function fetchTransactionDetail(
+  id: string,
+): Promise<TransactionDetail> {
+  if (isDemoSession()) return demoTransactionDetail(id);
   const res = await fetch(`${API_BASE}/transactions/${id}`);
   if (!res.ok) {
-    throw new Error(`Failed to fetch transaction detail: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `Failed to fetch transaction detail: ${res.status} ${res.statusText}`,
+    );
   }
   return res.json();
 }
 
 export async function fetchBudgets(): Promise<BudgetResponse[]> {
+  if (isDemoSession()) return demoBudgets();
   const res = await fetch(`${API_BASE}/budgets`);
   if (!res.ok) {
     throw new Error(`Failed to fetch budgets: ${res.status} ${res.statusText}`);
@@ -60,7 +87,10 @@ export async function fetchBudgets(): Promise<BudgetResponse[]> {
   return res.json();
 }
 
-export async function createBudget(data: BudgetCreate): Promise<BudgetResponse> {
+export async function createBudget(
+  data: BudgetCreate,
+): Promise<BudgetResponse> {
+  if (isDemoSession()) return demoCreateBudget(data);
   const res = await fetch(`${API_BASE}/budgets`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -73,6 +103,7 @@ export async function createBudget(data: BudgetCreate): Promise<BudgetResponse> 
 }
 
 export async function fetchGoals(): Promise<GoalResponse[]> {
+  if (isDemoSession()) return demoGoals();
   const res = await fetch(`${API_BASE}/goals`);
   if (!res.ok) {
     throw new Error(`Failed to fetch goals: ${res.status} ${res.statusText}`);
@@ -81,6 +112,7 @@ export async function fetchGoals(): Promise<GoalResponse[]> {
 }
 
 export async function createGoal(data: GoalCreate): Promise<GoalResponse> {
+  if (isDemoSession()) return demoCreateGoal(data);
   const res = await fetch(`${API_BASE}/goals`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -93,61 +125,92 @@ export async function createGoal(data: GoalCreate): Promise<GoalResponse> {
 }
 
 export async function fetchIntelligenceOverview(): Promise<IntelligenceOverviewDTO> {
+  if (isDemoSession()) return demoOverview;
   const res = await fetch(`${API_BASE}/analytics/overview`);
   if (!res.ok) {
-    throw new Error(`Failed to fetch intelligence overview: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `Failed to fetch intelligence overview: ${res.status} ${res.statusText}`,
+    );
   }
   return res.json();
 }
 
 export async function fetchBehaviourScore(): Promise<BehaviourScoreDTO> {
+  if (isDemoSession()) return demoOverview.behaviour_profile;
   const res = await fetch(`${API_BASE}/analytics/score`);
   if (!res.ok) {
-    throw new Error(`Failed to fetch behavioural score: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `Failed to fetch behavioural score: ${res.status} ${res.statusText}`,
+    );
   }
   return res.json();
 }
 
 export async function fetchForecast(): Promise<ForecastDTO> {
+  if (isDemoSession()) return demoOverview.forecast;
   const res = await fetch(`${API_BASE}/analytics/forecast`);
   if (!res.ok) {
-    throw new Error(`Failed to fetch spending forecast: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `Failed to fetch spending forecast: ${res.status} ${res.statusText}`,
+    );
   }
   return res.json();
 }
 
 export async function fetchBehaviouralChanges(): Promise<BehaviourShiftDTO[]> {
+  if (isDemoSession()) return demoOverview.observed_shifts;
   const res = await fetch(`${API_BASE}/analytics/changes`);
   if (!res.ok) {
-    throw new Error(`Failed to fetch behavioural changes: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `Failed to fetch behavioural changes: ${res.status} ${res.statusText}`,
+    );
   }
   return res.json();
 }
 
 export async function fetchRecommendations(): Promise<RecommendationDTO[]> {
+  if (isDemoSession()) return demoOverview.recommendations;
   const res = await fetch(`${API_BASE}/analytics/recommendations`);
   if (!res.ok) {
-    throw new Error(`Failed to fetch recommendations: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `Failed to fetch recommendations: ${res.status} ${res.statusText}`,
+    );
   }
   return res.json();
 }
 
 export async function fetchAnomalies(): Promise<AnomalyAlertDTO[]> {
+  if (isDemoSession()) return demoOverview.top_anomalies;
   const res = await fetch(`${API_BASE}/analytics/anomalies`);
   if (!res.ok) {
-    throw new Error(`Failed to fetch anomalies: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `Failed to fetch anomalies: ${res.status} ${res.statusText}`,
+    );
   }
   return res.json();
 }
 
 export async function triggerBankSync(
   accountId: string = "acc-1",
-  institutionId: string = "hsbc_demo"
-): Promise<{ transactions_added: number; transactions_updated: number; new_balance: number }> {
+  institutionId: string = "hsbc_demo",
+): Promise<{
+  transactions_added: number;
+  transactions_updated: number;
+  new_balance: number;
+}> {
+  if (isDemoSession())
+    return {
+      transactions_added: 0,
+      transactions_updated: 0,
+      new_balance: demoOverview.liquid_balance,
+    };
   const res = await fetch(`${API_BASE}/bank/sync`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ account_id: accountId, institution_id: institutionId }),
+    body: JSON.stringify({
+      account_id: accountId,
+      institution_id: institutionId,
+    }),
   });
   if (!res.ok) {
     throw new Error(`Failed to sync bank: ${res.status} ${res.statusText}`);
@@ -157,8 +220,17 @@ export async function triggerBankSync(
 
 export async function uploadStatement(
   accountId: string,
-  file: File
-): Promise<{ filename: string; transactions_parsed: number; transactions_added: number; duplicates_skipped: number }> {
+  file: File,
+): Promise<{
+  filename: string;
+  transactions_parsed: number;
+  transactions_added: number;
+  duplicates_skipped: number;
+}> {
+  if (isDemoSession())
+    throw new Error(
+      "File import will be connected when the backend is added. Explore the sample calendar and transactions for now; no file has been uploaded.",
+    );
   const formData = new FormData();
   formData.append("account_id", accountId);
   formData.append("file", file);
@@ -168,7 +240,9 @@ export async function uploadStatement(
     body: formData,
   });
   if (!res.ok) {
-    throw new Error(`Failed to upload statement: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `Failed to upload statement: ${res.status} ${res.statusText}`,
+    );
   }
   return res.json();
 }

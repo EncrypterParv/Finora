@@ -120,3 +120,26 @@ The frontend lint command uses ESLint's flat configuration with the Next.js and 
 - **No Real Bank Credentials**: All bank sync operations use simulated adapter streams.
 - **Granular Isolation**: User queries are strictly tenant-isolated at the ORM layer.
 - **Deterministic Deduplication**: Automated SHA-256 fingerprinting prevents double-counting across multi-file statement imports.
+
+## Frontend demo entry flow
+
+The frontend opens on an explanatory landing page at `/`, with an interactive
+cash-flow instrument, spending walkthrough, and wealth/FIRE scenario explorer.
+The scenario uses visible assumptions and is not a prediction or investment
+recommendation.
+
+Open `/login` and enter **admin** for both username and password to enter
+`/dashboard`. This is a browser-only demo gate, not production authentication.
+The demo uses synthetic October 2026 data and runs without the backend. Budget
+and goal changes are stored in session storage and cleared on logout. File import
+is explicitly deferred until the backend is connected; demo sync never connects
+to a real bank. Existing API functions remain available outside demo mode.
+
+The entry pages use self-hosted Instrument Serif (SIL OFL; license in
+`frontend/public/fonts/OFL.txt`) and an adapted [Anatomy](https://github.com/wheresryan22/anatomy)
+SVG kit (MIT; license in `frontend/src/lib/anatomy/LICENSE`).
+
+The hero includes a pausable instrument tour and direct assembly selection. It
+stops offscreen and respects reduced motion. The entry pages use a full-width
+desktop layout, sticky login navigation, and self-hosted Instrument Serif with
+DM Sans (license: `frontend/public/fonts/DM-Sans-OFL.txt`).
