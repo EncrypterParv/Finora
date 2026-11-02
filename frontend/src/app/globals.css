@@ -1,12 +1,46 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/dm-sans-regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/dm-sans-medium.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/dm-sans-semibold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/dm-sans-bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: "DM Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "DM Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
 :root {
   --finora-canvas: #f7f6f2;
   --finora-surface: #ffffff;
   --finora-surface-muted: #f1f0eb;
   --finora-ink: #1c2024;
   --finora-ink-soft: #596168;
-  --finora-ink-muted: #7a838a;
+  --finora-ink-muted: #626b70;
   --finora-border: #e3e4df;
   --finora-border-strong: #cdd1cc;
   --finora-brand: #3546a8;
@@ -53,7 +87,7 @@ body {
   margin: 0;
   background: var(--finora-canvas);
   color: var(--finora-ink);
-  font-family: "Inter", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  font-family: "DM Sans", "Helvetica Neue", Arial, sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -132,7 +166,7 @@ button:disabled {
 }
 
 .finora-data {
-  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-family: "DM Sans", "Helvetica Neue", Arial, sans-serif;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
 }
@@ -162,3 +196,24 @@ button:disabled {
     scroll-behavior: auto !important;
   }
 }
+
+/* Keep numbers proportional and motion quiet across the existing application. */
+.finora-shell .font-mono {
+  font-family: "DM Sans", "Helvetica Neue", Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.finora-shell .animate-pulse,
+.finora-shell .animate-ping {
+  animation: none;
+}
+
+code,
+kbd,
+pre,
+.font-mono {
+  font-family: "DM Sans", "Helvetica Neue", Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Muted application labels retain AA contrast on paper surfaces. */
+.finora-shell [class*="text-[#7a838a]" i] { color: #626b70; }

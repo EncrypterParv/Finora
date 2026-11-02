@@ -51,3 +51,7 @@ next-env.d.ts
 
 # Codacy / AI
 .github/instructions/codacy.instructions.md
+
+# Local browser verification artifacts
+.playwright-cli/
+.impeccable/review/
