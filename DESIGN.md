@@ -2,16 +2,20 @@
 name: Finora entry experience
 description: Warm editorial financial field guide for the public landing and demo login.
 colors:
-  ink: "#252923"
-  muted: "#62665d"
-  canvas: "#f7f6f2"
+  chocolate: "#4e342e"
+  cream: "#f8f4e7"
+  burnt-orange: "#cc5500"
+  ink: "#2e211e"
+  muted: "#6d5d56"
+  canvas: "#f8f4e7"
   paper: "#ffffff"
-  instrument-paper: "#fbfbf8"
-  line: "#eaeaea"
-  sage: "#65745c"
-  sage-wash: "#edf3ec"
-  story-paper: "#efefe8"
-  target: "#8d7960"
+  instrument-paper: "#fdfaf6"
+  line: "#f6f0de"
+  accent: "#cc5500"
+  accent-strong: "#a84600"
+  accent-wash: "#faf0e5"
+  story-paper: "#f8ecdf"
+  target: "#857168"
   error: "#9f2f2d"
   error-wash: "#fdebec"
 typography:
@@ -64,7 +68,7 @@ components:
 
 **Creative North Star: "The Financial Field Guide"**
 
-The built entry experience combines the user-pinned Minimalist UI identity with an Anatomy-inspired cash-flow instrument. Warm paper, editorial serif headings, quiet sage, and precise rules explain everyday money to young professionals and students. This is a code-led implementation; no raster composition was approved as visual authority.
+The built entry experience combines the user-pinned Minimalist UI identity with an Anatomy-inspired cash-flow instrument. Cream paper, editorial serif headings, burnt orange accents, and precise rules explain everyday money to young professionals and students. This is a code-led implementation; no raster composition was approved as visual authority.
 
 This document is scoped to `frontend/src/components/landing`, `/login`, and the new browser demo entry flow. Preserve the existing dashboard visual system as a distinct application surface; the shared angular Finora mark and favicon provide continuity. These entry tokens are not authorization to restyle dashboard screens.
 
@@ -76,14 +80,14 @@ This document is scoped to `frontend/src/components/landing`, `/login`, and the 
 
 ## Colors
 
-The existing warm monochrome palette stays primary; sage supports emphasis and financial scenarios.
+The palette is Chocolate Brown (#4E342E), Cream (#F8F4E7) and Burnt Orange (#CC5500). Chocolate carries ink and primary actions, cream is the canvas, and burnt orange supports emphasis and financial scenarios. Use Accent Strong (#A84600) for burnt-orange text below 18px; pure #CC5500 on cream is 3.9:1 and suits large text, lines and controls only.
 
 ### Primary
-- **Ink:** Headlines, primary buttons, and key figures.
-- **Quiet Sage:** Italic emphasis, scenario controls, and projected wealth lines.
+- **Ink / Chocolate Brown:** Headlines, primary buttons, and key figures.
+- **Burnt Orange:** Italic emphasis, scenario controls, focus rings, and projected wealth lines.
 
 ### Secondary
-- **Target Brown:** The dashed independence-target line, differentiated from the sage growth curve.
+- **Target Brown:** The dashed independence-target line, differentiated from the burnt orange growth curve.
 
 ### Neutral
 - **Warm Canvas:** Public page and login background.
@@ -93,7 +97,7 @@ The existing warm monochrome palette stays primary; sage supports emphasis and f
 - **Muted Ink:** Supporting copy and labels.
 - **Structural Rule:** Thin panel borders and dividers.
 
-Error ink and error wash identify login recovery messages. Sage wash indicates selected stage controls and calendar cells. Keep synthetic figures visibly identified as examples.
+Error ink and error wash identify login recovery messages. Accent wash indicates selected stage controls and calendar cells. Keep synthetic figures visibly identified as examples.
 
 ## Typography
 
@@ -113,7 +117,7 @@ Surfaces are flat. Thin borders, white against warm paper, and restrained tonal 
 
 ## Shapes
 
-Panels use modest corners (8px); primary buttons (5px), fields and small controls (4px). The common mark is an angular F built from ink planes with sage facets; the favicon follows the same form. Decorative badges remain squared. Range controls have linear tracks and small rectangular thumbs. Do not introduce circular decorative motifs or pulses; mechanical geometry inside the authored illustration serves its explanation.
+Panels use modest corners (8px); primary buttons (5px), fields and small controls (4px). The common mark is an angular F built from chocolate planes with burnt orange facets; the favicon follows the same form. Decorative badges remain squared. Range controls have linear tracks and small rectangular thumbs. Do not introduce circular decorative motifs or pulses; mechanical geometry inside the authored illustration serves its explanation.
 
 ## Components
 
@@ -131,7 +135,7 @@ The four stages use a normalized transaction record, seven-day spending bars, an
 
 ### Wealth explorer
 
-Four labeled range controls adjust monthly contribution, years, assumed annual return, and living expenses. The growing corpus curve is sage with a pale fill; the target is a dashed brown horizontal line. Text outputs state total corpus, contributions, assumed growth, and target timing. The model starts at zero, compounds monthly, and uses end-of-month contributions. The independence target is 25 times annual expenses. Keep the adjacent explanation of excluded inflation, fees, taxes, and volatility, and the explicit illustrative assumption; never present it as a guaranteed withdrawal rule.
+Four labeled range controls adjust monthly contribution, years, assumed annual return, and living expenses. The growing corpus curve is burnt orange with a pale fill; the target is a dashed brown horizontal line. Text outputs state total corpus, contributions, assumed growth, and target timing. The model starts at zero, compounds monthly, and uses end-of-month contributions. The independence target is 25 times annual expenses. Keep the adjacent explanation of excluded inflation, fees, taxes, and volatility, and the explicit illustrative assumption; never present it as a guaranteed withdrawal rule.
 
 ### Features and FAQ
 
@@ -144,7 +148,7 @@ The desktop layout pairs an editorial story panel with an operational form; mobi
 ## Do's and Don'ts
 
 ### Do:
-- **Do** preserve the warm current colors and local serif/sans pairing.
+- **Do** keep to the chocolate, cream and burnt orange palette and the local serif/sans pairing.
 - **Do** keep the hero instrument unique and give later sections distinct financial graphics.
 - **Do** preserve keyboard-operable native controls, visible focus, and reduced-motion behavior.
 - **Do** keep the dashboard's existing visual system distinct beyond the shared mark.

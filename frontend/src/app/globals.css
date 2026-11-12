@@ -32,45 +32,65 @@
 @theme {
   --font-sans: "DM Sans", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "DM Sans", "Helvetica Neue", Arial, sans-serif;
+
+  /* Legacy indigo-* utilities resolve to the Burnt Orange → Chocolate ramp. */
+  --color-indigo-50: #fdf3ea;
+  --color-indigo-100: #fbe3cf;
+  --color-indigo-200: #f6c39d;
+  --color-indigo-300: #ec9a5f;
+  --color-indigo-400: #dd7428;
+  --color-indigo-500: #cc5500;
+  --color-indigo-600: #a84600;
+  --color-indigo-700: #863800;
+  --color-indigo-800: #642b0c;
+  --color-indigo-900: #4e342e;
+  --color-indigo-950: #3a2622;
 }
 
+/* Palette: Chocolate Brown #4E342E, Cream #F8F4E7, Burnt Orange #CC5500. */
 :root {
-  --finora-canvas: #f7f6f2;
+  --finora-chocolate: #4e342e;
+  --finora-cream: #f8f4e7;
+  --finora-orange: #cc5500;
+  --finora-accent: #cc5500;
+  --finora-accent-strong: #a84600;
+  --finora-accent-soft: #fbe3cf;
+  --finora-canvas: #f8f4e7;
   --finora-surface: #ffffff;
-  --finora-surface-muted: #f1f0eb;
-  --finora-ink: #1c2024;
-  --finora-ink-soft: #596168;
-  --finora-ink-muted: #626b70;
-  --finora-border: #e3e4df;
-  --finora-border-strong: #cdd1cc;
-  --finora-brand: #3546a8;
-  --finora-brand-dark: #27357f;
-  --finora-brand-soft: #eef0ff;
+  --finora-surface-muted: #f7f3e5;
+  --finora-ink: #271c19;
+  --finora-ink-soft: #6c5c55;
+  --finora-ink-muted: #76645c;
+  --finora-border: #e7e3dc;
+  --finora-border-strong: #d8d1c5;
+  --finora-brand: #4e342e;
+  --finora-brand-dark: #3a2622;
+  --finora-brand-soft: #fdf5f0;
   --finora-positive: #2f6b45;
   --finora-positive-soft: #edf4ed;
   --finora-warning: #8a641e;
   --finora-warning-soft: #fbf4df;
   --finora-negative: #a04646;
   --finora-negative-soft: #faeeee;
-  --background: 45 20% 96%;
-  --foreground: 210 12% 13%;
+  --background: 45 58% 94%;
+  --foreground: 13 22% 13%;
   --card: 0 0% 100%;
-  --card-foreground: 210 12% 13%;
+  --card-foreground: 13 22% 13%;
   --popover: 0 0% 100%;
-  --popover-foreground: 210 12% 13%;
-  --primary: 231 52% 43%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 45 14% 94%;
-  --secondary-foreground: 210 12% 13%;
-  --muted: 45 14% 94%;
-  --muted-foreground: 210 7% 42%;
-  --accent: 231 52% 95%;
-  --accent-foreground: 231 52% 32%;
+  --popover-foreground: 13 22% 13%;
+  --primary: 11 26% 24%;
+  --primary-foreground: 45 58% 94%;
+  --secondary: 47 55% 93%;
+  --secondary-foreground: 13 22% 13%;
+  --muted: 47 55% 93%;
+  --muted-foreground: 18 12% 38%;
+  --accent: 27 85% 90%;
+  --accent-foreground: 25 100% 33%;
   --destructive: 0 43% 46%;
   --destructive-foreground: 0 0% 100%;
-  --border: 45 9% 88%;
-  --input: 45 9% 88%;
-  --ring: 231 52% 43%;
+  --border: 38 20% 88%;
+  --input: 38 20% 88%;
+  --ring: 25 100% 40%;
   --radius: 0.625rem;
 }
 
@@ -109,12 +129,12 @@ button:disabled {
 }
 
 ::selection {
-  background: #dfe3ff;
+  background: #fbede3;
   color: var(--finora-ink);
 }
 
 *:focus-visible {
-  outline: 2px solid var(--finora-brand);
+  outline: 2px solid var(--finora-accent);
   outline-offset: 3px;
 }
 
@@ -162,7 +182,7 @@ button:disabled {
 .finora-shell [class*="shadow-lg"],
 .finora-shell [class*="shadow-xl"],
 .finora-shell [class*="shadow-2xl"] {
-  box-shadow: 0 2px 8px rgba(28, 32, 36, 0.04) !important;
+  box-shadow: 0 2px 8px rgba(37, 26, 23, 0.04) !important;
 }
 
 .finora-data {
@@ -216,4 +236,4 @@ pre,
 }
 
 /* Muted application labels retain AA contrast on paper surfaces. */
-.finora-shell [class*="text-[#7a838a]" i] { color: #626b70; }
+.finora-shell [class*="text-[#917c73]" i] { color: #76645c; }

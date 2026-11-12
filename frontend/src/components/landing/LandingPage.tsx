@@ -11,7 +11,7 @@ export function Wordmark() {
     <span className="landing-wordmark">
       <svg viewBox="0 0 32 32" aria-hidden="true">
         <path d="M4 4h24v6H11v6h12v6H11v6H4Z" fill="currentColor" />
-        <path d="m17 4 11 6V4ZM17 16l6 6v-6Z" fill="#8b9b7d" />
+        <path d="m17 4 11 6V4ZM17 16l6 6v-6Z" fill="#d18047" />
       </svg>
       finora
     </span>

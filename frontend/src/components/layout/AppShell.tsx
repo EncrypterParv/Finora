@@ -56,8 +56,8 @@ export const AppShell: React.FC<AppShellProps> = ({
   children,
 }) => {
   return (
-    <div className="finora-shell min-h-screen bg-[#f7f6f2] text-[#1c2024]">
-      <header className="sticky top-0 z-40 border-b border-[#e3e4df] bg-[#f7f6f2]/95 backdrop-blur-sm">
+    <div className="finora-shell min-h-screen bg-[#f8f4e7] text-[#271c19]">
+      <header className="sticky top-0 z-40 border-b border-[#e7e3dc] bg-[#f8f4e7]/95 backdrop-blur-sm">
         <div className="mx-auto flex h-[72px] w-full max-w-[1440px] items-center gap-5 px-5 md:px-8">
           <button
             type="button"
@@ -69,7 +69,7 @@ export const AppShell: React.FC<AppShellProps> = ({
           </button>
 
           <nav className="hidden min-w-0 flex-1 items-center justify-center lg:flex" aria-label="Primary navigation">
-            <div className="flex items-center gap-1 rounded-[9px] border border-[#e3e4df] bg-white p-1">
+            <div className="flex items-center gap-1 rounded-[9px] border border-[#e7e3dc] bg-white p-1">
               {primaryNav.map((item) => {
                 const active = activeSection === item.id;
                 return (
@@ -80,8 +80,8 @@ export const AppShell: React.FC<AppShellProps> = ({
                     aria-current={active ? "page" : undefined}
                     className={`flex items-center gap-2 rounded-[6px] px-3 py-2 text-xs font-medium transition-colors ${
                       active
-                        ? "bg-[#3546A8] text-white"
-                        : "text-[#596168] hover:bg-[#f1f0eb] hover:text-[#1c2024]"
+                        ? "bg-[#4e342e] text-white"
+                        : "text-[#6c5c55] hover:bg-[#f7f3e5] hover:text-[#271c19]"
                     }`}
                   >
                     {item.icon}
@@ -104,8 +104,8 @@ export const AppShell: React.FC<AppShellProps> = ({
                     aria-current={active ? "page" : undefined}
                     className={`flex items-center gap-1.5 rounded-[6px] px-2.5 py-2 text-xs font-medium transition-colors ${
                       active
-                        ? "bg-[#eef0ff] text-[#3546A8]"
-                        : "text-[#596168] hover:bg-[#f1f0eb] hover:text-[#1c2024]"
+                        ? "bg-[#fdf5f0] text-[#4e342e]"
+                        : "text-[#6c5c55] hover:bg-[#f7f3e5] hover:text-[#271c19]"
                     }`}
                   >
                     {item.icon}
@@ -120,7 +120,7 @@ export const AppShell: React.FC<AppShellProps> = ({
               variant="secondary"
               onClick={onSyncBank}
               disabled={isSyncing}
-              icon={<RefreshCw className={`h-3.5 w-3.5 text-[#3546A8] ${isSyncing ? "animate-spin" : ""}`} />}
+              icon={<RefreshCw className={`h-3.5 w-3.5 text-[#4e342e] ${isSyncing ? "animate-spin" : ""}`} />}
               className="whitespace-nowrap"
             >
               {isSyncing ? "Syncing" : "Sync demo bank"}
@@ -128,7 +128,7 @@ export const AppShell: React.FC<AppShellProps> = ({
           </div>
         </div>
 
-        <div className="flex gap-1 overflow-x-auto border-t border-[#e3e4df] px-5 py-2 scrollbar-none lg:hidden" aria-label="Mobile navigation">
+        <div className="flex gap-1 overflow-x-auto border-t border-[#e7e3dc] px-5 py-2 scrollbar-none lg:hidden" aria-label="Mobile navigation">
           {primaryNav.concat(secondaryNav).map((item) => {
             const active = activeSection === item.id;
             return (
@@ -139,8 +139,8 @@ export const AppShell: React.FC<AppShellProps> = ({
                 aria-current={active ? "page" : undefined}
                 className={`flex shrink-0 items-center gap-1.5 rounded-[6px] px-3 py-2 text-xs font-medium transition-colors ${
                   active
-                    ? "bg-[#3546A8] text-white"
-                    : "border border-[#e3e4df] bg-white text-[#596168] hover:text-[#1c2024]"
+                    ? "bg-[#4e342e] text-white"
+                    : "border border-[#e7e3dc] bg-white text-[#6c5c55] hover:text-[#271c19]"
                 }`}
               >
                 {item.icon}
@@ -155,8 +155,8 @@ export const AppShell: React.FC<AppShellProps> = ({
         <div className="finora-enter">{children}</div>
       </main>
 
-      <footer className="border-t border-[#e3e4df] bg-white/70">
-        <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-3 px-5 py-6 text-xs text-[#7a838a] md:flex-row md:items-center md:justify-between md:px-8">
+      <footer className="border-t border-[#e7e3dc] bg-white/70">
+        <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-3 px-5 py-6 text-xs text-[#917c73] md:flex-row md:items-center md:justify-between md:px-8">
           <p>© 2026 Finora. Financial decisions, made clearer.</p>
           <div className="flex flex-wrap items-center gap-4 text-[11px]">
             <span className="flex items-center gap-1.5">

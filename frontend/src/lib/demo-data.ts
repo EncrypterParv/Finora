@@ -285,7 +285,7 @@ export function demoCalendar(
         transaction_type: t.transaction_type,
         merchant_name: t.merchant_name,
         category_name: t.category_name,
-        category_color: t.transaction_type === "CREDIT" ? "#53705a" : "#7d8472",
+        category_color: t.transaction_type === "CREDIT" ? "#b94a00" : "#8a756c",
         category_icon: "bank",
         intensity_score: Math.min(1, t.amount / 2500),
       })),
