@@ -32,6 +32,13 @@ class BudgetCreate(BaseModel):
     end_date: date
     categories: List[BudgetCategoryCreate] = Field(default_factory=list)
 
+# PATCH body schema, like z.object({...}).partial(): every field optional, still validated.
+class BudgetUpdate(BaseModel):
+    name: Optional[str] = None
+    period: Optional[str] = None
+    total_limit: Optional[Decimal] = Field(default=None, gt=0)
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
 
 class BudgetResponse(BaseModel):
     id: str

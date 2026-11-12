@@ -2,7 +2,7 @@
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import List, Optional
+from typing import List, Literal, Optional
 from pydantic import BaseModel, Field
 
 
@@ -26,6 +26,16 @@ class GoalCreate(BaseModel):
     target_date: date
     expected_annual_return_pct: Decimal = Decimal("8.00")
 
+# PATCH body schema, like z.object({...}).partial(); Literal restricts status like z.enum().
+class GoalUpdate(BaseModel):
+    title: Optional[str] = None
+    goal_type: Optional[str] = None
+    target_amount: Optional[Decimal] = Field(default=None, gt=0)
+    current_saved: Optional[Decimal] = Field(default=None, ge=0)
+    monthly_contribution: Optional[Decimal] = Field(default=None, ge=0)
+    target_date: Optional[date] = None
+    expected_annual_return_pct: Optional[Decimal] = None
+    status: Optional[Literal["IN_PROGRESS", "COMPLETED", "PAUSED"]] = None
 
 class GoalProjectionScenario(BaseModel):
     monthly_additional_savings: Decimal
