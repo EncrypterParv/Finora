@@ -141,3 +141,66 @@ async def test_bank_sync_endpoint(client: AsyncClient, db_session: AsyncSession)
     assert data["account_id"] == "acc-1"
     assert "transactions_added" in data
     assert "new_balance" in data
+
+
+
+# Covers budget PATCH (partial update, 422 validation) and DELETE (204, then 404 on repeat).
+@pytest.mark.asyncio
+async def test_budget_update_and_delete(client: AsyncClient, db_session: AsyncSession):
+    await seed_demo_data_if_empty(db_session)
+    created = (
+        await client.post(
+            "/api/v1/budgets",
+            json={
+                "name": "Travel",
+                "total_limit": 20000.0,
+                "start_date": "2026-11-01",
+                "end_date": "2026-11-30",
+            },
+        )
+    ).json()
+    budget_id = created["id"]
+
+    res = await client.patch(f"/api/v1/budgets/{budget_id}", json={"total_limit": 25000.0})
+    assert res.status_code == 200
+    assert float(res.json()["total_limit"]) == 25000.0
+    assert res.json()["name"] == "Travel"
+
+    res = await client.patch(f"/api/v1/budgets/{budget_id}", json={"end_date": "2026-10-01"})
+    assert res.status_code == 422
+
+    res = await client.patch(f"/api/v1/budgets/{budget_id}", json={"total_limit": 0})
+    assert res.status_code == 422
+
+    res = await client.delete(f"/api/v1/budgets/{budget_id}")
+    assert res.status_code == 204
+    ids = [b["id"] for b in (await client.get("/api/v1/budgets")).json()]
+    assert budget_id not in ids
+
+    assert (await client.delete(f"/api/v1/budgets/{budget_id}")).status_code == 404
+    assert (await client.patch(f"/api/v1/budgets/{budget_id}", json={"name": "x"})).status_code == 404
+
+
+# Covers goal PATCH (partial update, status enum validation) and DELETE (204, then 404 on repeat).
+@pytest.mark.asyncio
+async def test_goal_update_and_delete(client: AsyncClient, db_session: AsyncSession):
+    await seed_demo_data_if_empty(db_session)
+    goal_id = (await client.get("/api/v1/goals")).json()[0]["id"]
+
+    res = await client.patch(
+        f"/api/v1/goals/{goal_id}",
+        json={"current_saved": 150000.0, "status": "PAUSED"},
+    )
+    assert res.status_code == 200
+    body = res.json()
+    assert float(body["current_saved"]) == 150000.0
+    assert body["status"] == "PAUSED"
+
+    res = await client.patch(f"/api/v1/goals/{goal_id}", json={"status": "DONE"})
+    assert res.status_code == 422
+
+    res = await client.delete(f"/api/v1/goals/{goal_id}")
+    assert res.status_code == 204
+    ids = [g["id"] for g in (await client.get("/api/v1/goals")).json()]
+    assert goal_id not in ids
+    assert (await client.delete(f"/api/v1/goals/{goal_id}")).status_code == 404
