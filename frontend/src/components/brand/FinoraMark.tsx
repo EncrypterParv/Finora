@@ -23,12 +23,12 @@ export function FinoraMark({
         viewBox="0 0 32 32"
         aria-hidden="true"
       >
-        <path d="M4 4h24v6H11v6h12v6H11v6H4Z" fill="#252923" />
-        <path d="m17 4 11 6V4ZM17 16l6 6v-6Z" fill="#8b9b7d" />
+        <path d="M4 4h24v6H11v6h12v6H11v6H4Z" fill="#2e211e" />
+        <path d="m17 4 11 6V4ZM17 16l6 6v-6Z" fill="#d18047" />
       </svg>
       {showWordmark && (
         <span
-          className={`${scale.wordmark} font-semibold tracking-[-0.035em] text-[#252923]`}
+          className={`${scale.wordmark} font-semibold tracking-[-0.035em] text-[#2e211e]`}
         >
           finora
         </span>

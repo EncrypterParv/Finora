@@ -147,7 +147,7 @@ function AppHomeContent() {
       onSyncBank={handleBankSync}
       isSyncing={bankSyncMutation.isPending}
     >
-      <div className="mb-6 flex items-center justify-between gap-4 border border-[#d9dfd2] bg-[#edf3ec] px-4 py-3 text-xs text-[#46563d]">
+      <div className="mb-6 flex items-center justify-between gap-4 border border-[#f2d8bf] bg-[#faf0e5] px-4 py-3 text-xs text-[#8c3800]">
         <span>
           Demo workspace · Synthetic data · Sample period: October 2026
         </span>
