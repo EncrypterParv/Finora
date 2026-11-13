@@ -20,8 +20,8 @@
   min-height: var(--header-height);
   height: auto;
   padding: 18px var(--page-gutter);
-  background: #f7f6f2;
-  border-bottom: 1px solid #d9ddd2;
+  background: #f8f4e7;
+  border-bottom: 1px solid #f1d8be;
   gap: 24px;
 }
 .landing-header nav {
@@ -35,8 +35,8 @@
 }
 .landing-header .landing-login {
   min-height: 46px;
-  border: 1px solid #252923;
-  background: #252923;
+  border: 1px solid #2e211e;
+  background: #2e211e;
   color: #fff;
   padding: 9px 20px;
   gap: 25px;
@@ -46,7 +46,7 @@
   white-space: nowrap;
 }
 .landing-header .landing-login:hover {
-  background: #41483c;
+  background: #513933;
 }
 .landing-wordmark {
   font-size: 34px;
@@ -59,7 +59,7 @@
 }
 .finora-landing :focus-visible,
 .finora-login :focus-visible {
-  outline: 3px solid #465d3c;
+  outline: 3px solid #913a00;
   outline-offset: 4px;
   scroll-margin-block: 110px 35px;
 }
@@ -430,7 +430,7 @@
 .login-form-panel input {
   font-size: 17px;
   min-height: 52px;
-  border-color: #87907e;
+  border-color: #958179;
 }
 .login-form-panel > p {
   font-size: 16px;
@@ -481,24 +481,24 @@
 }
 .finora-landing input[type="range"]::-webkit-slider-runnable-track {
   height: 4px;
-  background: #89957f;
+  background: #98847c;
   border-radius: 0;
 }
 .finora-landing input[type="range"]::-webkit-slider-thumb {
   margin-top: -9px;
   width: 15px;
   height: 22px;
-  background: #53634a;
-  border-color: #f7f6f2;
+  background: #a84600;
+  border-color: #f8f4e7;
 }
 .finora-landing input[type="range"]::-moz-range-track {
   height: 4px;
-  background: #89957f;
+  background: #98847c;
 }
 .finora-landing input[type="range"]::-moz-range-thumb {
   width: 12px;
   height: 19px;
-  background: #53634a;
+  background: #a84600;
 }
 .financial-workbench input[type="range"] {
   margin: 12px 0;
@@ -536,10 +536,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  border-color: #c4cdba;
+  border-color: #e7bea0;
 }
 .instrument-parts button[aria-pressed="true"] {
-  border-color: #65745c;
+  border-color: #cc5500;
 }
 .assembly-index {
   font-size: 12px;
@@ -553,7 +553,7 @@
   min-height: 44px;
   min-width: 105px;
   padding: 9px 13px;
-  border-color: #87907e;
+  border-color: #958179;
 }
 .instrument-toolbar .instrument-tour {
   gap: 14px;
@@ -573,7 +573,7 @@
   cursor: pointer;
 }
 .finora-machine [data-assembly]:hover .iso-edge {
-  stroke: #465d3c;
+  stroke: #913a00;
 }
 .money-instrument[data-open="false"] .machine-input,
 .money-instrument[data-open="false"] .machine-pattern,
@@ -1188,14 +1188,14 @@
   border: 0;
   border-radius: 0;
   overflow: visible;
-  --anatomy-paper: #f7f6f2 !important;
-  --anatomy-top: #fafaf7 !important;
-  --anatomy-face: #f7f6f2 !important;
+  --anatomy-paper: #f8f4e7 !important;
+  --anatomy-top: #fdf8f4 !important;
+  --anatomy-face: #f8f4e7 !important;
 }
 .hero-figure .instrument-caption {
   border: 0;
   padding: 0 8px;
-  color: #62665d;
+  color: #6d5d56;
   letter-spacing: 0.03em;
 }
 .hero-figure .instrument-drawing {
@@ -1211,15 +1211,15 @@
   border-radius: 0;
   background: transparent;
   padding: 9px 10px;
-  color: #62665d;
+  color: #6d5d56;
 }
 .hero-figure .instrument-parts button[aria-pressed="true"] {
-  border-bottom-color: #65745c;
-  color: #34472c;
+  border-bottom-color: #cc5500;
+  color: #6d2c00;
   background: transparent;
 }
 .hero-figure .instrument-parts button:hover {
-  background: #edf0e6;
+  background: #f8ebde;
 }
 .hero-figure .instrument-toolbar {
   border: 0;
@@ -1233,17 +1233,17 @@
   background: transparent;
   min-height: 44px;
   font-size: 14px;
-  color: #46563d;
+  color: #8c3800;
   padding: 8px 12px;
   min-width: 0;
 }
 .hero-figure .instrument-toolbar button:hover {
-  background: #edf0e6;
+  background: #f8ebde;
 }
 .hero-figure .instrument-footnote {
   border: 0;
   padding: 14px 8px;
-  color: #62665d;
+  color: #6d5d56;
   justify-content: center;
   gap: 22px;
   font-size: 12px;
@@ -1255,7 +1255,7 @@
   left: 8px;
   right: 8px;
   font-size: clamp(21px, 2vw, 31px);
-  color: #53634a;
+  color: #a84600;
   max-width: 92%;
 }
 .hero-figure .instrument-caption > span:first-child {
@@ -1297,4 +1297,4 @@
   }
 }
 /* Small section labels need the same AA contrast as reading text. */
-.process-number{color:#5d6d53}
+.process-number{color:#b64900}
