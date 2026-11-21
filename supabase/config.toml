@@ -1,0 +1,16 @@
+project_id = "finora"
+
+[api]
+enabled = true
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+enable_signup = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://127.0.0.1:3000/**", "http://localhost:3000/**"]
+
+[auth.email]
+enabled = true

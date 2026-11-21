@@ -123,7 +123,7 @@ export function LandingPage({ art }: { art: ReactNode }) {
             </p>
             <div className="hero-actions">
               <Link className="landing-button" href="/login">
-                See what you could be missing <Arrow />
+                Explore the prototype <Arrow />
               </Link>
               <a className="landing-text-link" href="#how-it-works">
                 Take a closer look <span aria-hidden="true">↓</span>
@@ -308,7 +308,7 @@ export function LandingPage({ art }: { art: ReactNode }) {
               ],
               [
                 "What can I try in the demo?",
-                "Explore financial positions, the transaction calendar, budgets, goals, and spending insights. Use admin for both username and password. Demo changes stay in your browser session.",
+                "Create an account or sign in to explore the prototype. Dashboard figures are synthetic, and prototype changes are not saved.",
               ],
               [
                 "Will Finora move my money?",
@@ -335,7 +335,7 @@ export function LandingPage({ art }: { art: ReactNode }) {
           <Link href="/login" className="landing-button">
             Step inside Finora <Arrow />
           </Link>
-          <small>Explore with sample data. No account setup.</small>
+          <small>Create an account or sign in. The dashboard uses synthetic data.</small>
         </section>
       </main>
       <footer className="landing-footer">

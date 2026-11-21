@@ -1,32 +1,31 @@
-"use client";
-
-import { Suspense, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { PrototypeDashboard } from "@/components/prototype/PrototypeDashboard";
-import { isDemoSession } from "@/lib/demo-session";
+import { createClient } from "@/lib/supabase/server";
+import { getSupabaseConfig } from "@/lib/supabase/config";
 
-function DashboardContent() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const [ready, setReady] = useState(false);
+export default async function DashboardPage() {
+  await cookies(); // Keep auth protection request-time, including before env setup.
+  if (!getSupabaseConfig()) redirect("/login?setup=supabase");
 
-  useEffect(() => {
-    if (!isDemoSession()) {
-      router.replace("/login");
-      return;
-    }
-    queryClient.clear();
-    setReady(true);
-  }, [queryClient, router]);
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.getClaims();
 
-  if (!ready) {
-    return <div className="grid min-h-screen place-items-center text-sm text-[#766e65]" role="status">Opening prototype…</div>;
-  }
+  if (error || !data?.claims) redirect("/login");
 
-  return <PrototypeDashboard />;
-}
+  const metadata = data.claims.user_metadata;
+  const userName =
+    typeof metadata === "object" &&
+    metadata !== null &&
+    "full_name" in metadata &&
+    typeof metadata.full_name === "string"
+      ? metadata.full_name
+      : "";
 
-export default function DashboardPage() {
-  return <Suspense fallback={<div className="min-h-screen bg-[#f7f5f0]" />}><DashboardContent /></Suspense>;
+  return (
+    <PrototypeDashboard
+      userEmail={String(data.claims.email ?? "")}
+      userName={userName}
+    />
+  );
 }
