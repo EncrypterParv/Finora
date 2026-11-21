@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Instrument } from "./Instrument";
 import { FinancialWorkbench } from "./FinancialWorkbench";
 import { WealthExplorer } from "./WealthExplorer";
+import { LandingPlans } from "./LandingPlans";
 
 export function Wordmark() {
   return (
@@ -100,6 +101,7 @@ export function LandingPage({ art }: { art: ReactNode }) {
           <a href="#how-it-works">How it works</a>
           <a href="#your-money">The bigger picture</a>
           <a href="#wealth">Your future</a>
+          <a href="#plans">Plans</a>
         </nav>
         <Link className="landing-login" href="/login">
           Log in <Arrow diagonal />
@@ -284,6 +286,7 @@ export function LandingPage({ art }: { art: ReactNode }) {
           </div>
         </section>
         <WealthExplorer />
+        <LandingPlans />
         <section className="honesty-section">
           <div>
             <h2>
