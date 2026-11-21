@@ -52,8 +52,9 @@ calculated.
 ## Technical shape and boundaries
 
 - Backend: FastAPI, Pydantic, async SQLAlchemy; keep it a modular monolith.
-- Frontend: Next.js App Router, strict TypeScript, Tailwind, TanStack Query,
-  existing components and design tokens.
+- Frontend: Next.js 16.4.6 App Router, strict TypeScript, Tailwind, TanStack
+  Query, existing components and design tokens. `experimental.agentUpgrade` is
+  set to `"security"` following the November 2026 security patch upgrade.
 - At the last repository inventory, the backend had 26 tests. Recheck the
   current suite before relying on that count; there is no frontend test suite.
 - Canonical transactions are the normalization boundary for imported or

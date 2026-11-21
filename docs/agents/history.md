@@ -82,6 +82,17 @@ assumptions from old plans.
 - Keep in mind: prices and plan features remain illustrative. Checkout and
   server-side entitlements are not implemented.
 
+## 2026-11-21 — Next.js security patch
+
+- [a11f5df](https://github.com/TarunyaProgrammer/FinSOL2/commit/a11f5df)
+  upgraded the frontend from Next.js 16.4.0 to 16.4.6, updated the matching
+  `eslint-config-next`, and set `experimental.agentUpgrade` to `"security"`.
+- Why it mattered: the installed Next.js version was identified as affected by
+  a published security advisory.
+- Validation: dependency installation, source lint, TypeScript check, and
+  production build passed. The full `npm run lint` still scans the untracked
+  `frontend/.worktrees/` directory and fails on generated files there.
+
 ## Mistakes and corrections to carry forward
 
 - **Do not trust the roadmap as a feature inventory.** Some architecture and
