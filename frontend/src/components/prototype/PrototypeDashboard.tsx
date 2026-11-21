@@ -27,6 +27,7 @@ import { demoOverview, demoTransactions } from "@/lib/demo-data";
 import { endDemoSession } from "@/lib/demo-session";
 import { formatCurrency } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { FinoraMark } from "@/components/brand/FinoraMark";
 
 type Section =
   | "overview"
@@ -35,8 +36,7 @@ type Section =
   | "import"
   | "data"
   | "access"
-  | "profile"
-  | "plans";
+  | "profile";
 
 const navItems: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -46,7 +46,6 @@ const navItems: { id: Section; label: string; icon: typeof LayoutDashboard }[] =
   { id: "data", label: "Data map", icon: Database },
   { id: "access", label: "Access & roles", icon: UsersRound },
   { id: "profile", label: "Profile", icon: UserRound },
-  { id: "plans", label: "Plans", icon: WalletCards },
 ];
 
 const entityMap = [
@@ -83,7 +82,6 @@ export function PrototypeDashboard() {
   const [members, setMembers] = useState(initialMembers);
   const [fileName, setFileName] = useState("");
   const [imported, setImported] = useState(false);
-  const [plan, setPlan] = useState("Individual Pro");
 
   const notify = (message: string) => {
     setToast(message);
@@ -99,8 +97,10 @@ export function PrototypeDashboard() {
     <div className="min-h-screen bg-[#f7f5f0] text-[#28231f]">
       <aside className="fixed inset-y-0 left-0 hidden w-[238px] flex-col border-r border-[#e8e4dc] bg-white px-4 py-5 md:flex">
         <div className="mb-8 flex items-center gap-3 px-2">
-          <div className="grid h-9 w-9 place-items-center rounded-lg bg-[#4e342e] text-sm font-semibold text-white">F</div>
-          <div><div className="font-semibold tracking-tight">Finora</div><div className="text-[11px] text-[#837970]">Prototype workspace</div></div>
+          <div>
+            <FinoraMark size="md" />
+            <div className="pl-1 text-[11px] text-[#837970]">Prototype workspace</div>
+          </div>
         </div>
         <div className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#968d82]">Workspace</div>
         <nav className="space-y-1" aria-label="Prototype sections">
@@ -147,7 +147,6 @@ export function PrototypeDashboard() {
           {section === "data" && <DataMapPrototype />}
           {section === "access" && <AccessPrototype members={members} setMembers={setMembers} notify={notify} />}
           {section === "profile" && <ProfilePrototype name={profileName} setName={setProfileName} currency={currency} setCurrency={setCurrency} saved={profileSaved} onSave={() => { setProfileSaved(true); notify("Profile changes saved in this prototype session."); }} />}
-          {section === "plans" && <PlansPrototype plan={plan} setPlan={(value) => { setPlan(value); notify(`${value} selected for this prototype.`); }} />}
         </main>
         {toast && <div role="status" className="fixed bottom-5 right-5 z-50 rounded-lg bg-[#352720] px-4 py-3 text-sm text-white shadow-lg">{toast}</div>}
       </div>
@@ -270,9 +269,4 @@ function ProfilePrototype({ name, setName, currency, setCurrency, saved, onSave 
     <PageTitle title="Your profile" description="Basic account preferences and settings. Saved changes last only for this browser session." />
     <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]"><Surface className="p-5"><h2 className="font-semibold">Personal details</h2><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-xs font-medium">Full name<input value={name} onChange={(event) => setName(event.target.value)} className="mt-1.5 block w-full rounded-md border border-[#ddd6cb] px-3 py-2.5 text-sm font-normal outline-none focus:border-[#9a7359]" /></label><label className="text-xs font-medium">Email<input value="aarav@example.test" readOnly className="mt-1.5 block w-full rounded-md border border-[#e8e4dc] bg-[#faf9f6] px-3 py-2.5 text-sm font-normal text-[#837970]" /></label><label className="text-xs font-medium">Display currency<select value={currency} onChange={(event) => setCurrency(event.target.value)} className="mt-1.5 block w-full rounded-md border border-[#ddd6cb] bg-white px-3 py-2.5 text-sm font-normal"><option>INR</option><option>USD</option><option>EUR</option></select></label></div><button onClick={onSave} className="mt-5 rounded-md bg-[#4e342e] px-4 py-2.5 text-xs font-medium text-white">{saved ? "Save again" : "Save profile"}</button></Surface><div className="space-y-4"><Surface className="p-5"><h2 className="font-semibold">Preferences</h2><label className="mt-4 flex items-center justify-between gap-4 text-sm"><span><span className="block font-medium">Weekly summary</span><span className="mt-1 block text-xs text-[#837970]">Prototype preference toggle</span></span><input type="checkbox" checked={weeklySummary} onChange={(event) => setWeeklySummary(event.target.checked)} className="h-4 w-4 accent-[#4e342e]" /></label></Surface><Surface className="p-5"><h2 className="font-semibold">Account security</h2><p className="mt-2 text-xs leading-5 text-[#837970]">Password and session controls will be added when authentication is implemented.</p><button disabled className="mt-3 rounded-md border border-[#e8e4dc] px-3 py-2 text-xs text-[#9a938a]">Change password · not connected</button></Surface><Surface className="p-5"><div className="flex items-center gap-2 font-semibold"><ShieldCheck size={16} className="text-[#6c8268]" /> Data privacy</div><p className="mt-2 text-xs leading-5 text-[#837970]">All figures shown in this prototype are synthetic demo data.</p></Surface></div></div>
   </>;
-}
-
-function PlansPrototype({ plan, setPlan }: { plan: string; setPlan: (plan: string) => void }) {
-  const plans = [{ name: "Starter", price: "Free", desc: "Core tracking and one goal" }, { name: "Individual Pro", price: "₹499 / month", desc: "Deeper history and advanced insights" }, { name: "Teams", price: "₹1,599 / month", desc: "Shared workspace and member roles" }];
-  return <><PageTitle title="Plans" description="Early pricing concepts for product discussion. No subscriptions or payments are configured." /><div className="grid gap-4 md:grid-cols-3">{plans.map((item) => <Surface key={item.name} className={`flex flex-col p-5 ${plan === item.name ? "border-[#9a7359]" : ""}`}><div className="text-sm font-semibold">{item.name}</div><div className="mt-4 text-xl font-semibold">{item.price}</div><p className="mt-2 min-h-10 text-xs leading-5 text-[#837970]">{item.desc}</p><button onClick={() => setPlan(item.name)} className={`mt-5 rounded-md px-3 py-2.5 text-xs font-medium ${plan === item.name ? "border border-[#ddd6cb] bg-[#faf8f4] text-[#694b3b]" : "bg-[#4e342e] text-white"}`}>{plan === item.name ? "Current sample plan" : "Select for prototype"}</button></Surface>)}</div><p className="mt-4 text-xs text-[#837970]">Selecting a plan changes only the sample label. Entitlements and billing are not implemented.</p></>;
 }
