@@ -17,12 +17,21 @@ from app.schemas.auth import Token, UserCreate, UserLogin, UserResponse
 router = APIRouter()
 
 
+def ensure_local_auth_enabled() -> None:
+    if settings.AUTH_PROVIDER == "supabase":
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail="Use Supabase Auth to register and sign in.",
+        )
+
+
 @router.post("/register", response_model=UserResponse)
 async def register_user(
     user_in: UserCreate,
     db: AsyncSession = Depends(get_db),
 ):
     """Register a new user account and seed a default simulated bank account."""
+    ensure_local_auth_enabled()
     existing = await db.execute(select(User).where(User.email == user_in.email))
     if existing.scalars().first():
         raise HTTPException(status_code=400, detail="A user with this email already exists")
@@ -62,6 +71,7 @@ async def login(
     db: AsyncSession = Depends(get_db),
 ):
     """Authenticate with email/password and obtain JWT access token."""
+    ensure_local_auth_enabled()
     result = await db.execute(select(User).where(User.email == login_data.email))
     user = result.scalars().first()
     if not user or not verify_password(login_data.password, user.hashed_password):

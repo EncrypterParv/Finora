@@ -93,6 +93,72 @@ assumptions from old plans.
   production build passed. The full `npm run lint` still scans the untracked
   `frontend/.worktrees/` directory and fails on generated files there.
 
+## 2026-11-21 — Supabase foundation prepared
+
+- Added Supabase SSR email/password auth to the Next.js login flow, a callback
+  route, and server-side dashboard protection. FastAPI can validate Supabase
+  access tokens and apply per-request Postgres RLS context.
+- Added an initial Postgres migration for the current SQLAlchemy entities,
+  profile synchronization from `auth.users`, a restricted database role, and
+  row-level ownership policies. No insights logic was changed.
+- The Supabase project has not been created or migrated yet. Dashboard data is
+  still synthetic and is not persisted; project setup steps are in
+  `docs/supabase/setup.md`.
+
+## 2026-11-21 — Supabase project configured locally
+
+- The Supabase project was created, Auth site/callback URLs were configured,
+  and the project URL plus publishable key were added to ignored local env
+  files. No database password, secret key, or service-role key is committed.
+- The SQL migration remains unapplied, and FastAPI still points to local SQLite
+  until the project's Session pooler connection details are configured.
+- Dashboard data remains synthetic and is not persisted.
+
+## 2026-11-21 — Supabase Session pooler configured
+
+- Added the project-provided shared Session pooler host, port, database, and
+  username to the ignored local backend configuration. The password remains
+  local; the DSN is URL-encoded and uses TLS.
+- A read-only connection probe failed at DNS resolution in the current
+  execution environment, so live connectivity is still unverified. The checked
+  in migration has not been applied to the project.
+
+## 2026-11-21 — Supabase Session pooler verified
+
+- Retried the read-only TLS probe with network access and connected to the
+  project's `postgres` database through its shared Session pooler. The local
+  backend config now uses Supabase Auth and that pooler URL.
+- This only verifies connection parameters and credentials. The schema
+  migration has not been applied, so hosted API flows are not ready yet.
+
+## 2026-11-21 — Dashboard visual hierarchy refresh
+
+- Reworked the prototype workspace frame and overview hierarchy around a
+  balance focal panel, compact cash-flow summaries, recent activity, and clear
+  paths into the existing sections. The visual system keeps the warm Finora
+  palette, adds editorial heading typography, improves small-screen spacing,
+  and respects reduced-motion preferences.
+- The profile now displays the authenticated email and Auth metadata name when
+  present. Landing-page CTAs state that sign-in is required and the dashboard
+  uses synthetic data.
+- Added the `transform-ai-slop-websites` workflow to this repository and linked
+  it from `AGENTS.md` for future redesigns.
+- Frontend build, source lint, typecheck, and backend tests passed. Live visual
+  browser inspection was not performed because the development server was not
+  started, consistent with the user's earlier instruction.
+
+## 2026-11-21 — Initial Supabase schema applied
+
+- Applied `20261121220000_initial_finora_schema.sql` through the official
+  Supabase CLI against the user-provided Session pooler URL. The CLI recorded
+  the migration in Supabase's migration history.
+- Verified the ten expected public tables, RLS enabled on all ten, and the
+  migration history version. A read-only TLS connection check also succeeded.
+- Still pending: create or confirm a Supabase Auth account and verify that the
+  `auth.users` trigger creates its matching `public.users` profile row. Dashboard
+  financial data remains synthetic and API-backed dashboard persistence is not
+  implemented.
+
 ## Mistakes and corrections to carry forward
 
 - **Do not trust the roadmap as a feature inventory.** Some architecture and

@@ -1,9 +1,15 @@
 """Pytest configuration and async fixtures."""
 
 import asyncio
+import os
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+# The developer's ignored .env may select hosted Supabase mode. Keep tests
+# deterministic and isolated from any external project regardless of that file.
+os.environ["AUTH_PROVIDER"] = "local"
+os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///:memory:"
 
 from app.core.database import Base, get_db
 from app.main import app

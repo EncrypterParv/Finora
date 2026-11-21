@@ -55,3 +55,6 @@ next-env.d.ts
 # Local browser verification artifacts
 .playwright-cli/
 .impeccable/review/
+
+# Supabase CLI local state and linked project metadata
+supabase/.temp/
