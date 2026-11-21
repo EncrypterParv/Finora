@@ -38,3 +38,11 @@ npm run build
 For orientation, read [`docs/agents/context.md`](docs/agents/context.md).
 Roles and handoff expectations are in [`docs/agents/roles.md`](docs/agents/roles.md)
 and [`docs/agents/workflow.md`](docs/agents/workflow.md).
+
+Before planning substantial work, also read
+[`docs/agents/project-context.md`](docs/agents/project-context.md) and
+[`docs/agents/history.md`](docs/agents/history.md). The context brief records
+current status and confirmed product decisions; the history is a curated,
+append-only guide to milestones and mistakes. Update them at meaningful
+milestones. Verify all status against source and tests; these docs do not
+override implementation.

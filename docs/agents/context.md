@@ -1,40 +1,26 @@
-# Current project context
+# Agent Context Index
 
-## What exists now
+Use this index to pick up work without assuming old design documents match the
+current implementation.
 
-Finora is a modular monolith with:
+## Read in this order
 
-- FastAPI, Pydantic, async SQLAlchemy, and SQLite-compatible local testing in
-  `backend/`.
-- Next.js 16 App Router, TypeScript, Tailwind, TanStack Query, Recharts, and
-  Framer Motion in `frontend/`.
-- Canonical transaction normalization, simulated bank adapters, statement
-  parsing, budgets, goals, calendar views, and behavioural analytics.
-- Twenty-six backend tests covering API endpoints, parsers, adapters, domain
-  services, and ML behavior.
+1. Root and nearest scoped `AGENTS.md` for operating rules.
+2. [`project-context.md`](project-context.md) for product purpose, architecture,
+   current implementation status, confirmed decisions, and verified gaps.
+3. [`history.md`](history.md) for commit-linked milestones and mistakes to avoid.
+4. Relevant source code and tests to confirm the current behavior.
+5. Product and architecture documents for intended direction, checking their
+   claims against source before relying on them.
 
 ## Important boundaries
 
-1. Inputs become canonical transactions before persistence or analytics.
-2. Bank integrations are demo/simulated integrations only.
-3. Sensitive financial entities must remain scoped to the current user.
-4. The backend is a modular monolith; do not introduce speculative services.
-5. Architecture documents describe intent, but the source tree is the source
-   of truth when they disagree.
-
-## Known gaps
-
-- Frontend lint/typecheck/build checks are being formalized.
-- There is no frontend unit or end-to-end test suite yet.
-- Several architecture documents describe planned modules that are not present.
-- CI, pull-request templates, and contribution guidance are now provided under
-  `.github/` and the repository documentation.
-
-## Before changing code
-
-1. Read the root and nearest scoped `AGENTS.md`.
-2. Inspect `git status` and preserve unrelated changes.
-3. Locate the existing implementation and tests before relying on design docs.
-4. Decide whether the change affects security, persistence, API contracts, or
-   user-visible behavior.
-5. Run the relevant validation commands before handoff.
+- Keep Finora a modular monolith unless the user approves a specific reason to
+  change that architecture.
+- Keep bank integrations simulated and financial examples synthetic.
+- Normalize imported or simulated inputs to canonical transactions before
+  persistence or analytics.
+- Scope sensitive records and operations to the current authenticated user.
+- Update the continuity brief and append to the history after meaningful
+  project milestones; never rewrite old entries to make an abandoned plan look
+  completed.

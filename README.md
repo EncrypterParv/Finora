@@ -48,6 +48,8 @@ Detailed system documentation is available in `docs/`:
 
 Engineering and agent workflow:
 - [Agent context](docs/agents/context.md)
+- [Project continuity brief](docs/agents/project-context.md)
+- [Milestone and decision history](docs/agents/history.md)
 - [Agent roles](docs/agents/roles.md)
 - [Contribution guide](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
