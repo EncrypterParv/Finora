@@ -159,6 +159,34 @@ assumptions from old plans.
   financial data remains synthetic and API-backed dashboard persistence is not
   implemented.
 
+## 2026-11-22 — Accounts API, real budget spend, calendar dates
+
+- Added `/accounts` CRUD (`app/api/v1/accounts.py`, `app/schemas/account.py`).
+  New Supabase users had no way to create a bank account, so statement upload
+  and bank sync, which both require an owned `account_id`, were unusable for
+  them. The API accepts only `account_last4` and stores
+  `XXXX-XXXX-<last4>`; request bodies reject unknown fields such as `user_id`
+  or a full account number. `adapter_type` is validated against
+  `BankAdapterFactory` (new `is_supported` helper) and stored uppercase.
+  Deleting an account that has transactions returns 409 unless
+  `?delete_transactions=true`.
+- Replaced the hardcoded budget figures (every budget reported 14,250 spent and
+  750/day). A single helper sums the user's DEBIT transactions within
+  `[start_date, end_date]` UTC in SQL and projects burn linearly over the
+  remaining days; GET, POST and PATCH `/budgets` all use it. Budgets not yet
+  started report zero spend and no projection. Ended budgets never report an
+  exhaustion date, even when over the limit (user decision).
+  `SpendingForecaster` is intentionally not used because it assumes calendar
+  months.
+- `GET /calendar/view` now takes an optional `date` query parameter for week
+  and day views, and as the fallback for month `year`/`month`. Without it the
+  behavior is unchanged. `month` is now validated to 1-12 (previously an
+  invalid month caused a server error).
+- Backend tests: 52 passing (was 28).
+- Not completed: no frontend screens call `/accounts` or the updated budget and
+  calendar endpoints; budget `categories` remain empty; budget "today" (UTC)
+  and calendar "today" (server local date) are not yet aligned.
+
 ## Mistakes and corrections to carry forward
 
 - **Do not trust the roadmap as a feature inventory.** Some architecture and
