@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Arrow, Wordmark } from "@/components/landing/LandingPage";
 import { getSupabaseConfig } from "@/lib/supabase/config";
@@ -14,8 +14,17 @@ export default function LoginPage() {
   const [visible, setVisible] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
+  const [mode, setMode] = useState<"sign-in" | "sign-up" | "recover">("sign-in");
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("mode") === "recover") {
+      setMode("recover");
+    }
+    if (new URLSearchParams(window.location.search).get("error") === "confirmation") {
+      setError("That email link could not be confirmed. Request a new link or try signing in again.");
+    }
+  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,6 +43,15 @@ export default function LoginPage() {
       const email = String(values.get("email") ?? "").trim();
       const password = String(values.get("password") ?? "");
 
+      if (mode === "recover") {
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+        });
+        if (resetError) throw resetError;
+        setNotice("If an account can be found for that email, we’ll send a password reset link.");
+        return;
+      }
+
       if (mode === "sign-up") {
         const fullName = String(values.get("full_name") ?? "").trim();
         const { data, error: authError } = await supabase.auth.signUp({
@@ -49,7 +67,7 @@ export default function LoginPage() {
           router.replace("/dashboard");
           router.refresh();
         } else {
-          setNotice("Account created. Check your email to confirm it, then sign in.");
+          setNotice("If this email can be used, check your inbox for a confirmation link. You can sign in after confirming it.");
           setMode("sign-in");
         }
         return;
@@ -59,8 +77,14 @@ export default function LoginPage() {
       if (authError) throw authError;
       router.replace("/dashboard");
       router.refresh();
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Authentication failed. Try again.");
+    } catch {
+      // Keep provider errors private: distinguishing unknown addresses from bad
+      // passwords enables account enumeration.
+      setError(mode === "sign-in"
+        ? "Invalid email or password. If you’re new to Finora, create an account."
+        : mode === "recover"
+          ? "We couldn’t send a reset request right now. Try again in a moment."
+          : "We couldn’t create your account right now. Check your details and try again.");
     } finally {
       setPending(false);
     }
@@ -82,9 +106,9 @@ export default function LoginPage() {
             you can actually use.
           </p>
           <div className="login-paper">
-            <span>Your financial position · sample data</span>
-            <strong>₹1,48,500</strong>
-            <small>Room for today. A plan for tomorrow.</small>
+            <span>Your records, your decision</span>
+            <strong>Review before saving</strong>
+            <small>Finora never asks for your bank password or full account number.</small>
           </div>
         </div>
         <small>Clarity starts with understanding.</small>
@@ -94,10 +118,11 @@ export default function LoginPage() {
           <Arrow />
           Back to Finora
         </Link>
-        <h1>{mode === "sign-in" ? "Come on in." : "Create your account."}</h1>
+        <h1>{mode === "sign-in" ? "Come on in." : mode === "recover" ? "Reset your password." : "Create your account."}</h1>
         <p>
-          Sign in securely to explore the Finora prototype. No bank details are
-          requested.
+          {mode === "recover"
+            ? "Enter the email address you used for Finora. We’ll send a reset link if an account can be found."
+            : `${mode === "sign-up" ? "Create a Finora account to access your workspace." : "Sign in to your Finora account."} Finora does not connect to your bank. Your workspace starts empty until you add and confirm your own records.`}
         </p>
         {!supabaseConfigured && (
           <p role="status" className="login-credentials">
@@ -128,55 +153,56 @@ export default function LoginPage() {
             spellCheck={false}
             required
             placeholder="you@example.com"
-            aria-describedby="auth-message"
-            aria-invalid={Boolean(error)}
+            aria-describedby={error ? "auth-message" : undefined}
           />
-          <label htmlFor="password">Password</label>
-          <div className="password-field">
-            <input
-              id="password"
-              name="password"
-              type={visible ? "text" : "password"}
-              autoComplete={mode === "sign-up" ? "new-password" : "current-password"}
-              minLength={8}
-              required
-              placeholder="At least 8 characters"
-              aria-describedby="auth-message"
-              aria-invalid={Boolean(error)}
-            />
-            <button
-              type="button"
-              onClick={() => setVisible(!visible)}
-              aria-label={visible ? "Hide password" : "Show password"}
-              aria-pressed={visible}
-            >
-              {visible ? "Hide" : "Show"}
-            </button>
-          </div>
+          {mode !== "recover" && <label htmlFor="password">Password</label>}
+          {mode !== "recover" && (
+            <div className="password-field">
+              <input
+                id="password"
+                name="password"
+                type={visible ? "text" : "password"}
+                autoComplete={mode === "sign-up" ? "new-password" : "current-password"}
+                minLength={mode === "sign-in" ? undefined : 8}
+                required
+                placeholder="At least 8 characters"
+                aria-describedby={error ? "auth-message" : undefined}
+              />
+              <button
+                type="button"
+                onClick={() => setVisible(!visible)}
+                aria-label={visible ? "Hide password" : "Show password"}
+                aria-pressed={visible}
+              >
+                {visible ? "Hide" : "Show"}
+              </button>
+            </div>
+          )}
           {error && (
             <p id="auth-message" role="alert" className="login-error">
               {error}
             </p>
           )}
           <button className="landing-button" type="submit" disabled={pending}>
-            {pending ? "Please wait…" : mode === "sign-in" ? "Sign in" : "Create account"}
-            <Arrow />
+            {pending ? "Please wait…" : mode === "sign-in" ? "Sign in" : mode === "recover" ? "Send reset link" : "Create account"}
+            {mode !== "recover" && <Arrow />}
           </button>
         </form>
         {notice && <p role="status" className="login-credentials">{notice}</p>}
         <div className="login-credentials">
-          <span>{mode === "sign-in" ? "New to Finora?" : "Already registered?"}</span>
+          <span>{mode === "sign-up" ? "Already registered?" : mode === "recover" ? "Remembered your password?" : "New to Finora?"}</span>
           <button
             type="button"
             className="font-semibold text-[#4e342e] underline underline-offset-2"
-            onClick={() => { setMode(mode === "sign-in" ? "sign-up" : "sign-in"); setError(""); setNotice(""); }}
+            onClick={() => { setMode(mode === "sign-up" || mode === "recover" ? "sign-in" : "sign-up"); setError(""); setNotice(""); }}
           >
-            {mode === "sign-in" ? "Create an account" : "Sign in"}
+            {mode === "sign-up" || mode === "recover" ? "Sign in" : "Create an account"}
           </button>
         </div>
+        {mode === "sign-in" && <button type="button" className="login-recovery-link" onClick={() => { setMode("recover"); setError(""); setNotice(""); }}>Forgot password?</button>}
         <p className="demo-explanation">
-          Sign-in uses Supabase Auth. Dashboard content is still a prototype:
-          financial figures are synthetic and prototype changes are not saved.
+          Sign-in uses Supabase Auth. Statement files are reviewed before
+          import, and only the rows you confirm are saved to your account.
         </p>
       </section>
     </main>

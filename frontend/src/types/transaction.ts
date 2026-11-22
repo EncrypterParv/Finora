@@ -1,5 +1,5 @@
 export type TransactionType = 'DEBIT' | 'CREDIT' | 'TRANSFER';
-export type TransactionSource = 'BANK_API' | 'CSV' | 'XLSX' | 'PDF' | 'MANUAL';
+export type TransactionSource = 'BANK_API' | 'CSV' | 'XLSX' | 'PDF' | 'IMAGE' | 'MANUAL';
 
 export interface TaxMetadata {
   gst_rate_pct?: number;
