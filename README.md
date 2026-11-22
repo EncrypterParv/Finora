@@ -21,7 +21,7 @@ flowchart LR
 
 Unlike generic personal finance dashboards that treat money as a static ledger, **Finora** introduces:
 1. **The Financial Calendar**: Organizes canonical cash flow across days, weeks, and months.
-2. **Canonical Transaction Architecture**: A unified transaction model for simulated bank streams and CSV imports. XLSX/PDF imports are not implemented end to end.
+2. **Canonical Transaction Architecture**: A unified transaction model for simulated bank streams and reviewed statement imports. CSV parsing is available; PDF/image OCR is optional and not yet accuracy-validated.
 3. **Behavioural Intelligence**: Statistical spending summaries, forecasts, anomaly heuristics, and FIRE scenarios. The current system does not use a trained ML model or Isolation Forest.
 
 ---
@@ -31,8 +31,8 @@ Unlike generic personal finance dashboards that treat money as a static ledger, 
 The system is built as a **Modular Monolith**:
 - **Frontend**: Next.js 16.4.6 (App Router), TypeScript, Tailwind CSS, TanStack Query, Framer Motion, Recharts.
 - **Backend API**: Python FastAPI, Pydantic v2 schemas, SQLAlchemy 2.0 async ORM.
-- **Persistence**: The code defaults to local SQLite; this working copy's ignored `backend/.env` selects the Supabase Session pooler. The initial Postgres migration has been applied to the configured project.
-- **Authentication**: Supabase Auth email/password flow is integrated in the frontend. The hosted schema and profile trigger are ready; a real signup/email-confirmation check remains. Prototype dashboard data remains synthetic.
+- **Persistence**: Local development defaults to SQLite; Supabase Postgres is configured for hosted data. The initial schema migration is applied to the configured project.
+- **Authentication**: Supabase Auth email/password, confirmation callback, password reset, and dashboard protection are implemented. Live signup and email delivery still need end-to-end verification.
 - **Simulated Integrations**: Pluggable `BankAdapter` contracts (e.g. `HSBCDemoAdapter`) with zero storage of real credentials.
 
 Detailed system documentation is available in `docs/`:
@@ -45,6 +45,7 @@ Detailed system documentation is available in `docs/`:
 - [ML & Behavioural Analytics](docs/architecture/ml-architecture.md)
 - [Security & Privacy Architecture](docs/architecture/security.md)
 - [Supabase setup and schema deployment](docs/supabase/setup.md)
+- [Vercel deployment and environment variables](docs/deployment/vercel.md)
 - [Product Requirements (PRD)](docs/product/requirements.md)
 - [Engineering Roadmap](docs/product/roadmap.md)
 
@@ -67,11 +68,14 @@ Engineering and agent workflow:
 cd backend
 
 # Create & activate virtual environment
-python3 -m venv .venv
+python3.13 -m venv .venv
 source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Optional: enable local OCR for PDF, PNG, and JPG statements (Python 3.13)
+pip install -r requirements-ocr.txt
 
 # Run automated tests
 DEBUG=false python -m pytest -q
@@ -125,7 +129,8 @@ The frontend lint command uses ESLint's flat configuration with the Next.js and 
 ## 🛡️ Security & Privacy Principles
 - **No Real Bank Credentials**: All bank sync operations use simulated adapter streams.
 - **Granular Isolation**: Hosted-mode API access uses verified Supabase identities, transaction-scoped RLS, and tenant-scoped ORM queries. Local auth mode is demo-only.
-- **Deterministic Deduplication**: Automated SHA-256 fingerprinting prevents double-counting across multi-file statement imports.
+- **Statement review**: CSV parsing maps recognized column layouts. Every row must be reviewed before confirmation; PDF and image extraction uses optional local PaddleX OCR and must be checked against the source.
+- **Deterministic Deduplication**: SHA-256 fingerprints skip repeated transactions during statement imports.
 
 ## Frontend demo entry flow
 
@@ -136,24 +141,35 @@ recommendation.
 
 ## Current integration status
 
-- The login uses Supabase Auth SSR sessions, and the FastAPI API can validate
-  those access tokens and apply per-user Postgres row-level security.
+- The login uses Supabase Auth SSR sessions, and the FastAPI API validates
+  those access tokens and applies per-user Postgres row-level security.
 - The initial Postgres migration and local environment templates are in this
   repository. The Supabase project exists, its local site URL and callback URLs
   are configured, and the project URL/publishable key are in the ignored local
   frontend and backend env files. The Session pooler URL is configured in
   `backend/.env`; the TLS connection succeeded, and the migration is applied
   with all ten expected tables protected by RLS.
-- Dashboard screens still show synthetic data. Prototype edits do not persist
-  to Postgres. The role editor is visual only; server-enforced team RBAC is not
-  implemented.
+- The signed-in workspace loads the current user's accounts and transactions
+  from FastAPI. New users see an empty state and can create an account label,
+  preview a statement, edit extracted rows, and explicitly confirm an import.
+  The source file is not retained. Only confirmed canonical transactions are
+  persisted.
+- CSV import requires recognizable date and description columns plus separate
+  debit/credit columns or an explicit transaction type; amount-only CSVs are
+  rejected because direction cannot be inferred safely. PDF and image OCR require the optional local dependencies in
+  `backend/requirements-ocr.txt`; OCR has not been benchmarked against bank
+  layouts, and extracted rows require manual review.
+- Calendar, insights, roles/RBAC management, profile editing, billing, and real
+  bank connections are not part of the current authenticated workflow. Bank
+  adapters remain simulated; the role editor is not authorization.
 
 Open `/login` to create a Supabase Auth account or sign in, then enter
-`/dashboard`. The dashboard still displays synthetic October 2026 data; its
-prototype changes are not persisted yet. See
+`/dashboard`. With no imported records, the workspace explains how to add a
+statement. See
 [`docs/supabase/setup.md`](docs/supabase/setup.md) for project setup, local
-environment values, and applying the Postgres migration. File import and bank
-sync remain simulated and do not connect to real financial institutions.
+environment values, and applying the Postgres migration. Statement import saves
+reviewed records to the user's account; bank sync remains simulated and does
+not connect to real financial institutions.
 
 The entry pages use self-hosted Instrument Serif (SIL OFL; license in
 `frontend/public/fonts/OFL.txt`) and an adapted [Anatomy](https://github.com/wheresryan22/anatomy)

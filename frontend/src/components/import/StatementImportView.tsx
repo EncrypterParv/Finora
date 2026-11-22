@@ -149,7 +149,7 @@ export const StatementImportView: React.FC<StatementImportViewProps> = ({
             </div>
             <h3 className="text-base font-bold text-white">Click or Drag & drop bank statement file</h3>
             <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto leading-relaxed">
-              Supports standard Indian and global CSV bank statements (up to 15MB)
+              CSV statement uploads in this deployment are limited to 4 MB
             </p>
 
             <div className="mt-6 flex flex-wrap justify-center gap-2" onClick={(e) => e.stopPropagation()}>

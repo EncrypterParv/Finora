@@ -1,7 +1,7 @@
 # Finora Project Context
 
 Last reviewed: 2026-11-22
-Current milestone: Backend accounts API, transaction filters/manual entry, real budget spend, and calendar date handling implemented; prototype screens still use mock data
+Current milestone: First-user statement import is on the accounts API; transaction filters, manual entry and deletion, real budget spend, and calendar date handling are implemented; Vercel Services configuration is prepared, but hosted environment setup remains pending
 
 This is the short continuity brief for coding agents. Read it before planning
 substantial work, then read [`history.md`](history.md) for dated decisions and
@@ -16,13 +16,13 @@ show explainable spending patterns, forecasts, budgets, and goals that help a
 person decide what to do next. The intended audience in the product brief is
 young professionals and students.
 
-The prototype exists to make these workflows concrete and discussable while
-production data persistence, statement ingestion, and entitlements are built.
-Supabase Auth and the initial Postgres schema are configured. The hosted
-project, local auth config, and FastAPI Session pooler URL are set; the TLS
-connection, migration record, ten expected tables, and RLS flags were verified.
-The first real signup/email-confirmation flow remains to be checked. The
-prototype is not a production financial service.
+The public landing page contains illustrative product examples. The signed-in
+workspace now loads the user's account and transaction data, starts empty, and
+supports statement preview, review, and confirmed import. Supabase Auth and the
+initial Postgres schema are configured. The hosted project, local auth config,
+and FastAPI Session pooler URL are set; the TLS connection, migration record,
+ten expected tables, and RLS flags were verified. Live email flows and OCR
+accuracy remain unverified; Finora is not ready for public production use.
 
 ## Where the project started
 
@@ -41,17 +41,18 @@ calculated.
 
 | Area | Current status | What that means |
 |---|---|---|
+| Vercel deployment | Service configuration checked in; dashboard setup pending | Root vercel.json routes Next.js and FastAPI under one Vercel Services deployment. Production environment variables, Supabase callback URLs, and hosted-flow verification remain to be completed. Services are beta; the Python runtime is generally available. |
 | Landing page | Implemented prototype | Public product explanation and interactive sample walkthrough. A proposed three-tier plans section now lives here. |
-| Dashboard prototype | Mock UI; visual hierarchy refreshed | Overview, calendar, insights, statement preview, data map, access roles, and profile screens use synthetic data and local state. The updated overview strengthens hierarchy and account clarity while keeping the mock-data boundary visible. Browser visual QA remains pending because the app server was not started. |
+| Authenticated workspace | Real account/transaction loading; statement review/import implemented | New users see empty states, add an account label, preview a statement, edit candidate transactions, and explicitly confirm persistence. Browser visual QA remains pending because the app server was not started. |
 | Plans | Illustrative only | Prices and feature tiers are concepts. No subscription, checkout, or server-side entitlement enforcement exists. |
-| Login and RBAC | Supabase Auth configured; first signup check pending, RBAC remains mock-only | Next.js email/password sign-in uses Supabase SSR sessions. FastAPI is configured to validate Supabase access tokens. The prototype's role editor is not authorization. |
+| Login and RBAC | Supabase Auth flows implemented; hosted email flow unverified; RBAC remains mock-only | Next.js email/password sign-in, confirmation callback, account-enumeration-safe errors, password recovery, and server-side dashboard protection use Supabase. The role editor is not authorization. |
 | Database | Initial Supabase schema applied and verified | The checked-in migration mirrors current SQLAlchemy entities, creates a profile from `auth.users`, and enables owner-scoped RLS on all ten expected tables. A read-only connection and migration-history check passed. |
-| Statement import | Partial | Backend parser and upload endpoint support CSV. The prototype file picker shows generated rows and does not read or send the selected file. XLSX/PDF import is not implemented end to end. |
+| Statement import | CSV implemented; optional OCR path unverified | Preview is non-persistent; edited, confirmed rows save as canonical transactions. CSV parsing rejects ambiguous amount-only layouts. Uploads are capped at 4 MB for Vercel Hobby. PDF/PNG/JPG use optional PaddleX OCR, not installed or benchmarked in this workspace; scanned extraction is unavailable on the default Vercel deployment. XLSX is unsupported. |
 | Calendar | Backend date handling fixed + mock prototype | `GET /calendar/view` accepts an optional `date` (yyyy-mm-dd): week = Monday-Sunday containing it, day = that date, month uses `year`/`month` falling back to it. Omitting `date` keeps the old today-based behavior. The prototype calendar still uses local sample data. |
 | Insights | Statistical foundation + mock screen | Backend features, forecasts, shifts, anomaly heuristics, and recommendations exist. This is not a trained ML product; several recommendation impacts are fixed illustrative estimates. |
 | User profile | Mock UI / partial backend read | User fields and `/auth/me` exist, but the prototype changes are local and there is no profile update flow. |
-| Bank accounts | Backend CRUD implemented | `/accounts` lets a user create, list, read, update, and delete their own accounts, so new Supabase users can obtain the `account_id` that statement upload and bank sync need. Only the last 4 digits are accepted; the stored number is `XXXX-XXXX-<last4>`. Deleting an account with transactions returns 409 unless `?delete_transactions=true`. No frontend screen uses it yet. |
-| Transactions, budgets, goals | Existing code, not in prototype navigation | `GET /transactions` filters by date range, type, account, amount range, and case-insensitive description search (`q`, wildcards escaped), and returns the pre-pagination match count in `X-Total-Count` (exposed via CORS). `POST /transactions` records manual (e.g. cash) DEBIT/CREDIT entries with `source=MANUAL` and does not change account balances; `DELETE /transactions/{id}` removes one. Category filtering is not available because categories are not stored yet, and the detail endpoint's budget/forecast context fields are still fixed placeholder values. Budget responses now report real spend (sum of the user's DEBITs inside the budget dates, computed in SQL) with a linear burn projection; `categories` is still always empty. Earlier feature components and backend APIs remain in the repository, but the simplified prototype dashboard does not link to those screens. Decide how to bring them back into the prototype. |
+| Bank accounts | User-scoped CRUD and statement onboarding use `/accounts` | Account labels accept optional last four digits, never a full number. The statement flow marks them `STATEMENT_IMPORT`. Deleting an account with transactions returns 409 unless `?delete_transactions=true`. |
+| Transactions, budgets, goals | Transactions are data-backed; budgets/goals remain outside the current workspace | The dashboard lists imported transactions. `GET /transactions` filters by date range, type, account, amount range, and case-insensitive description search (`q`, wildcards escaped), and returns the pre-pagination match count in `X-Total-Count` (exposed via CORS). `POST /transactions` records manual (e.g. cash) DEBIT/CREDIT entries with `source=MANUAL` and does not change account balances; `DELETE /transactions/{id}` removes one. Category filtering is not available because categories are not stored as rows yet (reviewed names live in transaction metadata), and the detail endpoint's budget/forecast context fields are still placeholders. Budget responses use real debit totals and linear burn projections, but budget/category UI is not connected; earlier budget and goal APIs/components remain separate. |
 | Frontend tests | Not present | There is no frontend unit or end-to-end test suite yet. |
 
 ## Technical shape and boundaries
@@ -60,7 +61,12 @@ calculated.
 - Frontend: Next.js 16.4.6 App Router, strict TypeScript, Tailwind, TanStack
   Query, existing components and design tokens. `experimental.agentUpgrade` is
   set to `"security"` following the November 2026 security patch upgrade.
-- The backend currently has 92 passing tests. There is no frontend unit or
+- Vercel deployment: the root vercel.json declares the frontend and FastAPI
+  backend as Services and routes /api/v1/* to the backend. Dashboard
+  environment variables, production-domain Supabase redirects, and hosted
+  smoke checks are not configured by the repository file. The backend
+  pyproject.toml declares its runtime packages so Vercel installs FastAPI.
+- The combined backend suite has 98 passing tests. There is no frontend unit or
   end-to-end test suite yet.
 - Canonical transactions are the normalization boundary for imported or
   simulated transaction data. Keep analytics and calendar work based on that
@@ -68,8 +74,8 @@ calculated.
 - Bank adapters must remain simulated. Never add real bank credentials or real
   personal financial data to source, fixtures, logs, or documentation.
 - Keep user-owned financial records tenant-scoped in every query and mutation.
-- Keep prototype interactions visibly mock. Do not describe them as secure,
-  persisted, uploaded, purchased, or model-generated when they are not.
+- Keep public examples visibly illustrative. Do not describe data as persisted,
+  uploaded, purchased, or model-generated when it is not.
 - The user selected Supabase Auth and Postgres on 2026-11-21. The project was
   created, the site URL/callback URLs and local public config were set, and the
   backend Session pooler URL is configured in ignored `backend/.env`; the
@@ -92,10 +98,11 @@ recheck them before implementation because code may have changed since then.
    first seeded user for the old demo API flow. Supabase mode rejects requests
    without a valid token. Do not use local auth mode in a hosted environment.
    The frontend API helper sends the Supabase bearer token when it calls
-   FastAPI; the prototype screens currently use mock data instead.
-2. The statement endpoint calls the CSV parser and persists rows immediately;
-   the prototype preview is generated sample content. Do not claim XLSX/PDF or
-   review-before-persist behavior is complete.
+   FastAPI. Accounts and transactions in the authenticated workspace use these
+   APIs; calendar and analytics remain unconnected there.
+2. OCR dependencies are optional and absent from the default runtime. Install
+   `requirements-ocr.txt` with Python 3.13 and benchmark PDF/PNG/JPG extraction
+   on synthetic layouts before enabling scanned imports for real users.
 3. In local mode, runtime database setup uses `Base.metadata.create_all()` and
    demo seeding. Supabase mode skips both and relies on checked-in migrations.
    The initial migration has been run against Supabase and its history entry,
@@ -116,12 +123,19 @@ recheck them before implementation because code may have changed since then.
    endpoint on each request. This is straightforward verification for the
    prototype but adds network latency; evaluate cached JWKS verification before
    scaling API traffic.
+8. Vercel Services are beta. The hosted configuration still needs environment
+   variables and callback URLs. Uploads are limited to 4 MB under the default
+   function-body limit; larger files need direct storage, and scanned OCR is
+   not included in the default Vercel runtime.
 
 ## Product decisions and working preferences
 
 - The user asked for a simple, mock-data-first prototype to start feature work.
 - Supabase is now explicitly selected for Auth and Postgres; do not revert this
   decision to SQLite-only or treat the withdrawn earlier prompt as current.
+- A new signed-in user must see an honest empty state. Never populate a private
+  workspace with synthetic balances or transactions. Imports must be previewed,
+  edited, then explicitly confirmed before persistence.
 - Plans belong on the public landing page, not in dashboard navigation.
 - Use the shared `FinoraMark` brand component rather than a typed initial in
   dashboard chrome. The current repository's canonical mark is F-shaped; no
@@ -131,10 +145,8 @@ recheck them before implementation because code may have changed since then.
   `#definer-bubble-host` node. The trace indicates a browser extension mutation;
   verify with that extension disabled before changing React rendering to hide
   the warning.
-- A full frontend lint run may traverse the untracked
-  `frontend/.worktrees/next-16.4.6/` directory and report generated bundle
-  errors. Do not stage or delete that directory as part of unrelated work.
-  Lint changed source files directly while its ownership is unresolved.
+- ESLint ignores the separate `frontend/.worktrees/` checkout. Do not stage or
+  delete that unrelated worktree as part of feature changes.
 - When the user asks how to run the app, give the terminal command and URL.
   They previously asked the agent not to start the dev server on their behalf.
 

@@ -18,6 +18,7 @@ class TransactionSource(str, Enum):
     CSV = "CSV"
     XLSX = "XLSX"
     PDF = "PDF"
+    IMAGE = "IMAGE"
     MANUAL = "MANUAL"
 
 
@@ -36,12 +37,12 @@ class CanonicalTransactionBase(BaseModel):
     amount: Decimal = Field(..., gt=0, description="Absolute transaction value")
     currency: str = "INR"
     transaction_type: TransactionType = TransactionType.DEBIT
-    raw_description: str
-    merchant_name: str
-    category_name: str = "General"
+    raw_description: str = Field(..., min_length=1, max_length=500)
+    merchant_name: str = Field(..., min_length=1, max_length=255)
+    category_name: str = Field(default="General", min_length=1, max_length=100)
     balance_before: Optional[Decimal] = None
     balance_after: Optional[Decimal] = None
-    reference_id: str
+    reference_id: str = Field(..., min_length=1, max_length=100)
     source: TransactionSource = TransactionSource.BANK_API
     tax_info: Optional[TaxMetadata] = None
     metadata: Dict[str, Any] = Field(default_factory=dict)
@@ -94,3 +95,23 @@ class TransactionDetailResponse(CanonicalTransactionResponse):
     recommended_daily_spend: Optional[Decimal] = None
     is_anomaly: bool = False
     anomaly_reason: Optional[str] = None
+
+
+class StatementPreviewResponse(BaseModel):
+    format: str
+    needs_review: bool
+    warnings: list[str] = Field(default_factory=list)
+    transactions: list[CanonicalTransactionCreate] = Field(max_length=500)
+
+
+class StatementImportRequest(BaseModel):
+    account_id: str = Field(min_length=1, max_length=36)
+    source_format: str = Field(pattern="^(csv|pdf|image)$")
+    transactions: list[CanonicalTransactionCreate] = Field(min_length=1, max_length=500)
+
+
+class StatementImportResponse(BaseModel):
+    account_id: str
+    transactions_confirmed: int
+    transactions_added: int
+    duplicates_skipped: int
