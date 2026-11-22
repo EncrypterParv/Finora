@@ -13,7 +13,9 @@ configured, the local frontend/backend env files contain the project settings,
 and the backend Session pooler connection is configured in ignored
 `backend/.env`. The initial migration has been applied with the Supabase CLI;
 the ten expected tables, their RLS flags, and the migration-history entry were
-verified. A real signup/email-confirmation check is the next validation step.
+verified. For the current judge demo, sign-up is expected to create an active
+session without sending email; the hosted Auth setting still needs to be
+changed and a real sign-up checked.
 
 The configured pooler hostname contains `ap-northeast-1` (Tokyo), while the
 product context currently describes India as the primary audience. Confirm the
@@ -48,13 +50,19 @@ and [Supabase's region-change guidance](https://supabase.com/kb/troubleshooting/
 3. Add these redirect URLs:
    - `http://localhost:3000/auth/callback`
    - `http://127.0.0.1:3000/auth/callback`
-4. In **Authentication → Providers**, leave Email enabled. Keep email
-   confirmation on; the app handles its confirmation callback. Password
-   recovery also returns through `/auth/callback` before opening
-   `/reset-password`, so the callback allowlist entries above cover both flows.
-5. Before inviting real users, configure and verify production email delivery,
-   sender identity, rate limits, and the deployed site's redirect URL. The
-   local-only URLs above are not enough for a hosted deployment.
+4. In **Authentication → Providers → Email**, leave Email enabled and turn
+   **Confirm email** off for the current judge demo. New accounts can then sign
+   in immediately and the app can show an account-created confirmation without
+   relying on email delivery. This also means Supabase treats submitted email
+   addresses as verified; users can register addresses they do not control.
+5. Before opening the app to public users, configure a custom SMTP provider,
+   enable **Confirm email**, and test both confirmation and password recovery.
+   Supabase's default email service is restricted to organization members and
+   is rate-limited. Password recovery still depends on email delivery even
+   while sign-up confirmation is disabled.
+6. Add the deployed site's exact `/auth/callback` URL before testing hosted
+   sign-up confirmation or recovery. The local-only URLs above are not enough
+   for a hosted deployment.
 
 ## Copy project values into local environment files
 
@@ -123,14 +131,17 @@ cd backend
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Visit `http://127.0.0.1:3000/login`, create an account with an email address,
-confirm the email, and sign in. Verify password recovery by requesting a reset,
-opening the email link, and setting a new password. In the Supabase dashboard,
+Visit `http://127.0.0.1:3000/login`, create an account, and confirm the app
+opens the workspace with an account-created message. In the Supabase dashboard,
 verify that the account appears under **Authentication → Users** and that its
 matching profile row appears in **Table Editor → users**. The workspace remains
 empty until the user creates an account label and imports transactions. CSV
 preview performs no writes; only reviewed rows submitted through the confirm
 action are saved to that user's Postgres records.
+
+The current demo deliberately does not verify email ownership. Do not use this
+setting for public users. Password recovery will not work until Auth email
+delivery is configured and tested.
 
 PDF, PNG, and JPG extraction requires the optional, self-hosted PaddleX runtime.
 Use Python 3.13 and install it from the backend directory with:

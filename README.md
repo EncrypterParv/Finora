@@ -171,6 +171,12 @@ environment values, and applying the Postgres migration. Statement import saves
 reviewed records to the user's account; bank sync remains simulated and does
 not connect to real financial institutions.
 
+The current judge demo expects Supabase **Confirm email** to be disabled so a
+new account can open the workspace immediately without email delivery. This
+does not verify email ownership and is not suitable for a public launch. Enable
+confirmation only after configuring custom SMTP and testing both signup and
+password recovery; see the Supabase setup guide.
+
 The entry pages use self-hosted Instrument Serif (SIL OFL; license in
 `frontend/public/fonts/OFL.txt`) and an adapted [Anatomy](https://github.com/wheresryan22/anatomy)
 SVG kit (MIT; license in `frontend/src/lib/anatomy/LICENSE`).
