@@ -64,7 +64,8 @@ calculated.
 - Vercel deployment: the root vercel.json declares the frontend and FastAPI
   backend as Services and routes /api/v1/* to the backend. Dashboard
   environment variables, production-domain Supabase redirects, and hosted
-  smoke checks are not configured by the repository file.
+  smoke checks are not configured by the repository file. The backend
+  pyproject.toml declares its runtime packages so Vercel installs FastAPI.
 - The combined backend suite has 58 passing tests. There is no frontend unit or
   end-to-end test suite yet.
 - Canonical transactions are the normalization boundary for imported or
