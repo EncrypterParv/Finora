@@ -12,6 +12,10 @@ current implementation.
 4. Relevant source code and tests to confirm the current behavior.
 5. Product and architecture documents for intended direction, checking their
    claims against source before relying on them.
+6. [`../supabase/setup.md`](../supabase/setup.md) before changing Supabase
+   configuration, migrations, Auth, or database access.
+7. [`skills/transform-ai-slop-websites/SKILL.md`](skills/transform-ai-slop-websites/SKILL.md)
+   before a substantial redesign of an existing website.
 
 ## Important boundaries
 

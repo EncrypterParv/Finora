@@ -1,4 +1,5 @@
 import { isDemoSession } from "./demo-session";
+import { createClient as createSupabaseClient } from "./supabase/client";
 import {
   demoOverview,
   demoTransactions,
@@ -25,6 +26,18 @@ import {
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
+async function apiFetch(input: RequestInfo | URL, init: RequestInit = {}) {
+  const supabase = createSupabaseClient();
+  const { data, error } = await supabase.auth.getSession();
+  if (error) throw error;
+
+  const headers = new Headers(init.headers);
+  if (data.session?.access_token) {
+    headers.set("Authorization", `Bearer ${data.session.access_token}`);
+  }
+  return fetch(input, { ...init, headers });
+}
+
 export async function fetchCalendarView(
   mode: CalendarViewMode = "month",
   year?: number,
@@ -35,7 +48,7 @@ export async function fetchCalendarView(
   if (year) params.append("year", year.toString());
   if (month) params.append("month", month.toString());
 
-  const res = await fetch(`${API_BASE}/calendar/view?${params.toString()}`);
+  const res = await apiFetch(`${API_BASE}/calendar/view?${params.toString()}`);
   if (!res.ok) {
     throw new Error(
       `Failed to fetch calendar view: ${res.status} ${res.statusText}`,
@@ -56,7 +69,7 @@ export async function fetchTransactions(
     limit: limit.toString(),
     offset: offset.toString(),
   });
-  const res = await fetch(`${API_BASE}/transactions?${params.toString()}`);
+  const res = await apiFetch(`${API_BASE}/transactions?${params.toString()}`);
   if (!res.ok) {
     throw new Error(
       `Failed to fetch transactions: ${res.status} ${res.statusText}`,
@@ -69,7 +82,7 @@ export async function fetchTransactionDetail(
   id: string,
 ): Promise<TransactionDetail> {
   if (isDemoSession()) return demoTransactionDetail(id);
-  const res = await fetch(`${API_BASE}/transactions/${id}`);
+  const res = await apiFetch(`${API_BASE}/transactions/${id}`);
   if (!res.ok) {
     throw new Error(
       `Failed to fetch transaction detail: ${res.status} ${res.statusText}`,
@@ -80,7 +93,7 @@ export async function fetchTransactionDetail(
 
 export async function fetchBudgets(): Promise<BudgetResponse[]> {
   if (isDemoSession()) return demoBudgets();
-  const res = await fetch(`${API_BASE}/budgets`);
+  const res = await apiFetch(`${API_BASE}/budgets`);
   if (!res.ok) {
     throw new Error(`Failed to fetch budgets: ${res.status} ${res.statusText}`);
   }
@@ -91,7 +104,7 @@ export async function createBudget(
   data: BudgetCreate,
 ): Promise<BudgetResponse> {
   if (isDemoSession()) return demoCreateBudget(data);
-  const res = await fetch(`${API_BASE}/budgets`, {
+  const res = await apiFetch(`${API_BASE}/budgets`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -104,7 +117,7 @@ export async function createBudget(
 
 export async function fetchGoals(): Promise<GoalResponse[]> {
   if (isDemoSession()) return demoGoals();
-  const res = await fetch(`${API_BASE}/goals`);
+  const res = await apiFetch(`${API_BASE}/goals`);
   if (!res.ok) {
     throw new Error(`Failed to fetch goals: ${res.status} ${res.statusText}`);
   }
@@ -113,7 +126,7 @@ export async function fetchGoals(): Promise<GoalResponse[]> {
 
 export async function createGoal(data: GoalCreate): Promise<GoalResponse> {
   if (isDemoSession()) return demoCreateGoal(data);
-  const res = await fetch(`${API_BASE}/goals`, {
+  const res = await apiFetch(`${API_BASE}/goals`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -126,7 +139,7 @@ export async function createGoal(data: GoalCreate): Promise<GoalResponse> {
 
 export async function fetchIntelligenceOverview(): Promise<IntelligenceOverviewDTO> {
   if (isDemoSession()) return demoOverview;
-  const res = await fetch(`${API_BASE}/analytics/overview`);
+  const res = await apiFetch(`${API_BASE}/analytics/overview`);
   if (!res.ok) {
     throw new Error(
       `Failed to fetch intelligence overview: ${res.status} ${res.statusText}`,
@@ -137,7 +150,7 @@ export async function fetchIntelligenceOverview(): Promise<IntelligenceOverviewD
 
 export async function fetchBehaviourScore(): Promise<BehaviourScoreDTO> {
   if (isDemoSession()) return demoOverview.behaviour_profile;
-  const res = await fetch(`${API_BASE}/analytics/score`);
+  const res = await apiFetch(`${API_BASE}/analytics/score`);
   if (!res.ok) {
     throw new Error(
       `Failed to fetch behavioural score: ${res.status} ${res.statusText}`,
@@ -148,7 +161,7 @@ export async function fetchBehaviourScore(): Promise<BehaviourScoreDTO> {
 
 export async function fetchForecast(): Promise<ForecastDTO> {
   if (isDemoSession()) return demoOverview.forecast;
-  const res = await fetch(`${API_BASE}/analytics/forecast`);
+  const res = await apiFetch(`${API_BASE}/analytics/forecast`);
   if (!res.ok) {
     throw new Error(
       `Failed to fetch spending forecast: ${res.status} ${res.statusText}`,
@@ -159,7 +172,7 @@ export async function fetchForecast(): Promise<ForecastDTO> {
 
 export async function fetchBehaviouralChanges(): Promise<BehaviourShiftDTO[]> {
   if (isDemoSession()) return demoOverview.observed_shifts;
-  const res = await fetch(`${API_BASE}/analytics/changes`);
+  const res = await apiFetch(`${API_BASE}/analytics/changes`);
   if (!res.ok) {
     throw new Error(
       `Failed to fetch behavioural changes: ${res.status} ${res.statusText}`,
@@ -170,7 +183,7 @@ export async function fetchBehaviouralChanges(): Promise<BehaviourShiftDTO[]> {
 
 export async function fetchRecommendations(): Promise<RecommendationDTO[]> {
   if (isDemoSession()) return demoOverview.recommendations;
-  const res = await fetch(`${API_BASE}/analytics/recommendations`);
+  const res = await apiFetch(`${API_BASE}/analytics/recommendations`);
   if (!res.ok) {
     throw new Error(
       `Failed to fetch recommendations: ${res.status} ${res.statusText}`,
@@ -181,7 +194,7 @@ export async function fetchRecommendations(): Promise<RecommendationDTO[]> {
 
 export async function fetchAnomalies(): Promise<AnomalyAlertDTO[]> {
   if (isDemoSession()) return demoOverview.top_anomalies;
-  const res = await fetch(`${API_BASE}/analytics/anomalies`);
+  const res = await apiFetch(`${API_BASE}/analytics/anomalies`);
   if (!res.ok) {
     throw new Error(
       `Failed to fetch anomalies: ${res.status} ${res.statusText}`,
@@ -204,7 +217,7 @@ export async function triggerBankSync(
       transactions_updated: 0,
       new_balance: demoOverview.liquid_balance,
     };
-  const res = await fetch(`${API_BASE}/bank/sync`, {
+  const res = await apiFetch(`${API_BASE}/bank/sync`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

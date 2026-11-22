@@ -12,7 +12,8 @@ class User(Base):
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     email = Column(String(255), unique=True, index=True, nullable=False)
-    hashed_password = Column(String(255), nullable=False)
+    # Supabase Auth owns passwords in hosted mode; local auth keeps its hash here.
+    hashed_password = Column(String(255), nullable=True)
     full_name = Column(String(255), nullable=False)
     currency = Column(String(10), default="INR", nullable=False)
     preferences = Column(JSON, default=dict, nullable=False)

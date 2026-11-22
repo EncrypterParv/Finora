@@ -1,6 +1,6 @@
 """Application configuration settings."""
 
-from typing import List
+from typing import List, Literal
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     # Environment
     ENVIRONMENT: str = "development"
     DEBUG: bool = True
+    AUTH_PROVIDER: Literal["local", "supabase"] = "local"
+    SUPABASE_URL: str = ""
+    SUPABASE_PUBLISHABLE_KEY: str = ""
     
     # Security & JWT
     SECRET_KEY: str = "super-secret-key-change-in-production-0987654321-financialcall"

@@ -1,7 +1,7 @@
 # Finora Project Context
 
 Last reviewed: 2026-11-21
-Current milestone: mock product prototype, built on the existing Finora platform
+Current milestone: Dashboard hierarchy refresh implemented; Supabase migration deployment pending
 
 This is the short continuity brief for coding agents. Read it before planning
 substantial work, then read [`history.md`](history.md) for dated decisions and
@@ -16,9 +16,13 @@ show explainable spending patterns, forecasts, budgets, and goals that help a
 person decide what to do next. The intended audience in the product brief is
 young professionals and students.
 
-The prototype exists to make these workflows concrete and discussable before
-we invest in production authentication, persistence, statement ingestion, and
-entitlements. The current prototype is not a production financial service.
+The prototype exists to make these workflows concrete and discussable while
+production data persistence, statement ingestion, and entitlements are built.
+Supabase Auth and the initial Postgres schema are configured. The hosted
+project, local auth config, and FastAPI Session pooler URL are set; the TLS
+connection, migration record, ten expected tables, and RLS flags were verified.
+The first real signup/email-confirmation flow remains to be checked. The
+prototype is not a production financial service.
 
 ## Where the project started
 
@@ -38,10 +42,10 @@ calculated.
 | Area | Current status | What that means |
 |---|---|---|
 | Landing page | Implemented prototype | Public product explanation and interactive sample walkthrough. A proposed three-tier plans section now lives here. |
-| Dashboard prototype | Mock UI | Overview, calendar, insights, statement preview, data map, access roles, and profile screens use synthetic data and local state. |
+| Dashboard prototype | Mock UI; visual hierarchy refreshed | Overview, calendar, insights, statement preview, data map, access roles, and profile screens use synthetic data and local state. The updated overview strengthens hierarchy and account clarity while keeping the mock-data boundary visible. Browser visual QA remains pending because the app server was not started. |
 | Plans | Illustrative only | Prices and feature tiers are concepts. No subscription, checkout, or server-side entitlement enforcement exists. |
-| Login and RBAC | Demo only / backend incomplete | Frontend `admin / admin` login sets a browser session flag. It is not real authentication. Role changes in the prototype do not authorize requests. |
-| Database | Partial foundation | SQLAlchemy models exist. Local runtime defaults to SQLite, creates tables at startup, and seeds a synthetic profile. No checked-in migration history or Supabase setup exists. |
+| Login and RBAC | Supabase Auth configured; first signup check pending, RBAC remains mock-only | Next.js email/password sign-in uses Supabase SSR sessions. FastAPI is configured to validate Supabase access tokens. The prototype's role editor is not authorization. |
+| Database | Initial Supabase schema applied and verified | The checked-in migration mirrors current SQLAlchemy entities, creates a profile from `auth.users`, and enables owner-scoped RLS on all ten expected tables. A read-only connection and migration-history check passed. |
 | Statement import | Partial | Backend parser and upload endpoint support CSV. The prototype file picker shows generated rows and does not read or send the selected file. XLSX/PDF import is not implemented end to end. |
 | Calendar | Existing backend + mock prototype | Existing API/service and prior calendar UI exist. The current prototype calendar uses local sample data. Reconcile backend date-range behavior before connecting them. |
 | Insights | Statistical foundation + mock screen | Backend features, forecasts, shifts, anomaly heuristics, and recommendations exist. This is not a trained ML product; several recommendation impacts are fixed illustrative estimates. |
@@ -52,10 +56,11 @@ calculated.
 ## Technical shape and boundaries
 
 - Backend: FastAPI, Pydantic, async SQLAlchemy; keep it a modular monolith.
-- Frontend: Next.js App Router, strict TypeScript, Tailwind, TanStack Query,
-  existing components and design tokens.
-- At the last repository inventory, the backend had 26 tests. Recheck the
-  current suite before relying on that count; there is no frontend test suite.
+- Frontend: Next.js 16.4.6 App Router, strict TypeScript, Tailwind, TanStack
+  Query, existing components and design tokens. `experimental.agentUpgrade` is
+  set to `"security"` following the November 2026 security patch upgrade.
+- The backend currently has 28 passing tests. There is no frontend unit or
+  end-to-end test suite yet.
 - Canonical transactions are the normalization boundary for imported or
   simulated transaction data. Keep analytics and calendar work based on that
   domain shape.
@@ -64,24 +69,36 @@ calculated.
 - Keep user-owned financial records tenant-scoped in every query and mutation.
 - Keep prototype interactions visibly mock. Do not describe them as secure,
   persisted, uploaded, purchased, or model-generated when they are not.
-- No backend provider has been selected in this context. The user explicitly
-  withdrew a Supabase-related prompt as belonging to another task; do not treat
-  Supabase as an approved decision without asking again.
+- The user selected Supabase Auth and Postgres on 2026-11-21. The project was
+  created, the site URL/callback URLs and local public config were set, and the
+  backend Session pooler URL is configured in ignored `backend/.env`; the
+  initial migration is applied and its tables, RLS flags, and history entry
+  were verified. The setup guide is in `docs/supabase/`.
+- Next.js uses `@supabase/ssr` cookie sessions and verifies server-side claims.
+  FastAPI validates bearer tokens through Supabase Auth, then sets transaction-
+  local identity and switches to the restricted `finora_app` role so Postgres
+  RLS applies. The browser uses only the project URL and publishable key.
+- `frontend/.env.local` and `backend/.env` are ignored local files. Their
+  committed templates contain placeholders only; never commit database
+  passwords or Supabase secret/service-role keys.
 
 ## Known gaps that affect planning
 
-These were verified against source during the 2026-11-20 repository review;
+These were verified against source during the 2026-11-21 repository review;
 recheck them before implementation because code may have changed since then.
 
-1. `backend/app/api/deps.py` lets a missing bearer token fall back to the first
-   database user. This must be removed before treating backend auth as secure.
-   Frontend API requests also do not implement a real authenticated session.
+1. With `AUTH_PROVIDER=local`, a missing bearer token still falls back to the
+   first seeded user for the old demo API flow. Supabase mode rejects requests
+   without a valid token. Do not use local auth mode in a hosted environment.
+   The frontend API helper sends the Supabase bearer token when it calls
+   FastAPI; the prototype screens currently use mock data instead.
 2. The statement endpoint calls the CSV parser and persists rows immediately;
    the prototype preview is generated sample content. Do not claim XLSX/PDF or
    review-before-persist behavior is complete.
-3. Runtime database setup uses `Base.metadata.create_all()` and demo seeding.
-   PostgreSQL configuration exists, but there is no production migration path
-   or connected Supabase project in the repo.
+3. In local mode, runtime database setup uses `Base.metadata.create_all()` and
+   demo seeding. Supabase mode skips both and relies on checked-in migrations.
+   The initial migration has been run against Supabase and its history entry,
+   ten tables, and ten RLS-enabled table flags were verified.
 4. The calendar API's day/week range handling needs review against the selected
    date. The prototype's local calendar navigation does not fix backend logic.
 5. Analytics use deterministic/statistical code. The anomaly detector is a
@@ -91,10 +108,16 @@ recheck them before implementation because code may have changed since then.
 6. Existing roadmap and architecture documents contain planned or overstated
    capabilities. Read the implementation and tests before repeating those
    claims.
+7. FastAPI currently checks each Supabase bearer token through the Auth user
+   endpoint on each request. This is straightforward verification for the
+   prototype but adds network latency; evaluate cached JWKS verification before
+   scaling API traffic.
 
 ## Product decisions and working preferences
 
 - The user asked for a simple, mock-data-first prototype to start feature work.
+- Supabase is now explicitly selected for Auth and Postgres; do not revert this
+  decision to SQLite-only or treat the withdrawn earlier prompt as current.
 - Plans belong on the public landing page, not in dashboard navigation.
 - Use the shared `FinoraMark` brand component rather than a typed initial in
   dashboard chrome. The current repository's canonical mark is F-shaped; no

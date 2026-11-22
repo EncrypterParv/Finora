@@ -14,12 +14,13 @@ from app.db.seeder import seed_demo_data_if_empty
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifecycle startup and shutdown handler."""
-    # Ensure tables are created for SQLite / Local Dev
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    
-    async with AsyncSessionLocal() as session:
-        await seed_demo_data_if_empty(session)
+    # Supabase schema is managed only through checked-in SQL migrations.
+    if settings.AUTH_PROVIDER == "local":
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+        async with AsyncSessionLocal() as session:
+            await seed_demo_data_if_empty(session)
 
     yield
     await engine.dispose()

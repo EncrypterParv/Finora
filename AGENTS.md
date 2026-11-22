@@ -15,6 +15,9 @@ nearest scoped `AGENTS.md` before changing code.
   and bank-provided data.
 - Prefer small, focused changes. Update tests and relevant documentation when
   behavior or architecture changes.
+- Keep `README.md`, `docs/agents/project-context.md`, and
+  `docs/agents/history.md` current with meaningful product and architecture
+  decisions. Record pending external setup separately from completed code.
 - Do not invent missing modules merely because an architecture document lists
   them; verify the current implementation first.
 
@@ -38,6 +41,8 @@ npm run build
 For orientation, read [`docs/agents/context.md`](docs/agents/context.md).
 Roles and handoff expectations are in [`docs/agents/roles.md`](docs/agents/roles.md)
 and [`docs/agents/workflow.md`](docs/agents/workflow.md).
+For future website redesigns, follow the project copy of the
+[`transform-ai-slop-websites` workflow](docs/agents/skills/transform-ai-slop-websites/SKILL.md).
 
 Before planning substantial work, also read
 [`docs/agents/project-context.md`](docs/agents/project-context.md) and

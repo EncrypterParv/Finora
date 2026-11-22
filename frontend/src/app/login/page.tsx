@@ -3,34 +3,66 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Arrow, Wordmark } from "@/components/landing/LandingPage";
-import { startDemoSession } from "@/lib/demo-session";
+import { getSupabaseConfig } from "@/lib/supabase/config";
+import { createClient } from "@/lib/supabase/client";
 import "@/components/landing/landing.css";
 import "@/components/landing/refinement.css";
 
 export default function LoginPage() {
   const router = useRouter();
+  const supabaseConfigured = Boolean(getSupabaseConfig());
   const [visible, setVisible] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
   const [pending, setPending] = useState(false);
-  function submit(event: FormEvent<HTMLFormElement>) {
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const values = new FormData(event.currentTarget);
-    if (
-      values.get("username") !== "admin" ||
-      values.get("password") !== "admin"
-    ) {
-      setError("Use admin for both username and password to open the demo.");
+    setError("");
+    setNotice("");
+
+    if (!getSupabaseConfig()) {
+      setError("Supabase is not configured yet. Add the project URL and publishable key to frontend/.env.local.");
       return;
     }
+
+    setPending(true);
     try {
-      startDemoSession();
-      setError("");
-      setPending(true);
-      router.push("/dashboard");
-    } catch {
-      setError(
-        "Browser storage is unavailable. Enable session storage and try again.",
-      );
+      const supabase = createClient();
+      const email = String(values.get("email") ?? "").trim();
+      const password = String(values.get("password") ?? "");
+
+      if (mode === "sign-up") {
+        const fullName = String(values.get("full_name") ?? "").trim();
+        const { data, error: authError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: fullName, currency: "INR" },
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+        if (authError) throw authError;
+        if (data.session) {
+          router.replace("/dashboard");
+          router.refresh();
+        } else {
+          setNotice("Account created. Check your email to confirm it, then sign in.");
+          setMode("sign-in");
+        }
+        return;
+      }
+
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      if (authError) throw authError;
+      router.replace("/dashboard");
+      router.refresh();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Authentication failed. Try again.");
+    } finally {
+      setPending(false);
     }
   }
   return (
@@ -62,22 +94,41 @@ export default function LoginPage() {
           <Arrow />
           Back to Finora
         </Link>
-        <h1>Come on in.</h1>
+        <h1>{mode === "sign-in" ? "Come on in." : "Create your account."}</h1>
         <p>
-          Explore your financial picture with a ready-to-use demo. No bank
-          details required.
+          Sign in securely to explore the Finora prototype. No bank details are
+          requested.
         </p>
+        {!supabaseConfigured && (
+          <p role="status" className="login-credentials">
+            Add the Supabase project URL and publishable key to
+            frontend/.env.local, then restart the dev server.
+          </p>
+        )}
         <form onSubmit={submit}>
-          <label htmlFor="username">Username</label>
+          {mode === "sign-up" && (
+            <>
+              <label htmlFor="full_name">Full name</label>
+              <input
+                id="full_name"
+                name="full_name"
+                autoComplete="name"
+                required
+                placeholder="Your name"
+              />
+            </>
+          )}
+          <label htmlFor="email">Email</label>
           <input
-            id="username"
-            name="username"
-            autoComplete="username"
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
             autoCapitalize="none"
             spellCheck={false}
             required
-            placeholder="Enter demo username"
-            aria-describedby="demo-credentials"
+            placeholder="you@example.com"
+            aria-describedby="auth-message"
             aria-invalid={Boolean(error)}
           />
           <label htmlFor="password">Password</label>
@@ -86,10 +137,11 @@ export default function LoginPage() {
               id="password"
               name="password"
               type={visible ? "text" : "password"}
-              autoComplete="current-password"
+              autoComplete={mode === "sign-up" ? "new-password" : "current-password"}
+              minLength={8}
               required
-              placeholder="Enter demo password"
-              aria-describedby="demo-credentials"
+              placeholder="At least 8 characters"
+              aria-describedby="auth-message"
               aria-invalid={Boolean(error)}
             />
             <button
@@ -102,23 +154,29 @@ export default function LoginPage() {
             </button>
           </div>
           {error && (
-            <p role="alert" className="login-error">
+            <p id="auth-message" role="alert" className="login-error">
               {error}
             </p>
           )}
           <button className="landing-button" type="submit" disabled={pending}>
-            {pending ? "Opening your overview…" : "Open my financial overview"}
+            {pending ? "Please wait…" : mode === "sign-in" ? "Sign in" : "Create account"}
             <Arrow />
           </button>
         </form>
-        <div className="login-credentials" id="demo-credentials">
-          <span>Demo credentials</span>
-          <code>admin / admin</code>
+        {notice && <p role="status" className="login-credentials">{notice}</p>}
+        <div className="login-credentials">
+          <span>{mode === "sign-in" ? "New to Finora?" : "Already registered?"}</span>
+          <button
+            type="button"
+            className="font-semibold text-[#4e342e] underline underline-offset-2"
+            onClick={() => { setMode(mode === "sign-in" ? "sign-up" : "sign-in"); setError(""); setNotice(""); }}
+          >
+            {mode === "sign-in" ? "Create an account" : "Sign in"}
+          </button>
         </div>
         <p className="demo-explanation">
-          Frontend preview only. This demo login isn’t secure authentication.
-          All financial figures are synthetic; changes reset when this session
-          ends.
+          Sign-in uses Supabase Auth. Dashboard content is still a prototype:
+          financial figures are synthetic and prototype changes are not saved.
         </p>
       </section>
     </main>

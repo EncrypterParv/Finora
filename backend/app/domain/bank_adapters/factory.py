@@ -18,6 +18,12 @@ class BankAdapterFactory:
         """Register a new bank adapter."""
         cls._adapters[institution_id.lower()] = adapter_cls
 
+    # True if an adapter is registered for this id (case-insensitive, same lookup as get_adapter).
+    @classmethod
+    def is_supported(cls, institution_id: str) -> bool:
+        """Check whether an adapter is registered without instantiating it."""
+        return institution_id.lower() in cls._adapters
+
     @classmethod
     def get_adapter(cls, institution_id: str) -> BankAdapter:
         """Retrieve instantiated adapter instance."""
