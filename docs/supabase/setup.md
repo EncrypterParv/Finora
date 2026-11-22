@@ -47,7 +47,9 @@ and [Supabase's region-change guidance](https://supabase.com/kb/troubleshooting/
 ## Configure Auth
 
 1. In the project dashboard, open **Authentication → URL Configuration**.
-2. Set the site URL to `http://localhost:3000` for local development.
+2. Set the hosted project's Site URL to `https://finora-sem3.vercel.app` for
+   production. Keep localhost URLs in the redirect allowlist for local
+   development; do not set the hosted project's default Site URL to localhost.
 3. Add these redirect URLs:
    - `http://localhost:3000/auth/callback`
    - `http://127.0.0.1:3000/auth/callback`
