@@ -1,7 +1,7 @@
 # Finora
 
 > **Financial Behaviour Intelligence Platform**  
-> *Transforming transaction tracking into an active decision engine through temporal calendar dynamics and predictive machine learning.*
+> *A clearer view of daily cash flow, financial habits, and the next decision.*
 
 ---
 
@@ -12,7 +12,7 @@ flowchart LR
     A[Financial Data] --> B[Canonical Normalization]
     B --> C[Financial Calendar UI]
     C --> D[Behavioural Analytics]
-    D --> E[ML Prediction Engine]
+    D --> E[Insights]
     E --> F[Actionable Recommendation]
     F --> G[Financial Action]
     G --> H[Improved Behaviour]
@@ -20,18 +20,19 @@ flowchart LR
 ```
 
 Unlike generic personal finance dashboards that treat money as a static ledger, **Finora** introduces:
-1. **The Financial Calendar**: A first-class, dense temporal interface mapping cash-flows onto daily/weekly schedules with real-time spending intensity heatmaps.
-2. **Canonical Transaction Architecture**: A unified ingestion pipeline transforming heterogeneous inputs (Simulated Bank Streams, CSV, XLSX, PDF) into an immutable, deduplicated domain model.
-3. **Predictive Behavioural Intelligence**: Statistical velocity modeling, budget exhaustion projections, Isolation Forest anomaly alerts, and dynamic FIRE (Financial Independence) scenarios.
+1. **The Financial Calendar**: Organizes canonical cash flow across days, weeks, and months.
+2. **Canonical Transaction Architecture**: A unified transaction model for simulated bank streams and CSV imports. XLSX/PDF imports are not implemented end to end.
+3. **Behavioural Intelligence**: Statistical spending summaries, forecasts, anomaly heuristics, and FIRE scenarios. The current system does not use a trained ML model or Isolation Forest.
 
 ---
 
 ## 🏛️ Architecture Overview
 
 The system is built as a **Modular Monolith**:
-- **Frontend**: Next.js 15+ (App Router), TypeScript, Tailwind CSS, TanStack Query, Framer Motion, Recharts.
+- **Frontend**: Next.js 16.4.6 (App Router), TypeScript, Tailwind CSS, TanStack Query, Framer Motion, Recharts.
 - **Backend API**: Python FastAPI, Pydantic v2 schemas, SQLAlchemy 2.0 async ORM.
-- **Persistence**: PostgreSQL (with SQLite async support for local development and testing).
+- **Persistence**: The code defaults to local SQLite; this working copy's ignored `backend/.env` selects the Supabase Session pooler. The initial Postgres migration has been applied to the configured project.
+- **Authentication**: Supabase Auth email/password flow is integrated in the frontend. The hosted schema and profile trigger are ready; a real signup/email-confirmation check remains. Prototype dashboard data remains synthetic.
 - **Simulated Integrations**: Pluggable `BankAdapter` contracts (e.g. `HSBCDemoAdapter`) with zero storage of real credentials.
 
 Detailed system documentation is available in `docs/`:
@@ -43,6 +44,7 @@ Detailed system documentation is available in `docs/`:
 - [Statement Ingestion Engine](docs/architecture/statement-import.md)
 - [ML & Behavioural Analytics](docs/architecture/ml-architecture.md)
 - [Security & Privacy Architecture](docs/architecture/security.md)
+- [Supabase setup and schema deployment](docs/supabase/setup.md)
 - [Product Requirements (PRD)](docs/product/requirements.md)
 - [Engineering Roadmap](docs/product/roadmap.md)
 
@@ -50,6 +52,7 @@ Engineering and agent workflow:
 - [Agent context](docs/agents/context.md)
 - [Project continuity brief](docs/agents/project-context.md)
 - [Milestone and decision history](docs/agents/history.md)
+- [Website redesign workflow](docs/agents/skills/transform-ai-slop-websites/SKILL.md)
 - [Agent roles](docs/agents/roles.md)
 - [Contribution guide](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
@@ -95,6 +98,7 @@ npm run typecheck
 npm run build
 ```
 Client interface available at: `http://localhost:3000`
+For Supabase sign-in and database setup, complete [the Supabase setup guide](docs/supabase/setup.md) first. Without project keys, the login page displays a configuration prompt.
 
 ### 3. Quality Checks
 
@@ -120,7 +124,7 @@ The frontend lint command uses ESLint's flat configuration with the Next.js and 
 
 ## 🛡️ Security & Privacy Principles
 - **No Real Bank Credentials**: All bank sync operations use simulated adapter streams.
-- **Granular Isolation**: User queries are strictly tenant-isolated at the ORM layer.
+- **Granular Isolation**: Hosted-mode API access uses verified Supabase identities, transaction-scoped RLS, and tenant-scoped ORM queries. Local auth mode is demo-only.
 - **Deterministic Deduplication**: Automated SHA-256 fingerprinting prevents double-counting across multi-file statement imports.
 
 ## Frontend demo entry flow
@@ -130,12 +134,26 @@ cash-flow instrument, spending walkthrough, and wealth/FIRE scenario explorer.
 The scenario uses visible assumptions and is not a prediction or investment
 recommendation.
 
-Open `/login` and enter **admin** for both username and password to enter
-`/dashboard`. This is a browser-only demo gate, not production authentication.
-The demo uses synthetic October 2026 data and runs without the backend. Budget
-and goal changes are stored in session storage and cleared on logout. File import
-is explicitly deferred until the backend is connected; demo sync never connects
-to a real bank. Existing API functions remain available outside demo mode.
+## Current integration status
+
+- The login uses Supabase Auth SSR sessions, and the FastAPI API can validate
+  those access tokens and apply per-user Postgres row-level security.
+- The initial Postgres migration and local environment templates are in this
+  repository. The Supabase project exists, its local site URL and callback URLs
+  are configured, and the project URL/publishable key are in the ignored local
+  frontend and backend env files. The Session pooler URL is configured in
+  `backend/.env`; the TLS connection succeeded, and the migration is applied
+  with all ten expected tables protected by RLS.
+- Dashboard screens still show synthetic data. Prototype edits do not persist
+  to Postgres. The role editor is visual only; server-enforced team RBAC is not
+  implemented.
+
+Open `/login` to create a Supabase Auth account or sign in, then enter
+`/dashboard`. The dashboard still displays synthetic October 2026 data; its
+prototype changes are not persisted yet. See
+[`docs/supabase/setup.md`](docs/supabase/setup.md) for project setup, local
+environment values, and applying the Postgres migration. File import and bank
+sync remain simulated and do not connect to real financial institutions.
 
 The entry pages use self-hosted Instrument Serif (SIL OFL; license in
 `frontend/public/fonts/OFL.txt`) and an adapted [Anatomy](https://github.com/wheresryan22/anatomy)

@@ -1,4 +1,4 @@
-// A navigation gate for the synthetic demo, not authentication or authorization.
+// Selects synthetic data in legacy API adapters; it is not authentication.
 export const DEMO_SESSION_KEY = "finora.demo.session";
 export function isDemoSession() {
   return (

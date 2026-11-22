@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Activity,
   ArrowDownLeft,
@@ -24,10 +24,12 @@ import {
   WalletCards,
 } from "lucide-react";
 import { demoOverview, demoTransactions } from "@/lib/demo-data";
-import { endDemoSession } from "@/lib/demo-session";
+import { createClient } from "@/lib/supabase/client";
+import { endDemoSession, startDemoSession } from "@/lib/demo-session";
 import { formatCurrency } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { FinoraMark } from "@/components/brand/FinoraMark";
+import "./prototype-dashboard.css";
 
 type Section =
   | "overview"
@@ -72,73 +74,88 @@ function dateKey(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-export function PrototypeDashboard() {
+export function PrototypeDashboard({
+  userEmail,
+  userName,
+}: {
+  userEmail: string;
+  userName: string;
+}) {
   const router = useRouter();
   const [section, setSection] = useState<Section>("overview");
   const [toast, setToast] = useState("");
-  const [profileName, setProfileName] = useState("Aarav Mehta");
+  const [profileName, setProfileName] = useState(userName);
   const [currency, setCurrency] = useState("INR");
   const [profileSaved, setProfileSaved] = useState(false);
   const [members, setMembers] = useState(initialMembers);
   const [fileName, setFileName] = useState("");
   const [imported, setImported] = useState(false);
 
+  useEffect(() => {
+    // Auth is real; this flag keeps the prototype's feature data synthetic.
+    startDemoSession();
+    return endDemoSession;
+  }, []);
+
   const notify = (message: string) => {
     setToast(message);
     window.setTimeout(() => setToast(""), 2800);
   };
 
-  const signOut = () => {
-    endDemoSession();
+  const signOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
     router.replace("/login");
+    router.refresh();
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f5f0] text-[#28231f]">
-      <aside className="fixed inset-y-0 left-0 hidden w-[238px] flex-col border-r border-[#e8e4dc] bg-white px-4 py-5 md:flex">
-        <div className="mb-8 flex items-center gap-3 px-2">
+    <div className="finora-prototype min-h-screen bg-[#f3eee5] text-[#28231f]">
+      <aside className="prototype-sidebar fixed inset-y-0 left-0 hidden w-[244px] flex-col border-r border-[#e3d9cc] bg-[#f8f4ec] px-4 py-5 md:flex">
+        <div className="prototype-brand mb-8 flex items-center gap-3 px-2">
           <div>
             <FinoraMark size="md" />
-            <div className="pl-1 text-[11px] text-[#837970]">Prototype workspace</div>
+            <div className="prototype-brand-caption pl-1 text-[11px] text-[#837970]">Personal finance workspace</div>
           </div>
         </div>
-        <div className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#968d82]">Workspace</div>
-        <nav className="space-y-1" aria-label="Prototype sections">
+        <div className="prototype-nav-label mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#968d82]">Your workspace</div>
+        <nav className="prototype-nav space-y-1" aria-label="Prototype sections">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = section === item.id;
-            return <button key={item.id} type="button" onClick={() => setSection(item.id)} aria-current={active ? "page" : undefined} className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] transition-colors ${active ? "bg-[#f4eee7] font-semibold text-[#4e342e]" : "text-[#6f675f] hover:bg-[#f8f6f2] hover:text-[#28231f]"}`}>
+            return <button key={item.id} type="button" onClick={() => setSection(item.id)} aria-current={active ? "page" : undefined} className={`prototype-nav-link flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] transition-colors ${active ? "is-active bg-[#f4eee7] font-semibold text-[#4e342e]" : "text-[#6f675f] hover:bg-[#f8f6f2] hover:text-[#28231f]"}`}>
               <Icon size={16} strokeWidth={1.8} />{item.label}
             </button>;
           })}
         </nav>
-        <div className="mt-auto rounded-lg border border-[#e9e4db] bg-[#fbfaf7] p-3 text-xs text-[#766e65]">
-          <div className="mb-1 flex items-center gap-2 font-medium text-[#4e342e]"><CircleHelp size={14} /> Prototype mode</div>
-          Sample interactions only. Nothing is saved to an account.
+        <div className="prototype-sidebar-note mt-auto rounded-lg border border-[#e9e4db] bg-[#fbfaf7] p-3 text-xs text-[#766e65]">
+          <div className="mb-1 flex items-center gap-2 font-medium text-[#4e342e]"><CircleHelp size={14} /> Preview environment</div>
+          Figures and workspace controls are examples. Your sign-in is real; this financial data is not.
         </div>
       </aside>
 
-      <div className="md:pl-[238px]">
-        <header className="sticky top-0 z-20 border-b border-[#e8e4dc] bg-[#f7f5f0]/95 px-4 py-3 backdrop-blur-sm md:px-8">
+      <div className="md:pl-[244px]">
+        <header className="prototype-topbar sticky top-0 z-20 border-b border-[#e8e4dc] bg-[#f3eee5]/95 px-4 py-3 md:px-8">
           <div className="mx-auto flex max-w-[1280px] items-center justify-between gap-4">
-            <div className="min-w-0"><div className="text-sm font-semibold">{navItems.find((item) => item.id === section)?.label}</div><div className="text-[11px] text-[#837970]">Finora · sample workspace</div></div>
+            <div className="min-w-0"><div className="prototype-breadcrumb text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8c7465]">Finora <span aria-hidden="true">/</span> Personal</div><div className="mt-1 text-sm font-semibold">{navItems.find((item) => item.id === section)?.label}</div></div>
             <div className="flex shrink-0 items-center gap-3">
-              <span className="hidden rounded-md bg-[#f4eee7] px-2.5 py-1.5 text-[11px] font-medium text-[#694b3b] sm:inline-flex">Mock data</span>
-              <button type="button" onClick={() => setSection("profile")} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-white" aria-label="Open profile">
-                <span className="grid h-8 w-8 place-items-center rounded-full bg-[#e9ded2] text-xs font-semibold text-[#4e342e]">AM</span>
-                <span className="hidden text-xs font-medium sm:block">{profileName}</span>
+              <span className="prototype-status hidden items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] sm:inline-flex"><span aria-hidden="true" />Sample workspace</span>
+              <button type="button" onClick={() => setSection("profile")} className="prototype-account flex items-center gap-2 rounded-lg px-2 py-1.5 text-left" aria-label="Open profile">
+                <span className="prototype-avatar grid h-8 w-8 place-items-center rounded-full text-xs font-semibold">{(userName || userEmail || "U").slice(0, 1).toUpperCase()}</span>
+                <span className="hidden max-w-44 truncate text-xs font-medium sm:block">{userEmail || "Your account"}</span>
               </button>
-              <button type="button" onClick={signOut} className="rounded-md p-2 text-[#766e65] hover:bg-white" aria-label="Log out"><LogOut size={16} /></button>
+              <button type="button" onClick={signOut} className="prototype-signout rounded-md p-2 text-[#766e65]" aria-label="Log out"><LogOut size={16} /></button>
             </div>
           </div>
-          <nav className="mx-auto mt-3 flex max-w-[1280px] gap-1 overflow-x-auto pb-0.5 md:hidden" aria-label="Prototype sections">
-            {navItems.map((item) => <button key={item.id} type="button" onClick={() => setSection(item.id)} className={`shrink-0 rounded-md px-3 py-2 text-xs ${section === item.id ? "bg-[#4e342e] text-white" : "bg-white text-[#655c54]"}`}>{item.label}</button>)}
+          <nav className="prototype-mobile-nav mx-auto mt-3 flex max-w-[1280px] gap-1 overflow-x-auto pb-0.5 md:hidden" aria-label="Prototype sections">
+            {navItems.map((item) => <button key={item.id} type="button" onClick={() => setSection(item.id)} aria-current={section === item.id ? "page" : undefined} className={`shrink-0 rounded-md px-3 py-2 text-xs ${section === item.id ? "bg-[#4e342e] text-white" : "bg-white text-[#655c54]"}`}>{item.label}</button>)}
           </nav>
         </header>
 
-        <main className="mx-auto max-w-[1280px] px-4 py-6 md:px-8 md:py-8">
-          <div className="mb-6 rounded-lg border border-[#eadfce] bg-[#fffaf2] px-4 py-3 text-xs text-[#725b43]">
-            Prototype only · synthetic October 2026 figures · buttons demonstrate flows and do not connect to real accounts.
+        <main className="prototype-content mx-auto max-w-[1280px] px-4 py-6 md:px-8 md:py-8">
+          <div className="prototype-demo-note mb-7 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e8d7c5] bg-[#fffaf2] px-4 py-3 text-xs text-[#725b43]">
+            <span><strong>Sample workspace</strong> <span aria-hidden="true">·</span> Synthetic October 2026 figures; edits stay in this browser session.</span>
+            <span className="prototype-note-status"><span aria-hidden="true" /> No bank connected</span>
           </div>
           {section === "overview" && <OverviewView onOpen={setSection} imported={imported} />}
           {section === "calendar" && <CalendarPrototype />}
@@ -146,7 +163,7 @@ export function PrototypeDashboard() {
           {section === "import" && <ImportPrototype fileName={fileName} setFileName={setFileName} imported={imported} setImported={setImported} notify={notify} />}
           {section === "data" && <DataMapPrototype />}
           {section === "access" && <AccessPrototype members={members} setMembers={setMembers} notify={notify} />}
-          {section === "profile" && <ProfilePrototype name={profileName} setName={setProfileName} currency={currency} setCurrency={setCurrency} saved={profileSaved} onSave={() => { setProfileSaved(true); notify("Profile changes saved in this prototype session."); }} />}
+          {section === "profile" && <ProfilePrototype name={profileName} email={userEmail} setName={setProfileName} currency={currency} setCurrency={setCurrency} saved={profileSaved} onSave={() => { setProfileSaved(true); notify("Profile changes saved in this prototype session."); }} />}
         </main>
         {toast && <div role="status" className="fixed bottom-5 right-5 z-50 rounded-lg bg-[#352720] px-4 py-3 text-sm text-white shadow-lg">{toast}</div>}
       </div>
@@ -155,34 +172,44 @@ export function PrototypeDashboard() {
 }
 
 function PageTitle({ title, description, action }: { title: string; description: string; action?: React.ReactNode }) {
-  return <div className="mb-6 flex flex-wrap items-end justify-between gap-4"><div><h1 className="text-2xl font-semibold tracking-tight">{title}</h1><p className="mt-1 max-w-2xl text-sm text-[#777067]">{description}</p></div>{action}</div>;
+  return <div className="prototype-page-title mb-7 flex flex-wrap items-end justify-between gap-4"><div><span className="prototype-eyebrow">Your finances, in context</span><h1 className="mt-2 text-3xl font-semibold tracking-tight">{title}</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-[#777067]">{description}</p></div>{action}</div>;
 }
 
 function Surface({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <section className={`rounded-lg border border-[#e8e4dc] bg-white ${className}`}>{children}</section>;
+  return <section className={`prototype-surface rounded-xl border border-[#e8e4dc] bg-white ${className}`}>{children}</section>;
 }
 
 function OverviewView({ onOpen, imported }: { onOpen: (section: Section) => void; imported: boolean }) {
   const stats = [
-    { label: "Available balance", value: formatCurrency(demoOverview.liquid_balance), note: "Across 2 sample accounts", icon: WalletCards },
     { label: "Spent this month", value: formatCurrency(demoOverview.month_to_date_spend), note: "October 1–18, 2026", icon: ArrowUpRight },
     { label: "Income this month", value: formatCurrency(demoOverview.monthly_inflow), note: "Synthetic monthly income", icon: ArrowDownLeft },
     { label: "Behaviour score", value: `${demoOverview.behaviour_profile.score}/100`, note: "Illustrative score", icon: Activity },
   ];
   return <>
-    <PageTitle title="Your money, in one view" description="A small working prototype for exploring Finora's core money features." action={<button onClick={() => onOpen("import")} className="inline-flex items-center gap-2 rounded-md bg-[#4e342e] px-3.5 py-2.5 text-sm font-medium text-white hover:bg-[#3b2823]"><Plus size={16} /> Import sample data</button>} />
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{stats.map(({ label, value, note, icon: Icon }) => <Surface key={label} className="p-4"><div className="flex items-start justify-between"><span className="text-xs text-[#777067]">{label}</span><Icon size={16} className="text-[#8d7769]" /></div><div className="mt-3 text-xl font-semibold tabular-nums">{value}</div><div className="mt-1 text-[11px] text-[#938b82]">{note}</div></Surface>)}</div>
-    <div className="mt-5 grid gap-5 lg:grid-cols-[1.35fr_1fr]">
-      <Surface className="p-5"><div className="flex items-center justify-between"><div><h2 className="font-semibold">Recent activity</h2><p className="mt-1 text-xs text-[#837970]">Sample transactions</p></div><button onClick={() => onOpen("calendar")} className="inline-flex items-center gap-1 text-xs font-medium text-[#694b3b]">Open calendar <ArrowRight size={14} /></button></div>
+    <PageTitle title="Your money, in one view" description="A considered snapshot of the sample cash flow, with clear paths into the details." action={<button onClick={() => onOpen("import")} className="prototype-primary-action inline-flex items-center gap-2 rounded-md bg-[#4e342e] px-3.5 py-2.5 text-sm font-medium text-white"><Plus size={16} /> Try statement import</button>} />
+    <div className="overview-topline">
+      <section className="overview-balance" aria-label="Sample available balance">
+        <div className="overview-balance-copy">
+          <span className="overview-label"><WalletCards size={15} /> Available balance</span>
+          <strong className="overview-balance-value">{formatCurrency(demoOverview.liquid_balance)}</strong>
+          <span className="overview-balance-caption">Across 2 simulated accounts · sample figures</span>
+          <button onClick={() => onOpen("calendar")} className="overview-balance-link">Review cash flow <ArrowRight size={15} /></button>
+        </div>
+        <div className="balance-stamp" aria-hidden="true"><span>FINORA</span><strong>01</strong><i /></div>
+      </section>
+      <div className="overview-kpis">{stats.map(({ label, value, note, icon: Icon }, index) => <Surface key={label} className={`overview-kpi overview-kpi-${index + 1} p-4`}><div className="flex items-start justify-between"><span className="text-xs text-[#777067]">{label}</span><Icon size={16} className="text-[#8d7769]" /></div><div className="mt-3 text-xl font-semibold tabular-nums">{value}</div><div className="mt-1 text-[11px] text-[#938b82]">{note}</div></Surface>)}</div>
+    </div>
+    <div className="overview-content-grid mt-6 grid gap-5 lg:grid-cols-[1.4fr_0.9fr]">
+      <Surface className="overview-activity p-5 md:p-6"><div className="flex items-center justify-between gap-3"><div><span className="prototype-eyebrow">Latest entries</span><h2 className="mt-1 font-semibold">Recent activity</h2><p className="mt-1 text-xs text-[#837970]">Sample transactions · October 2026</p></div><button onClick={() => onOpen("calendar")} className="prototype-inline-link inline-flex items-center gap-1 text-xs font-medium">Open calendar <ArrowRight size={14} /></button></div>
         <div className="mt-4 divide-y divide-[#f0ede7]">{demoTransactions.slice(0, 5).map((tx) => <div key={tx.id} className="flex items-center justify-between gap-3 py-3"><div className="min-w-0"><div className="truncate text-sm font-medium">{tx.merchant_name}</div><div className="mt-0.5 text-[11px] text-[#8a8279]">{tx.category_name} · {new Date(tx.occurred_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</div></div><div className={`shrink-0 text-sm font-medium tabular-nums ${tx.transaction_type === "CREDIT" ? "text-[#477250]" : "text-[#433b35]"}`}>{tx.transaction_type === "CREDIT" ? "+" : "−"}{formatCurrency(tx.amount)}</div></div>)}</div>
       </Surface>
-      <Surface className="p-5"><h2 className="font-semibold">Prototype checklist</h2><p className="mt-1 text-xs text-[#837970]">These are mock flows to shape before connecting services.</p><div className="mt-4 space-y-2">{[
-        ["Calendar", "Review transactions by date", "calendar"],
-        ["Insights", "See sample spending patterns", "insights"],
-        ["Passbook import", imported ? "Sample import completed" : "Try the import preview", "import"],
-        ["Data map", "Explore the initial entity model", "data"],
-        ["Access & profile", "Try local role and profile controls", "access"],
-      ].map(([name, detail, target]) => <button key={name} onClick={() => onOpen(target as Section)} className="flex w-full items-center justify-between rounded-md px-3 py-3 text-left hover:bg-[#faf8f4]"><span><span className="block text-sm font-medium">{name}</span><span className="mt-0.5 block text-[11px] text-[#8a8279]">{detail}</span></span><ArrowRight size={15} className="text-[#8a8279]" /></button>)}</div></Surface>
+      <Surface className="overview-explore p-5 md:p-6"><span className="prototype-eyebrow">A good next step</span><h2 className="mt-1 font-semibold">Explore your money</h2><p className="mt-1 text-xs leading-5 text-[#837970]">Choose a view to understand one part of this sample workspace.</p><div className="mt-4 space-y-1">{[
+        ["Calendar", "Find the days money moved", "calendar"],
+        ["Insights", "See illustrative spending patterns", "insights"],
+        ["Statement import", imported ? "Preview viewed this session" : "See the sample review flow", "import"],
+        ["Data map", "Review the current entities", "data"],
+        ["Profile settings", "Inspect mock preferences", "profile"],
+      ].map(([name, detail, target]) => <button key={name} onClick={() => onOpen(target as Section)} className="prototype-explore-link flex w-full items-center justify-between rounded-md px-3 py-3 text-left"><span><span className="block text-sm font-medium">{name}</span><span className="mt-0.5 block text-[11px] text-[#8a8279]">{detail}</span></span><ArrowRight size={15} /></button>)}</div></Surface>
     </div>
   </>;
 }
@@ -263,10 +290,10 @@ function AccessPrototype({ members, setMembers, notify }: { members: typeof init
   </>;
 }
 
-function ProfilePrototype({ name, setName, currency, setCurrency, saved, onSave }: { name: string; setName: (value: string) => void; currency: string; setCurrency: (value: string) => void; saved: boolean; onSave: () => void }) {
+function ProfilePrototype({ name, email, setName, currency, setCurrency, saved, onSave }: { name: string; email: string; setName: (value: string) => void; currency: string; setCurrency: (value: string) => void; saved: boolean; onSave: () => void }) {
   const [weeklySummary, setWeeklySummary] = useState(true);
   return <>
     <PageTitle title="Your profile" description="Basic account preferences and settings. Saved changes last only for this browser session." />
-    <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]"><Surface className="p-5"><h2 className="font-semibold">Personal details</h2><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-xs font-medium">Full name<input value={name} onChange={(event) => setName(event.target.value)} className="mt-1.5 block w-full rounded-md border border-[#ddd6cb] px-3 py-2.5 text-sm font-normal outline-none focus:border-[#9a7359]" /></label><label className="text-xs font-medium">Email<input value="aarav@example.test" readOnly className="mt-1.5 block w-full rounded-md border border-[#e8e4dc] bg-[#faf9f6] px-3 py-2.5 text-sm font-normal text-[#837970]" /></label><label className="text-xs font-medium">Display currency<select value={currency} onChange={(event) => setCurrency(event.target.value)} className="mt-1.5 block w-full rounded-md border border-[#ddd6cb] bg-white px-3 py-2.5 text-sm font-normal"><option>INR</option><option>USD</option><option>EUR</option></select></label></div><button onClick={onSave} className="mt-5 rounded-md bg-[#4e342e] px-4 py-2.5 text-xs font-medium text-white">{saved ? "Save again" : "Save profile"}</button></Surface><div className="space-y-4"><Surface className="p-5"><h2 className="font-semibold">Preferences</h2><label className="mt-4 flex items-center justify-between gap-4 text-sm"><span><span className="block font-medium">Weekly summary</span><span className="mt-1 block text-xs text-[#837970]">Prototype preference toggle</span></span><input type="checkbox" checked={weeklySummary} onChange={(event) => setWeeklySummary(event.target.checked)} className="h-4 w-4 accent-[#4e342e]" /></label></Surface><Surface className="p-5"><h2 className="font-semibold">Account security</h2><p className="mt-2 text-xs leading-5 text-[#837970]">Password and session controls will be added when authentication is implemented.</p><button disabled className="mt-3 rounded-md border border-[#e8e4dc] px-3 py-2 text-xs text-[#9a938a]">Change password · not connected</button></Surface><Surface className="p-5"><div className="flex items-center gap-2 font-semibold"><ShieldCheck size={16} className="text-[#6c8268]" /> Data privacy</div><p className="mt-2 text-xs leading-5 text-[#837970]">All figures shown in this prototype are synthetic demo data.</p></Surface></div></div>
+    <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]"><Surface className="p-5 md:p-6"><span className="prototype-eyebrow">Account details</span><h2 className="mt-1 font-semibold">Personal details</h2><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-xs font-medium">Full name<input value={name} onChange={(event) => setName(event.target.value)} placeholder="Add your name" className="prototype-field mt-1.5 block w-full rounded-md border border-[#ddd6cb] px-3 py-2.5 text-sm font-normal" /></label><label className="text-xs font-medium">Email<input value={email} readOnly className="prototype-field mt-1.5 block w-full rounded-md border border-[#e8e4dc] bg-[#faf9f6] px-3 py-2.5 text-sm font-normal text-[#837970]" /></label><label className="text-xs font-medium">Display currency<select value={currency} onChange={(event) => setCurrency(event.target.value)} className="prototype-field mt-1.5 block w-full rounded-md border border-[#ddd6cb] bg-white px-3 py-2.5 text-sm font-normal"><option>INR</option><option>USD</option><option>EUR</option></select></label></div><button onClick={onSave} className="prototype-primary-action mt-5 rounded-md bg-[#4e342e] px-4 py-2.5 text-xs font-medium text-white">{saved ? "Save again" : "Save profile"}</button><p className="mt-3 text-xs text-[#837970]">This prototype keeps profile edits in the current browser session only.</p></Surface><div className="space-y-4"><Surface className="p-5 md:p-6"><span className="prototype-eyebrow">Preferences</span><h2 className="mt-1 font-semibold">Your routine</h2><label className="mt-4 flex items-center justify-between gap-4 text-sm"><span><span className="block font-medium">Weekly summary</span><span className="mt-1 block text-xs text-[#837970]">Prototype preference toggle</span></span><input type="checkbox" checked={weeklySummary} onChange={(event) => setWeeklySummary(event.target.checked)} className="h-4 w-4 accent-[#4e342e]" /></label></Surface><Surface className="p-5 md:p-6"><span className="prototype-eyebrow">Sign-in</span><h2 className="mt-1 font-semibold">Account security</h2><p className="mt-2 text-xs leading-5 text-[#837970]">Your password and session are managed by Supabase Auth. Password management is not connected in this prototype.</p><button disabled className="prototype-disabled-action mt-3 rounded-md border border-[#e8e4dc] px-3 py-2 text-xs">Password settings · not connected</button></Surface><Surface className="p-5 md:p-6"><div className="flex items-center gap-2 font-semibold"><ShieldCheck size={16} className="text-[#6c8268]" /> Data privacy</div><p className="mt-2 text-xs leading-5 text-[#837970]">Financial figures in this workspace are synthetic demo data.</p></Surface></div></div>
   </>;
 }
