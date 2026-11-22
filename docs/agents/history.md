@@ -259,6 +259,24 @@ assumptions from old plans.
 - Keep in mind: the Vercel backend does not install the optional PaddleX OCR
   runtime, so CSV is the only supported statement format in that deployment.
 
+## 2026-11-22 — Sign-up feedback and demo email policy
+
+- The sign-up form previously discarded Supabase's error object and returned a
+  generic failure. On success without a session, it switched back to sign-in
+  without explaining that email confirmation was still required.
+- The form now maps common Auth errors to actionable messages and exposes only
+  the provider code/status in browser diagnostics; it never logs the user's
+  email, password, token, or raw provider message. Confirmation-required
+  responses remain visible instead of silently changing modes. Successful
+  immediate sessions land on the workspace with an account-created message.
+- The user selected immediate sign-up without confirmation emails for the
+  current judge demo. The app and setup docs now expect Supabase Confirm email
+  off. Hosted Auth settings and a real sign-up remain pending; email ownership
+  is therefore not verified, and password recovery still needs SMTP.
+- Keep in mind: Supabase's built-in email sender restricts recipients and is
+  rate-limited. Before public launch, configure custom SMTP, re-enable email
+  confirmation, and verify both sign-up and recovery flows.
+
 ## Mistakes and corrections to carry forward
 
 - **Do not trust the roadmap as a feature inventory.** Some architecture and

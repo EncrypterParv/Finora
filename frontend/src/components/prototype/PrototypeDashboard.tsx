@@ -45,9 +45,11 @@ const MAX_STATEMENT_UPLOAD_BYTES = 4 * 1024 * 1024;
 export function PrototypeDashboard({
   userEmail,
   userName,
+  accountCreated = false,
 }: {
   userEmail: string;
   userName: string;
+  accountCreated?: boolean;
 }) {
   const router = useRouter();
   const [section, setSection] = useState<Section>("overview");
@@ -150,6 +152,10 @@ export function PrototypeDashboard({
         </header>
 
         <main className="prototype-content mx-auto max-w-[1280px] px-4 py-6 md:px-8 md:py-8" aria-busy={loading}>
+          {accountCreated && <section role="status" className="mb-5 flex items-start gap-3 rounded-xl border border-[#d7e5d1] bg-[#f4f8f0] p-4 text-[#334b32]">
+            <Check size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
+            <div><h2 className="font-semibold">Your account is ready.</h2><p className="mt-1 text-sm leading-6">You’re signed in to Finora. Your workspace starts empty; add a statement whenever you’re ready.</p></div>
+          </section>}
           {refreshError && <p role="alert" className="mb-4 rounded-md border border-[#ead7d2] bg-white p-3 text-sm text-[#9f2f2d]">{refreshError}</p>}
           {loading ? <LoadingWorkspace /> : loadError ? <LoadError message={loadError} onRetry={() => setRetryKey((key) => key + 1)} /> : (
             <>
