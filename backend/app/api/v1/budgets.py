@@ -1,21 +1,93 @@
 """Budget management and burn prediction endpoints."""
 
-from datetime import date
-from decimal import Decimal
+import math
 import uuid
-from typing import List
+from datetime import date, datetime, time, timedelta, timezone
+from decimal import ROUND_HALF_UP, Decimal
+from typing import List, NamedTuple, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.db.models.user import User
 from app.db.models.budget import Budget
-from app.domain.ml.forecaster import SpendingForecaster
+from app.db.models.transaction import Transaction
 from app.schemas.budget import BudgetCreate, BudgetResponse, BudgetUpdate
 
 router = APIRouter()
+
+CENT = Decimal("0.01")
+
+
+# The computed spend/projection numbers for one budget, like a small typed result object.
+class BudgetBurn(NamedTuple):
+    total_spent: Decimal
+    projected_burn_total: Optional[Decimal]
+    projected_exhaustion_date: Optional[date]
+
+
+# Sums the user's DEBITs inside the budget window in SQL, then projects the burn linearly to end_date.
+async def _compute_budget_burn(
+    db: AsyncSession, budget: Budget, user_id: str, today: Optional[date] = None
+) -> BudgetBurn:
+    """Compute total spent, projected total and projected exhaustion date for a budget."""
+    today = today or datetime.now(timezone.utc).date()
+    if today < budget.start_date:
+        return BudgetBurn(Decimal("0.00"), None, None)
+
+    window_start = datetime.combine(budget.start_date, time.min, tzinfo=timezone.utc)
+    window_end = datetime.combine(budget.end_date + timedelta(days=1), time.min, tzinfo=timezone.utc)
+    spent_raw = (
+        await db.execute(
+            select(func.coalesce(func.sum(Transaction.amount), 0)).where(
+                Transaction.user_id == user_id,
+                Transaction.transaction_type == "DEBIT",
+                Transaction.occurred_at >= window_start,
+                Transaction.occurred_at < window_end,
+            )
+        )
+    ).scalar_one()
+    total_spent = Decimal(str(spent_raw)).quantize(CENT, ROUND_HALF_UP)
+
+    elapsed_days = max(1, (min(today, budget.end_date) - budget.start_date).days + 1)
+    remaining_days = max(0, (budget.end_date - today).days)
+    daily_burn = total_spent / elapsed_days
+    projected_total = (total_spent + daily_burn * remaining_days).quantize(CENT, ROUND_HALF_UP)
+
+    limit = Decimal(str(budget.total_limit))
+    if today > budget.end_date:
+        exhaustion: Optional[date] = None
+    elif total_spent >= limit:
+        exhaustion = today
+    elif daily_burn > 0:
+        exhaustion = today + timedelta(days=math.ceil((limit - total_spent) / daily_burn))
+        if exhaustion > budget.end_date:
+            exhaustion = None
+    else:
+        exhaustion = None
+
+    return BudgetBurn(total_spent, projected_total, exhaustion)
+
+
+# Serializes a budget with live burn numbers so GET, POST and PATCH all return identical figures.
+async def _budget_response(db: AsyncSession, budget: Budget, user_id: str) -> BudgetResponse:
+    """Build the API response for a budget, including computed spending."""
+    burn = await _compute_budget_burn(db, budget, user_id)
+    return BudgetResponse(
+        id=budget.id,
+        user_id=budget.user_id,
+        name=budget.name,
+        period=budget.period,
+        total_limit=budget.total_limit,
+        total_spent=burn.total_spent,
+        start_date=budget.start_date,
+        end_date=budget.end_date,
+        categories=[],
+        projected_burn_total=burn.projected_burn_total,
+        projected_exhaustion_date=burn.projected_exhaustion_date,
+    )
 
 
 @router.get("", response_model=List[BudgetResponse])
@@ -23,40 +95,9 @@ async def list_budgets(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Retrieve all active budgets for the user with burn predictions."""
+    """Retrieve all budgets for the user with real spend and burn projections."""
     res = await db.execute(select(Budget).where(Budget.user_id == current_user.id))
-    budgets = res.scalars().all()
-
-    today = date.today()
-    output: List[BudgetResponse] = []
-    
-    for b in budgets:
-        # Initial burn calculation
-        spent = Decimal("14250.00")
-        daily_burn = Decimal("750.00")
-        exhaustion_date = SpendingForecaster.predict_budget_exhaustion(
-            budget_limit=b.total_limit,
-            current_spent=spent,
-            daily_burn_rate=daily_burn,
-            today=today,
-        )
-
-        output.append(
-            BudgetResponse(
-                id=b.id,
-                user_id=b.user_id,
-                name=b.name,
-                period=b.period,
-                total_limit=b.total_limit,
-                total_spent=spent,
-                start_date=b.start_date,
-                end_date=b.end_date,
-                categories=[],
-                projected_burn_total=SpendingForecaster.forecast_month_end_burn(spent, today, daily_burn),
-                projected_exhaustion_date=exhaustion_date,
-            )
-        )
-    return output
+    return [await _budget_response(db, b, current_user.id) for b in res.scalars().all()]
 
 
 @router.post("", response_model=BudgetResponse)
@@ -78,19 +119,7 @@ async def create_budget(
     db.add(budget)
     await db.commit()
     await db.refresh(budget)
-
-    return BudgetResponse(
-        id=budget.id,
-        user_id=budget.user_id,
-        name=budget.name,
-        period=budget.period,
-        total_limit=budget.total_limit,
-        total_spent=Decimal("0.00"),
-        start_date=budget.start_date,
-        end_date=budget.end_date,
-        categories=[],
-    )
-
+    return await _budget_response(db, budget, current_user.id)
 
 
 # Like findOne({ where: { id, userId } }) that 404s if missing; scoping by user blocks access to others' budgets.
@@ -129,17 +158,7 @@ async def update_budget(
         setattr(budget, field, value)
     await db.commit()
     await db.refresh(budget)
-
-    return BudgetResponse(
-        id=budget.id,
-        user_id=budget.user_id,
-        name=budget.name,
-        period=budget.period,
-        total_limit=budget.total_limit,
-        start_date=budget.start_date,
-        end_date=budget.end_date,
-        categories=[],
-    )
+    return await _budget_response(db, budget, current_user.id)
 
 
 # DELETE /budgets/:id — responds 204 No Content, like res.status(204).end().
