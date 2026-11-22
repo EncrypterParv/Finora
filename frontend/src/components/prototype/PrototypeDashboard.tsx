@@ -40,6 +40,8 @@ const navigation: { id: Section; label: string; icon: typeof LayoutDashboard }[]
   { id: "import", label: "Add a statement", icon: FileUp },
 ];
 
+const MAX_STATEMENT_UPLOAD_BYTES = 4 * 1024 * 1024;
+
 export function PrototypeDashboard({
   userEmail,
   userName,
@@ -343,6 +345,15 @@ function StatementImportFlow({ accounts, onAccountCreated, onComplete }: { accou
 
   function chooseFile(nextFile: File | null) {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (nextFile && nextFile.size > MAX_STATEMENT_UPLOAD_BYTES) {
+      setPreviewUrl("");
+      setFile(null);
+      setPreview(null);
+      setRows([]);
+      setError("This file is larger than 4 MB. Choose a smaller statement to upload it here.");
+      setNotice("");
+      return;
+    }
     setPreviewUrl(nextFile ? URL.createObjectURL(nextFile) : "");
     setFile(nextFile);
     setPreview(null);
@@ -384,10 +395,10 @@ function StatementImportFlow({ accounts, onAccountCreated, onComplete }: { accou
     </form>}
 
     {!showAccountForm && !preview && <section className="rounded-xl border border-[#e8e4dc] bg-white p-5 md:p-7">
-      <div className="flex items-start gap-3"><div className="rounded-md bg-[#f4eee7] p-2.5 text-[#694b3b]"><FileUp size={18} /></div><div><h2 className="font-semibold">Choose your statement</h2><p className="mt-1 max-w-2xl text-xs leading-5 text-[#837970]">CSV works best when it includes date, description, and separate debit/credit columns or a transaction type. PDF, PNG, and JPG require local OCR on the server; scanned text can contain extraction mistakes and needs careful review.</p></div></div>
+      <div className="flex items-start gap-3"><div className="rounded-md bg-[#f4eee7] p-2.5 text-[#694b3b]"><FileUp size={18} /></div><div><h2 className="font-semibold">Choose your statement</h2><p className="mt-1 max-w-2xl text-xs leading-5 text-[#837970]">CSV works best when it includes date, description, and separate debit/credit columns or a transaction type. PDF, PNG, and JPG need the optional OCR runtime, which is not installed in this Vercel demo. Scanned text can contain extraction mistakes and always needs careful review.</p></div></div>
       {accounts.length === 0 ? <p className="mt-5 rounded-md bg-[#faf8f4] p-3 text-xs text-[#766e65]">Add an account label above before choosing a statement.</p> : <form onSubmit={inspectStatement} className="mt-5">
         <label className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[#cdbdad] bg-[#fcfbf8] px-5 text-center hover:bg-[#faf7f1] focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#9a7359]">
-          <FileUp className="mb-3 text-[#8c725e]" size={24} /><span className="text-sm font-medium">{file ? file.name : "Select a statement file"}</span><span className="mt-1 text-xs text-[#837970]">Maximum 15 MB · PDF up to 20 pages · CSV, PDF, PNG, JPG</span><input type="file" accept=".csv,.pdf,.png,.jpg,.jpeg,text/csv,application/pdf,image/png,image/jpeg" className="sr-only" onChange={(event) => { chooseFile(event.target.files?.[0] ?? null); event.currentTarget.value = ""; }} />
+          <FileUp className="mb-3 text-[#8c725e]" size={24} /><span className="text-sm font-medium">{file ? file.name : "Select a statement file"}</span><span className="mt-1 text-xs text-[#837970]">Maximum 4 MB · PDF up to 20 pages · CSV, PDF, PNG, JPG</span><input type="file" accept=".csv,.pdf,.png,.jpg,.jpeg,text/csv,application/pdf,image/png,image/jpeg" className="sr-only" onChange={(event) => { chooseFile(event.target.files?.[0] ?? null); event.currentTarget.value = ""; }} />
         </label>
         {file && <button type="submit" disabled={working} className="prototype-primary-action mt-4 inline-flex min-h-11 items-center gap-2 rounded-md bg-[#4e342e] px-4 py-2.5 text-sm font-medium text-white">{working ? "Reading statement…" : "Review extracted records"}<ArrowRight size={15} /></button>}
       </form>}

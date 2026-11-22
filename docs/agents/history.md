@@ -230,6 +230,25 @@ assumptions from old plans.
 - Co-authors: Yash Srivastava and Devansh Chauhan; see the feature branch commit
   for the recorded trailers.
 
+## 2026-11-22 — Vercel Services deployment preparation
+
+- Added root vercel.json to deploy frontend/ (Next.js) and backend/ (FastAPI)
+  as one Vercel Services project, routing /api/v1/* and /health to FastAPI and
+  other paths to Next.js.
+- Changed the frontend API default to same-origin /api/v1, so production
+  requests follow the Vercel route table while local Next.js rewrites continue
+  to proxy to localhost.
+- Reduced statement upload cap from 15 MB to 4 MB to stay below Vercel's
+  standard 4.5 MB function request limit, including multipart overhead. The UI
+  now rejects oversized files before upload.
+- Added a Vercel setup guide covering env vars, Supabase URL allowlisting, and
+  deployment limits. The repo does not contain Vercel secrets; dashboard
+  values and hosted-flow verification remain pending.
+- Vercel Services remain a beta feature; the Python runtime is generally
+  available.
+- Keep in mind: the Vercel backend does not install the optional PaddleX OCR
+  runtime, so CSV is the only supported statement format in that deployment.
+
 ## Mistakes and corrections to carry forward
 
 - **Do not trust the roadmap as a feature inventory.** Some architecture and
