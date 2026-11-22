@@ -1,0 +1,4 @@
+# Install with Python 3.13. PaddleX currently supports Python through 3.13.
+-r requirements.txt
+paddlepaddle>=3.2,<4
+paddlex[ocr]>=3.3,<4

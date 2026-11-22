@@ -878,6 +878,26 @@
   line-height: 1.8;
   margin-top: 14px;
 }
+.login-recovery-link {
+  display: block;
+  margin: 12px 0 0 auto;
+  min-height: 40px;
+  color: #694b3b;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.login-recovery-link:focus-visible {
+  outline: 2px solid #a84600;
+  outline-offset: 3px;
+}
+.login-reset-expired .landing-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
 .login-error {
   font-size: 14px;
   color: #9f2f2d;
