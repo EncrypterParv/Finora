@@ -232,7 +232,8 @@ assumptions from old plans.
 
 ## 2026-11-22 — Vercel Services deployment preparation
 
-- Added root vercel.json to deploy frontend/ (Next.js) and backend/ (FastAPI)
+- [92c1305](https://github.com/TarunyaProgrammer/FinSOL2/commit/92c1305)
+  added root vercel.json to deploy frontend/ (Next.js) and backend/ (FastAPI)
   as one Vercel Services project, routing /api/v1/* and /health to FastAPI and
   other paths to Next.js.
 - Changed the frontend API default to same-origin /api/v1, so production
