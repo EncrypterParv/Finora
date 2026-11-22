@@ -22,8 +22,9 @@ That alternative needs separate deployment wiring and is not configured here.
 3. Keep the repository root directory as `./` and the application preset as
    **Services**. The checked-in `vercel.json` should be detected automatically.
 4. Leave the build, install, and output settings at their auto-detected values.
-   The frontend uses `npm run build`; the backend uses `backend/requirements.txt`
-   and `backend/.python-version` (Python 3.13).
+   The frontend uses `npm run build`; the backend uses dependencies declared in
+   `backend/pyproject.toml` and the Python 3.13 pin in
+   `backend/.python-version`.
 
 ## Configure environment variables
 

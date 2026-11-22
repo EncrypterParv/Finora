@@ -247,6 +247,15 @@ assumptions from old plans.
   values and hosted-flow verification remain pending.
 - Vercel Services remain a beta feature; the Python runtime is generally
   available.
+
+## 2026-11-22 — Vercel FastAPI dependency manifest fix
+
+- Vercel runtime logs for `/health` showed the backend could not import
+  FastAPI. The existing `backend/pyproject.toml` only contained Ruff settings,
+  so the deployed Python environment had no application dependencies.
+- Added PEP 621 runtime dependencies to that manifest. A local FastAPI
+  `/health` request returns 200; the new Vercel deployment still needs runtime
+  verification.
 - Keep in mind: the Vercel backend does not install the optional PaddleX OCR
   runtime, so CSV is the only supported statement format in that deployment.
 
