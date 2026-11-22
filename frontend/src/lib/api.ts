@@ -11,9 +11,9 @@ import {
   demoTransactionDetail,
 } from "./demo-data";
 import { CalendarViewResponse, CalendarViewMode } from "@/types/calendar";
-import { CanonicalTransaction, TransactionDetail } from "@/types/transaction";
-import { BudgetResponse, BudgetCreate } from "@/types/budget";
-import { GoalResponse, GoalCreate } from "@/types/goal";
+import { CanonicalTransaction, TransactionDetail, TransactionType } from "@/types/transaction";
+import { BudgetResponse, BudgetCreate, BudgetUpdate } from "@/types/budget";
+import { GoalResponse, GoalCreate, GoalUpdate } from "@/types/goal";
 import {
   BehaviourScoreDTO,
   RecommendationDTO,
@@ -50,6 +50,21 @@ export interface BankAccountSummary {
   account_number_masked: string;
   account_type: string;
   currency: string;
+  adapter_type?: string;
+  created_at?: string;
+}
+
+export type AccountTypeOption = "SAVINGS" | "CURRENT" | "CREDIT";
+
+// Error thrown for a failed API call; keeps the HTTP status so screens can react (e.g. 409 on delete).
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
 }
 
 export interface StatementPreview {
@@ -59,14 +74,25 @@ export interface StatementPreview {
   transactions: StatementDraftTransaction[];
 }
 
-async function responseError(response: Response, fallback: string): Promise<Error> {
+// Turns a FastAPI error body into a readable message: a plain `detail` string, or the first
+// validation problem when `detail` is a list (422), e.g. "amount: Input should be greater than 0".
+async function responseError(response: Response, fallback: string): Promise<ApiError> {
   try {
     const payload = (await response.json()) as { detail?: unknown };
-    if (typeof payload.detail === "string") return new Error(payload.detail);
+    if (typeof payload.detail === "string") return new ApiError(payload.detail, response.status);
+    if (Array.isArray(payload.detail) && payload.detail.length > 0) {
+      const first = payload.detail[0] as { msg?: unknown; loc?: unknown };
+      if (typeof first?.msg === "string") {
+        const message = first.msg.replace(/^Value error, /, "");
+        const field = Array.isArray(first.loc) ? String(first.loc[first.loc.length - 1] ?? "") : "";
+        const label = field && field !== "body" ? `${field.replace(/_/g, " ")}: ` : "";
+        return new ApiError(`${label}${message}`, response.status);
+      }
+    }
   } catch {
     // Return the stable fallback if the API response is not JSON.
   }
-  return new Error(fallback);
+  return new ApiError(fallback, response.status);
 }
 
 async function apiFetch(input: RequestInfo | URL, init: RequestInit = {}) {
@@ -81,22 +107,21 @@ async function apiFetch(input: RequestInfo | URL, init: RequestInit = {}) {
   return fetch(input, { ...init, headers });
 }
 
+// `date` (yyyy-mm-dd) picks which week or day to show; month views use year/month.
 export async function fetchCalendarView(
   mode: CalendarViewMode = "month",
   year?: number,
   month?: number,
+  date?: string,
 ): Promise<CalendarViewResponse> {
   if (isDemoSession()) return demoCalendar(mode, year, month);
   const params = new URLSearchParams({ mode });
   if (year) params.append("year", year.toString());
   if (month) params.append("month", month.toString());
+  if (date) params.append("date", date);
 
   const res = await apiFetch(`${API_BASE}/calendar/view?${params.toString()}`);
-  if (!res.ok) {
-    throw new Error(
-      `Failed to fetch calendar view: ${res.status} ${res.statusText}`,
-    );
-  }
+  if (!res.ok) throw await responseError(res, "Could not load your calendar.");
   return res.json();
 }
 
@@ -134,6 +159,56 @@ export async function fetchUserTransactions(
   return response.json();
 }
 
+export interface TransactionFilters {
+  q?: string;
+  transaction_type?: TransactionType;
+  account_id?: string;
+  start_date?: string;
+  end_date?: string;
+  min_amount?: number;
+  max_amount?: number;
+}
+
+// One page of filtered transactions plus the total match count from the X-Total-Count header.
+export async function fetchTransactionPage(
+  filters: TransactionFilters,
+  limit: number = 25,
+  offset: number = 0,
+): Promise<{ items: CanonicalTransaction[]; total: number }> {
+  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+  for (const [key, value] of Object.entries(filters)) {
+    if (value !== undefined && value !== null && value !== "") params.append(key, String(value));
+  }
+  const response = await apiFetch(`${API_BASE}/transactions?${params.toString()}`);
+  if (!response.ok) throw await responseError(response, "Could not load your transactions.");
+  const items = (await response.json()) as CanonicalTransaction[];
+  const header = response.headers.get("X-Total-Count");
+  const total = header !== null && Number.isFinite(Number(header)) ? Number(header) : offset + items.length;
+  return { items, total };
+}
+
+// Records a manual transaction (e.g. cash spending). It does not change the account balance.
+export async function createManualTransaction(input: {
+  account_id: string;
+  occurred_at: string;
+  amount: number;
+  transaction_type: "DEBIT" | "CREDIT";
+  description: string;
+}): Promise<CanonicalTransaction> {
+  const response = await apiFetch(`${API_BASE}/transactions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) throw await responseError(response, "Could not save this transaction.");
+  return response.json();
+}
+
+export async function deleteTransaction(id: string): Promise<void> {
+  const response = await apiFetch(`${API_BASE}/transactions/${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (!response.ok) throw await responseError(response, "Could not delete this transaction.");
+}
+
 export async function fetchTransactionDetail(
   id: string,
 ): Promise<TransactionDetail> {
@@ -150,9 +225,7 @@ export async function fetchTransactionDetail(
 export async function fetchBudgets(): Promise<BudgetResponse[]> {
   if (isDemoSession()) return demoBudgets();
   const res = await apiFetch(`${API_BASE}/budgets`);
-  if (!res.ok) {
-    throw new Error(`Failed to fetch budgets: ${res.status} ${res.statusText}`);
-  }
+  if (!res.ok) throw await responseError(res, "Could not load your budgets.");
   return res.json();
 }
 
@@ -165,18 +238,29 @@ export async function createBudget(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    throw new Error(`Failed to create budget: ${res.status} ${res.statusText}`);
-  }
+  if (!res.ok) throw await responseError(res, "Could not create this budget.");
   return res.json();
+}
+
+export async function updateBudget(id: string, data: BudgetUpdate): Promise<BudgetResponse> {
+  const res = await apiFetch(`${API_BASE}/budgets/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw await responseError(res, "Could not update this budget.");
+  return res.json();
+}
+
+export async function deleteBudget(id: string): Promise<void> {
+  const res = await apiFetch(`${API_BASE}/budgets/${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (!res.ok) throw await responseError(res, "Could not delete this budget.");
 }
 
 export async function fetchGoals(): Promise<GoalResponse[]> {
   if (isDemoSession()) return demoGoals();
   const res = await apiFetch(`${API_BASE}/goals`);
-  if (!res.ok) {
-    throw new Error(`Failed to fetch goals: ${res.status} ${res.statusText}`);
-  }
+  if (!res.ok) throw await responseError(res, "Could not load your goals.");
   return res.json();
 }
 
@@ -187,10 +271,23 @@ export async function createGoal(data: GoalCreate): Promise<GoalResponse> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    throw new Error(`Failed to create goal: ${res.status} ${res.statusText}`);
-  }
+  if (!res.ok) throw await responseError(res, "Could not create this goal.");
   return res.json();
+}
+
+export async function updateGoal(id: string, data: GoalUpdate): Promise<GoalResponse> {
+  const res = await apiFetch(`${API_BASE}/goals/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw await responseError(res, "Could not update this goal.");
+  return res.json();
+}
+
+export async function deleteGoal(id: string): Promise<void> {
+  const res = await apiFetch(`${API_BASE}/goals/${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (!res.ok) throw await responseError(res, "Could not delete this goal.");
 }
 
 export async function fetchIntelligenceOverview(): Promise<IntelligenceOverviewDTO> {
@@ -324,7 +421,7 @@ export async function fetchBankAccounts(): Promise<BankAccountSummary[]> {
 
 export async function createBankAccount(input: {
   institution_name: string;
-  account_type: "SAVINGS" | "CURRENT" | "CREDIT";
+  account_type: AccountTypeOption;
   last_four?: string;
 }): Promise<BankAccountSummary> {
   const response = await apiFetch(`${API_BASE}/accounts`, {
@@ -339,6 +436,31 @@ export async function createBankAccount(input: {
   });
   if (!response.ok) throw await responseError(response, "Could not save this account.");
   return response.json();
+}
+
+// PATCH an account label; `last_four` maps to the API's account_last4 (never a full number).
+export async function updateBankAccount(
+  id: string,
+  input: { institution_name?: string; account_type?: AccountTypeOption; last_four?: string },
+): Promise<BankAccountSummary> {
+  const response = await apiFetch(`${API_BASE}/accounts/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...(input.institution_name !== undefined ? { institution_name: input.institution_name } : {}),
+      ...(input.account_type ? { account_type: input.account_type } : {}),
+      ...(input.last_four ? { account_last4: input.last_four } : {}),
+    }),
+  });
+  if (!response.ok) throw await responseError(response, "Could not update this account.");
+  return response.json();
+}
+
+// Deletes an account. Without deleteTransactions the API answers 409 if the account still has transactions.
+export async function deleteBankAccount(id: string, deleteTransactions = false): Promise<void> {
+  const query = deleteTransactions ? "?delete_transactions=true" : "";
+  const response = await apiFetch(`${API_BASE}/accounts/${encodeURIComponent(id)}${query}`, { method: "DELETE" });
+  if (!response.ok) throw await responseError(response, "Could not delete this account.");
 }
 
 export async function previewStatement(file: File): Promise<StatementPreview> {
