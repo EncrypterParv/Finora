@@ -259,6 +259,28 @@ assumptions from old plans.
 - Keep in mind: the Vercel backend does not install the optional PaddleX OCR
   runtime, so CSV is the only supported statement format in that deployment.
 
+## 2026-11-22 — Transaction filters, manual entry, and deletion
+
+- `GET /transactions` keeps its list response, `limit`/`offset`, and newest-first
+  order, and adds optional `start_date`/`end_date` (inclusive UTC days),
+  `transaction_type`, `account_id` (404 if not the user's), `min_amount`/
+  `max_amount` (422 if min > max), and `q`, a case-insensitive description
+  search of up to 100 characters. `q` uses SQLAlchemy `icontains(...,
+  autoescape=True)`, so `%` and `_` are literal; it compiles to `ILIKE` on
+  Postgres and `lower() LIKE lower()` on SQLite. The match count before
+  pagination is returned in `X-Total-Count`, which CORS now exposes to browser
+  code.
+- `POST /transactions` adds manual DEBIT/CREDIT entries (e.g. cash) to an owned
+  account, with `source=MANUAL`, a `MANUAL-<uuid4>` reference, and the standard
+  dedup hash. Timestamps without a timezone are treated as UTC; more than one
+  day in the future is rejected. It intentionally does not change the account's
+  `current_balance`. `DELETE /transactions/{id}` returns 204.
+- Manual entries count toward budget `total_spent` like any other DEBIT.
+- Backend tests: 92 passing (was 52).
+- Not completed: category filtering (categories are not persisted yet), editing
+  transactions, frontend use of these endpoints, and real values for the
+  detail endpoint's budget/forecast context, which are still placeholders.
+
 ## Mistakes and corrections to carry forward
 
 - **Do not trust the roadmap as a feature inventory.** Some architecture and

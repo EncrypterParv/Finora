@@ -1,7 +1,7 @@
 # Finora Project Context
 
 Last reviewed: 2026-11-22
-Current milestone: First-user statement import is on the existing accounts API; Vercel Services configuration is prepared, but hosted environment setup remains pending
+Current milestone: First-user statement import is on the accounts API; transaction filters, manual entry and deletion, real budget spend, and calendar date handling are implemented; Vercel Services configuration is prepared, but hosted environment setup remains pending
 
 This is the short continuity brief for coding agents. Read it before planning
 substantial work, then read [`history.md`](history.md) for dated decisions and
@@ -52,7 +52,7 @@ calculated.
 | Insights | Statistical foundation + mock screen | Backend features, forecasts, shifts, anomaly heuristics, and recommendations exist. This is not a trained ML product; several recommendation impacts are fixed illustrative estimates. |
 | User profile | Mock UI / partial backend read | User fields and `/auth/me` exist, but the prototype changes are local and there is no profile update flow. |
 | Bank accounts | User-scoped CRUD and statement onboarding use `/accounts` | Account labels accept optional last four digits, never a full number. The statement flow marks them `STATEMENT_IMPORT`. Deleting an account with transactions returns 409 unless `?delete_transactions=true`. |
-| Transactions, budgets, goals | Transactions are data-backed; budgets/goals remain outside the current workspace | The dashboard lists imported transactions. Budget responses use real debit totals and linear burn projections, but budget/category UI is not connected; earlier budget and goal APIs/components remain separate. |
+| Transactions, budgets, goals | Transactions are data-backed; budgets/goals remain outside the current workspace | The dashboard lists imported transactions. `GET /transactions` filters by date range, type, account, amount range, and case-insensitive description search (`q`, wildcards escaped), and returns the pre-pagination match count in `X-Total-Count` (exposed via CORS). `POST /transactions` records manual (e.g. cash) DEBIT/CREDIT entries with `source=MANUAL` and does not change account balances; `DELETE /transactions/{id}` removes one. Category filtering is not available because categories are not stored as rows yet (reviewed names live in transaction metadata), and the detail endpoint's budget/forecast context fields are still placeholders. Budget responses use real debit totals and linear burn projections, but budget/category UI is not connected; earlier budget and goal APIs/components remain separate. |
 | Frontend tests | Not present | There is no frontend unit or end-to-end test suite yet. |
 
 ## Technical shape and boundaries
@@ -66,7 +66,7 @@ calculated.
   environment variables, production-domain Supabase redirects, and hosted
   smoke checks are not configured by the repository file. The backend
   pyproject.toml declares its runtime packages so Vercel installs FastAPI.
-- The combined backend suite has 58 passing tests. There is no frontend unit or
+- The combined backend suite has 98 passing tests. There is no frontend unit or
   end-to-end test suite yet.
 - Canonical transactions are the normalization boundary for imported or
   simulated transaction data. Keep analytics and calendar work based on that
