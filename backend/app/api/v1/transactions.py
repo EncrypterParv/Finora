@@ -41,6 +41,9 @@ async def list_transactions(
     output = []
     for r in records:
         merchant, cat = resolve_merchant_and_category(r.raw_description)
+        saved_metadata = r.metadata_ or {}
+        merchant = saved_metadata.get("reviewed_merchant_name") or merchant
+        cat = saved_metadata.get("reviewed_category_name") or cat
         if hasattr(r, "merchant_name") and r.merchant_name and r.merchant_name != "Merchant":
             merchant = r.merchant_name
         output.append(
@@ -92,6 +95,9 @@ async def get_transaction_detail(
         raise HTTPException(status_code=404, detail="Transaction not found")
 
     merchant, cat = resolve_merchant_and_category(tx.raw_description)
+    saved_metadata = tx.metadata_ or {}
+    merchant = saved_metadata.get("reviewed_merchant_name") or merchant
+    cat = saved_metadata.get("reviewed_category_name") or cat
     if hasattr(tx, "merchant_name") and tx.merchant_name and tx.merchant_name != "Merchant":
         merchant = tx.merchant_name
 
