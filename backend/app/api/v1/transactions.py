@@ -1,71 +1,173 @@
-"""Canonical Transaction query and detail endpoints."""
+"""Canonical Transaction query, manual entry, and detail endpoints."""
 
+import uuid
+from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Query
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.api.deps import get_current_user
+from app.api.v1.accounts import _get_owned_account
 from app.core.database import get_db
 from app.db.models.user import User
 from app.db.models.transaction import Transaction
+from app.domain.statement_import.deduplicator import compute_dedup_hash
 from app.domain.statement_import.normalizer import resolve_merchant_and_category
 from app.schemas.canonical_transaction import (
     CanonicalTransactionResponse,
+    ManualTransactionCreate,
     TransactionDetailResponse,
+    TransactionType,
 )
 
 router = APIRouter()
 
 
+# Like findOne({ where: { id, userId } }) that 404s if missing; scoping by user blocks access to others' transactions.
+async def _get_owned_transaction(db: AsyncSession, transaction_id: str, user_id: str) -> Transaction:
+    """Load a transaction that belongs to this user, or raise 404."""
+    res = await db.execute(
+        select(Transaction).where(Transaction.id == transaction_id, Transaction.user_id == user_id)
+    )
+    tx = res.scalars().first()
+    if tx is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
+    return tx
+
+
+# Serializes one DB row into the list-item shape (adds the derived merchant/category names).
+def _to_response(r: Transaction) -> CanonicalTransactionResponse:
+    """Map a Transaction row to CanonicalTransactionResponse."""
+    merchant, cat = resolve_merchant_and_category(r.raw_description)
+    return CanonicalTransactionResponse(
+        id=r.id,
+        user_id=r.user_id,
+        account_id=r.account_id,
+        occurred_at=r.occurred_at,
+        amount=r.amount,
+        currency=r.currency,
+        transaction_type=r.transaction_type,
+        raw_description=r.raw_description,
+        merchant_name=merchant,
+        category_name=cat,
+        balance_before=r.balance_before,
+        balance_after=r.balance_after,
+        reference_id=r.reference_id,
+        source=r.source,
+        dedup_hash=r.dedup_hash,
+        tax_info=r.tax_info,
+        metadata=r.metadata_ or {},
+        created_at=r.created_at,
+    )
+
+
+# GET /transactions?start_date=&end_date=&transaction_type=&account_id=&min_amount=&max_amount=&q=
+# Newest first; X-Total-Count header carries the match count before limit/offset, like res.set('X-Total-Count', n).
 @router.get("", response_model=List[CanonicalTransactionResponse])
 async def list_transactions(
+    response: Response,
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
+    start_date: Optional[date] = Query(None, description="Inclusive, UTC day start"),
+    end_date: Optional[date] = Query(None, description="Inclusive, UTC day end"),
+    transaction_type: Optional[TransactionType] = Query(None),
+    account_id: Optional[str] = Query(None),
+    min_amount: Optional[Decimal] = Query(None, ge=0),
+    max_amount: Optional[Decimal] = Query(None, ge=0),
+    q: Optional[str] = Query(None, max_length=100, description="Case-insensitive search in raw_description"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """List chronological canonical transactions for the user."""
-    query = (
+    """List the user's canonical transactions, newest first, with optional filters."""
+    if min_amount is not None and max_amount is not None and min_amount > max_amount:
+        raise HTTPException(status_code=422, detail="min_amount cannot be greater than max_amount")
+    if start_date and end_date and start_date > end_date:
+        raise HTTPException(status_code=422, detail="start_date cannot be after end_date")
+
+    conditions = [Transaction.user_id == current_user.id]
+    if start_date:
+        conditions.append(Transaction.occurred_at >= datetime.combine(start_date, time.min, tzinfo=timezone.utc))
+    if end_date:
+        next_day = datetime.combine(end_date + timedelta(days=1), time.min, tzinfo=timezone.utc)
+        conditions.append(Transaction.occurred_at < next_day)
+    if transaction_type:
+        conditions.append(Transaction.transaction_type == transaction_type.value)
+    if account_id:
+        await _get_owned_account(db, account_id, current_user.id)
+        conditions.append(Transaction.account_id == account_id)
+    if min_amount is not None:
+        conditions.append(Transaction.amount >= min_amount)
+    if max_amount is not None:
+        conditions.append(Transaction.amount <= max_amount)
+    if q:
+        # autoescape makes % and _ literal; renders ILIKE on Postgres and lower() LIKE lower() on SQLite.
+        conditions.append(Transaction.raw_description.icontains(q, autoescape=True))
+
+    total = (await db.execute(select(func.count()).select_from(Transaction).where(*conditions))).scalar_one()
+    response.headers["X-Total-Count"] = str(total)
+
+    res = await db.execute(
         select(Transaction)
-        .where(Transaction.user_id == current_user.id)
-        .order_by(Transaction.occurred_at.desc())
+        .where(*conditions)
+        .order_by(Transaction.occurred_at.desc(), Transaction.id)
         .offset(offset)
         .limit(limit)
     )
-    res = await db.execute(query)
-    records = res.scalars().all()
-    
-    # Map to schema
-    output = []
-    for r in records:
-        merchant, cat = resolve_merchant_and_category(r.raw_description)
-        if hasattr(r, "merchant_name") and r.merchant_name and r.merchant_name != "Merchant":
-            merchant = r.merchant_name
-        output.append(
-            CanonicalTransactionResponse(
-                id=r.id,
-                user_id=r.user_id,
-                account_id=r.account_id,
-                occurred_at=r.occurred_at,
-                amount=r.amount,
-                currency=r.currency,
-                transaction_type=r.transaction_type,
-                raw_description=r.raw_description,
-                merchant_name=merchant,
-                category_name=cat,
-                balance_before=r.balance_before,
-                balance_after=r.balance_after,
-                reference_id=r.reference_id,
-                source=r.source,
-                dedup_hash=r.dedup_hash,
-                tax_info=r.tax_info,
-                metadata=r.metadata_ or {},
-                created_at=r.created_at,
-            )
-        )
-    return output
+    return [_to_response(r) for r in res.scalars().all()]
+
+
+# POST /transactions — manual entry, like router.post('/transactions', auth, ...); owner comes from the token.
+@router.post("", response_model=CanonicalTransactionResponse, status_code=status.HTTP_201_CREATED)
+async def create_manual_transaction(
+    tx_in: ManualTransactionCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Record a manual transaction (e.g. cash spending) on one of the user's accounts.
+
+    This does NOT change the account's current_balance; balances come from bank sync.
+    """
+    account = await _get_owned_account(db, tx_in.account_id, current_user.id)
+    reference_id = f"MANUAL-{uuid.uuid4()}"
+    tx = Transaction(
+        id=str(uuid.uuid4()),
+        user_id=current_user.id,
+        account_id=account.id,
+        occurred_at=tx_in.occurred_at,
+        amount=tx_in.amount,
+        currency=tx_in.currency or account.currency,
+        transaction_type=tx_in.transaction_type,
+        raw_description=tx_in.description,
+        reference_id=reference_id,
+        source="MANUAL",
+        dedup_hash=compute_dedup_hash(
+            account_id=account.id,
+            occurred_at=tx_in.occurred_at,
+            amount=tx_in.amount,
+            reference_id=reference_id,
+        ),
+        metadata_={},
+    )
+    db.add(tx)
+    await db.commit()
+    await db.refresh(tx)
+    return _to_response(tx)
+
+
+# DELETE /transactions/:id — 204 No Content; 404 if missing or someone else's.
+@router.delete("/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_transaction(
+    transaction_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Delete one of the user's transactions."""
+    tx = await _get_owned_transaction(db, transaction_id, current_user.id)
+    await db.delete(tx)
+    await db.commit()
 
 
 @router.get("/{transaction_id}", response_model=TransactionDetailResponse)
@@ -81,19 +183,9 @@ async def get_transaction_detail(
     - Recommended daily spending
     - Anomaly status
     """
-    res = await db.execute(
-        select(Transaction).where(
-            Transaction.id == transaction_id,
-            Transaction.user_id == current_user.id,
-        )
-    )
-    tx = res.scalars().first()
-    if not tx:
-        raise HTTPException(status_code=404, detail="Transaction not found")
+    tx = await _get_owned_transaction(db, transaction_id, current_user.id)
 
     merchant, cat = resolve_merchant_and_category(tx.raw_description)
-    if hasattr(tx, "merchant_name") and tx.merchant_name and tx.merchant_name != "Merchant":
-        merchant = tx.merchant_name
 
     # Check if transaction is an anomaly (> 3000 on dining or midnight)
     is_anomaly = float(tx.amount) > 3000 and cat in ("Food & Dining", "Entertainment")

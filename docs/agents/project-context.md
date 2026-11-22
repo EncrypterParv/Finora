@@ -1,7 +1,7 @@
 # Finora Project Context
 
 Last reviewed: 2026-11-22
-Current milestone: Backend accounts API, real budget spend, and calendar date handling implemented; prototype screens still use mock data
+Current milestone: Backend accounts API, transaction filters/manual entry, real budget spend, and calendar date handling implemented; prototype screens still use mock data
 
 This is the short continuity brief for coding agents. Read it before planning
 substantial work, then read [`history.md`](history.md) for dated decisions and
@@ -51,7 +51,7 @@ calculated.
 | Insights | Statistical foundation + mock screen | Backend features, forecasts, shifts, anomaly heuristics, and recommendations exist. This is not a trained ML product; several recommendation impacts are fixed illustrative estimates. |
 | User profile | Mock UI / partial backend read | User fields and `/auth/me` exist, but the prototype changes are local and there is no profile update flow. |
 | Bank accounts | Backend CRUD implemented | `/accounts` lets a user create, list, read, update, and delete their own accounts, so new Supabase users can obtain the `account_id` that statement upload and bank sync need. Only the last 4 digits are accepted; the stored number is `XXXX-XXXX-<last4>`. Deleting an account with transactions returns 409 unless `?delete_transactions=true`. No frontend screen uses it yet. |
-| Transactions, budgets, goals | Existing code, not in prototype navigation | Budget responses now report real spend (sum of the user's DEBITs inside the budget dates, computed in SQL) with a linear burn projection; `categories` is still always empty. Earlier feature components and backend APIs remain in the repository, but the simplified prototype dashboard does not link to those screens. Decide how to bring them back into the prototype. |
+| Transactions, budgets, goals | Existing code, not in prototype navigation | `GET /transactions` filters by date range, type, account, amount range, and case-insensitive description search (`q`, wildcards escaped), and returns the pre-pagination match count in `X-Total-Count` (exposed via CORS). `POST /transactions` records manual (e.g. cash) DEBIT/CREDIT entries with `source=MANUAL` and does not change account balances; `DELETE /transactions/{id}` removes one. Category filtering is not available because categories are not stored yet, and the detail endpoint's budget/forecast context fields are still fixed placeholder values. Budget responses now report real spend (sum of the user's DEBITs inside the budget dates, computed in SQL) with a linear burn projection; `categories` is still always empty. Earlier feature components and backend APIs remain in the repository, but the simplified prototype dashboard does not link to those screens. Decide how to bring them back into the prototype. |
 | Frontend tests | Not present | There is no frontend unit or end-to-end test suite yet. |
 
 ## Technical shape and boundaries
@@ -60,7 +60,7 @@ calculated.
 - Frontend: Next.js 16.4.6 App Router, strict TypeScript, Tailwind, TanStack
   Query, existing components and design tokens. `experimental.agentUpgrade` is
   set to `"security"` following the November 2026 security patch upgrade.
-- The backend currently has 52 passing tests. There is no frontend unit or
+- The backend currently has 92 passing tests. There is no frontend unit or
   end-to-end test suite yet.
 - Canonical transactions are the normalization boundary for imported or
   simulated transaction data. Keep analytics and calendar work based on that

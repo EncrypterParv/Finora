@@ -44,6 +44,8 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        # Lets browser code read the pagination total, like cors({ exposedHeaders: [...] }).
+        expose_headers=["X-Total-Count"],
     )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
