@@ -22,27 +22,35 @@ router = APIRouter()
 async def get_calendar_view(
     mode: CalendarViewMode = Query(CalendarViewMode.MONTH, description="Calendar time mode: day, week, month"),
     year: Optional[int] = Query(None),
-    month: Optional[int] = Query(None),
+    month: Optional[int] = Query(None, ge=1, le=12),
+    anchor_date: Optional[date] = Query(
+        None,
+        alias="date",
+        description="ISO yyyy-mm-dd; week/day views are built around it. Defaults to today.",
+    ),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """
     Retrieve Financial Calendar grid with time-axis event blocks and spending intensities.
+
+    week = Monday-Sunday containing ?date, day = ?date, month = year/month (each falling
+    back to ?date's value). ?date defaults to today, so existing callers are unaffected.
     """
-    today = date.today()
-    target_year = year or today.year
-    target_month = month or today.month
+    anchor = anchor_date or date.today()
+    target_year = year or anchor.year
+    target_month = month or anchor.month
 
     if mode == CalendarViewMode.MONTH:
         _, last_day = calendar.monthrange(target_year, target_month)
         start_date = date(target_year, target_month, 1)
         end_date = date(target_year, target_month, last_day)
     elif mode == CalendarViewMode.WEEK:
-        start_date = today - timedelta(days=today.weekday())
+        start_date = anchor - timedelta(days=anchor.weekday())
         end_date = start_date + timedelta(days=6)
     else:  # DAY
-        start_date = today
-        end_date = today
+        start_date = anchor
+        end_date = anchor
 
     # Fetch user transactions in date range
     start_dt = datetime.combine(start_date, datetime.min.time(), tzinfo=timezone.utc)
