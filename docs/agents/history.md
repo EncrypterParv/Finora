@@ -279,6 +279,23 @@ assumptions from old plans.
 
 ## Mistakes and corrections to carry forward
 
+## 2026-11-22 — Require email verification for signup
+
+- The previous demo decision to disable Supabase email confirmation was
+  reversed. Email ownership verification is now a requirement; do not turn off
+  **Confirm email** in the hosted project.
+- Signup now collects a six-digit OTP on the same entry page, supports a
+  confirmation resend and email correction, and enters the workspace only
+  after verification. Unconfirmed sign-in attempts route to the code-entry
+  state. Auth logs still exclude email, password, OTP, and raw provider text.
+- Local Supabase config now enables confirmations and supplies a code-based
+  Confirm signup template. Hosted SMTP and the hosted Confirm signup template
+  are external setup and must be configured before live user signup can be
+  considered verified. Password recovery also needs email delivery.
+- The prior “Sign-up feedback and demo email policy” entry records a decision
+  that has since been superseded; use this entry and current setup instructions
+  as the source of truth.
+
 - **Do not trust the roadmap as a feature inventory.** Some architecture and
   roadmap documents describe XLSX/PDF parsing, stronger ML, and live
   integrations as delivered or planned. Check source and tests first; the
