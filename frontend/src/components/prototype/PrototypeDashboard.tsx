@@ -4,12 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowDownLeft,
   ArrowRight,
+  CalendarDays,
   Check,
   FileUp,
   LayoutDashboard,
   LogOut,
+  PiggyBank,
   RotateCw,
   ShieldCheck,
+  Target,
   WalletCards,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -28,14 +31,23 @@ import {
 import { CanonicalTransaction } from "@/types/transaction";
 import { formatCurrency } from "@/lib/utils";
 import { endDemoSession } from "@/lib/demo-session";
+import { AccountsScreen } from "./AccountsScreen";
+import { BudgetsScreen } from "./BudgetsScreen";
+import { CalendarScreen } from "./CalendarScreen";
+import { GoalsScreen } from "./GoalsScreen";
+import { TransactionsScreen } from "./TransactionsScreen";
+import { PageTitle } from "./prototype-ui";
 import "./prototype-dashboard.css";
 
-type Section = "overview" | "transactions" | "accounts" | "import";
+type Section = "overview" | "calendar" | "transactions" | "budgets" | "goals" | "accounts" | "import";
 type AccountType = "SAVINGS" | "CURRENT" | "CREDIT";
 
 const navigation: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "calendar", label: "Calendar", icon: CalendarDays },
   { id: "transactions", label: "Transactions", icon: ArrowDownLeft },
+  { id: "budgets", label: "Budgets", icon: PiggyBank },
+  { id: "goals", label: "Goals", icon: Target },
   { id: "accounts", label: "Accounts", icon: WalletCards },
   { id: "import", label: "Add a statement", icon: FileUp },
 ];
@@ -93,7 +105,7 @@ export function PrototypeDashboard({
       setAccounts(loadedAccounts);
       setTransactions(loadedTransactions);
     } catch {
-      setRefreshError("Your import was saved, but we couldn’t refresh the workspace. Reload the page to see the latest records.");
+      setRefreshError("Your change was saved, but we couldn’t refresh the workspace. Reload the page to see the latest records.");
     }
   }
 
@@ -114,6 +126,15 @@ export function PrototypeDashboard({
 
   const handleImportComplete = async () => {
     await reloadWorkspace();
+  };
+
+  const handleAccountUpdated = (account: BankAccountSummary) => {
+    setAccounts((current) => current.map((item) => item.id === account.id ? { ...item, ...account } : item));
+  };
+
+  const handleAccountDeleted = async (accountId: string, removedTransactions: boolean) => {
+    setAccounts((current) => current.filter((item) => item.id !== accountId));
+    if (removedTransactions) await reloadWorkspace();
   };
 
   return (
@@ -156,9 +177,15 @@ export function PrototypeDashboard({
               {section === "import" ? (
                 <StatementImportFlow accounts={accounts} onAccountCreated={handleAccountCreated} onComplete={handleImportComplete} />
               ) : section === "accounts" ? (
-                <AccountsView accounts={accounts} onAdd={() => setSection("import")} />
+                <AccountsScreen accounts={accounts} onAdd={() => setSection("import")} onAccountUpdated={handleAccountUpdated} onAccountDeleted={handleAccountDeleted} />
               ) : section === "transactions" ? (
-                <TransactionsView transactions={transactions} onAdd={() => setSection("import")} />
+                <TransactionsScreen accounts={accounts} onRecordsChanged={reloadWorkspace} onAddStatement={() => setSection("import")} />
+              ) : section === "calendar" ? (
+                <CalendarScreen onAddStatement={() => setSection("import")} />
+              ) : section === "budgets" ? (
+                <BudgetsScreen />
+              ) : section === "goals" ? (
+                <GoalsScreen />
               ) : (
                 <OverviewView userName={userName} accounts={accounts} transactions={transactions} onAdd={() => setSection("import")} />
               )}
@@ -225,22 +252,6 @@ function Metric({ label, value, detail, icon: Icon }: { label: string; value: st
   return <section className="rounded-xl border border-[#e8e4dc] bg-white p-5"><div className="flex items-start justify-between text-xs text-[#777067]"><span>{label}</span><Icon size={16} className="text-[#8d7769]" /></div><div className="mt-3 text-2xl font-semibold tabular-nums">{value}</div><div className="mt-1 text-xs text-[#938b82]">{detail}</div></section>;
 }
 
-function TransactionsView({ transactions, onAdd }: { transactions: CanonicalTransaction[]; onAdd: () => void }) {
-  return <><PageTitle title="Transactions" description="Only records imported from statements and confirmed by you appear here." action={<button type="button" onClick={onAdd} className="prototype-primary-action inline-flex items-center gap-2 rounded-md bg-[#4e342e] px-3.5 py-2.5 text-sm font-medium text-white"><FileUp size={16} /> Add a statement</button>} />
-    {transactions.length ? <section className="rounded-xl border border-[#e8e4dc] bg-white p-5"><TransactionRows transactions={transactions} /></section> : <EmptyPanel title="No transactions yet" body="After you review and confirm a statement, its transaction records will appear here." onAdd={onAdd} />}
-  </>;
-}
-
-function AccountsView({ accounts, onAdd }: { accounts: BankAccountSummary[]; onAdd: () => void }) {
-  return <><PageTitle title="Accounts" description="Account labels you added to organize your statements. Finora is not connected to your bank." action={<button type="button" onClick={onAdd} className="prototype-primary-action inline-flex items-center gap-2 rounded-md bg-[#4e342e] px-3.5 py-2.5 text-sm font-medium text-white"><FileUp size={16} /> Add an account</button>} />
-    {accounts.length ? <div className="grid gap-3 sm:grid-cols-2">{accounts.map((account) => <section key={account.id} className="rounded-xl border border-[#e8e4dc] bg-white p-5"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-full bg-[#f4eee7] text-[#694b3b]"><WalletCards size={18} /></span><div><h2 className="font-semibold">{account.institution_name}</h2><p className="mt-1 text-xs text-[#837970]">{account.account_type.toLowerCase()} · {account.account_number_masked}</p></div></div><p className="mt-4 text-xs text-[#837970]">{account.currency} · statement imports only</p></section>)}</div> : <EmptyPanel title="No accounts added" body="Add an account label when you import your first bank statement. You don’t need to share your full account number." onAdd={onAdd} />}
-  </>;
-}
-
-function EmptyPanel({ title, body, onAdd }: { title: string; body: string; onAdd: () => void }) {
-  return <section className="rounded-xl border border-[#e8e4dc] bg-white px-6 py-9"><h2 className="text-lg font-semibold">{title}</h2><p className="mt-2 text-sm text-[#766e65]">{body}</p><button type="button" onClick={onAdd} className="prototype-inline-link mt-4 inline-flex items-center gap-1 text-sm font-medium">Add a bank statement <ArrowRight size={14} /></button></section>;
-}
-
 function TransactionRows({ transactions }: { transactions: CanonicalTransaction[] }) {
   return <div className="mt-4 divide-y divide-[#f0ede7]">
     {transactions.map((transaction) => {
@@ -252,10 +263,6 @@ function TransactionRows({ transactions }: { transactions: CanonicalTransaction[
       </article>;
     })}
   </div>;
-}
-
-function PageTitle({ title, description, action }: { title: string; description: string; action?: React.ReactNode }) {
-  return <div className="prototype-page-title mb-7 flex flex-wrap items-end justify-between gap-4"><div><span className="prototype-eyebrow">Your finances, in context</span><h1 className="mt-2 text-3xl font-semibold tracking-tight">{title}</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-[#777067]">{description}</p></div>{action}</div>;
 }
 
 function StatementImportFlow({ accounts, onAccountCreated, onComplete }: { accounts: BankAccountSummary[]; onAccountCreated: (account: BankAccountSummary) => void; onComplete: () => Promise<void> }) {
