@@ -1,7 +1,7 @@
 # Finora Project Context
 
-Last reviewed: 2026-11-21
-Current milestone: Dashboard hierarchy refresh implemented; Supabase migration deployment pending
+Last reviewed: 2026-11-22
+Current milestone: Backend accounts API, real budget spend, and calendar date handling implemented; prototype screens still use mock data
 
 This is the short continuity brief for coding agents. Read it before planning
 substantial work, then read [`history.md`](history.md) for dated decisions and
@@ -47,10 +47,11 @@ calculated.
 | Login and RBAC | Supabase Auth configured; first signup check pending, RBAC remains mock-only | Next.js email/password sign-in uses Supabase SSR sessions. FastAPI is configured to validate Supabase access tokens. The prototype's role editor is not authorization. |
 | Database | Initial Supabase schema applied and verified | The checked-in migration mirrors current SQLAlchemy entities, creates a profile from `auth.users`, and enables owner-scoped RLS on all ten expected tables. A read-only connection and migration-history check passed. |
 | Statement import | Partial | Backend parser and upload endpoint support CSV. The prototype file picker shows generated rows and does not read or send the selected file. XLSX/PDF import is not implemented end to end. |
-| Calendar | Existing backend + mock prototype | Existing API/service and prior calendar UI exist. The current prototype calendar uses local sample data. Reconcile backend date-range behavior before connecting them. |
+| Calendar | Backend date handling fixed + mock prototype | `GET /calendar/view` accepts an optional `date` (yyyy-mm-dd): week = Monday-Sunday containing it, day = that date, month uses `year`/`month` falling back to it. Omitting `date` keeps the old today-based behavior. The prototype calendar still uses local sample data. |
 | Insights | Statistical foundation + mock screen | Backend features, forecasts, shifts, anomaly heuristics, and recommendations exist. This is not a trained ML product; several recommendation impacts are fixed illustrative estimates. |
 | User profile | Mock UI / partial backend read | User fields and `/auth/me` exist, but the prototype changes are local and there is no profile update flow. |
-| Transactions, budgets, goals | Existing code, not in prototype navigation | Earlier feature components and backend APIs remain in the repository, but the simplified prototype dashboard does not link to those screens. Decide how to bring them back into the prototype. |
+| Bank accounts | Backend CRUD implemented | `/accounts` lets a user create, list, read, update, and delete their own accounts, so new Supabase users can obtain the `account_id` that statement upload and bank sync need. Only the last 4 digits are accepted; the stored number is `XXXX-XXXX-<last4>`. Deleting an account with transactions returns 409 unless `?delete_transactions=true`. No frontend screen uses it yet. |
+| Transactions, budgets, goals | Existing code, not in prototype navigation | Budget responses now report real spend (sum of the user's DEBITs inside the budget dates, computed in SQL) with a linear burn projection; `categories` is still always empty. Earlier feature components and backend APIs remain in the repository, but the simplified prototype dashboard does not link to those screens. Decide how to bring them back into the prototype. |
 | Frontend tests | Not present | There is no frontend unit or end-to-end test suite yet. |
 
 ## Technical shape and boundaries
@@ -59,7 +60,7 @@ calculated.
 - Frontend: Next.js 16.4.6 App Router, strict TypeScript, Tailwind, TanStack
   Query, existing components and design tokens. `experimental.agentUpgrade` is
   set to `"security"` following the November 2026 security patch upgrade.
-- The backend currently has 28 passing tests. There is no frontend unit or
+- The backend currently has 52 passing tests. There is no frontend unit or
   end-to-end test suite yet.
 - Canonical transactions are the normalization boundary for imported or
   simulated transaction data. Keep analytics and calendar work based on that
@@ -99,8 +100,11 @@ recheck them before implementation because code may have changed since then.
    demo seeding. Supabase mode skips both and relies on checked-in migrations.
    The initial migration has been run against Supabase and its history entry,
    ten tables, and ten RLS-enabled table flags were verified.
-4. The calendar API's day/week range handling needs review against the selected
-   date. The prototype's local calendar navigation does not fix backend logic.
+4. Calendar day/week views now honor the `date` query parameter (fixed
+   2026-11-22). The prototype's local calendar navigation is not yet wired to
+   it. Budget burn uses the UTC date as "today", while the calendar endpoint
+   uses the server's local date; align these if users in non-UTC timezones see
+   off-by-one-day results. Budget category allocations are not computed.
 5. Analytics use deterministic/statistical code. The anomaly detector is a
    statistical z-score implementation, not the Isolation Forest described in
    some pricing/architecture copy. Verify claims and fixed recommendation
