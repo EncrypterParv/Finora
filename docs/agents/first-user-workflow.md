@@ -2,7 +2,8 @@
 
 Status: first implementation is in place. CSV preview and confirmed import are
 covered by backend tests. PDF and image extraction require the optional OCR
-runtime and have not yet been installed or benchmarked in this workspace.
+runtime and have not yet been installed or benchmarked in this workspace. The
+Vercel Hobby deployment caps uploads at 4 MB and does not include OCR.
 
 ## Product decision
 
@@ -24,7 +25,9 @@ requested (bank password or full account number), and when records are saved.
    create a label using institution, account type, and optional last four
    digits. Never ask for online banking credentials or the full account number.
 3. **Select statement:** accept CSV, PDF, PNG, and JPG/JPEG, with size/page
-   limits and clear privacy copy. The selected original is transient and is
+   limits and clear privacy copy. The current Vercel deployment accepts files
+   up to 4 MB; the default Vercel backend only supports CSV because its optional
+   OCR runtime is not installed. The selected original is transient and is
    discarded after processing; it is not stored in Supabase Storage.
 4. **Extract and review:** show the source document next to normalized rows.
    Allow edits to date, description, debit/credit, amount, and category. Flag

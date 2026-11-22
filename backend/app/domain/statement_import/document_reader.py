@@ -12,7 +12,9 @@ from typing import Any
 from app.schemas.canonical_transaction import CanonicalTransactionCreate
 from app.domain.statement_import.parser import StatementParser
 
-MAX_FILE_BYTES = 15 * 1024 * 1024
+# Keep the upload below Vercel Hobby's 4.5 MB request-body cap, including
+# multipart framing. Larger uploads should move to direct object storage.
+MAX_FILE_BYTES = 4 * 1024 * 1024
 MAX_PDF_PAGES = 20
 MAX_TRANSACTIONS = 500
 SUPPORTED_EXTENSIONS = {".csv", ".pdf", ".png", ".jpg", ".jpeg"}
@@ -78,7 +80,7 @@ def validate_statement_file(filename: str, content: bytes) -> str:
     if not content:
         raise StatementReadError("The selected file is empty.")
     if len(content) > MAX_FILE_BYTES:
-        raise StatementReadError("Choose a statement smaller than 15 MB.")
+        raise StatementReadError("Choose a statement that is 4 MB or smaller.")
 
     signatures = {
         ".pdf": content.startswith(b"%PDF-"),

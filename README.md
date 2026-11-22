@@ -45,6 +45,7 @@ Detailed system documentation is available in `docs/`:
 - [ML & Behavioural Analytics](docs/architecture/ml-architecture.md)
 - [Security & Privacy Architecture](docs/architecture/security.md)
 - [Supabase setup and schema deployment](docs/supabase/setup.md)
+- [Vercel deployment and environment variables](docs/deployment/vercel.md)
 - [Product Requirements (PRD)](docs/product/requirements.md)
 - [Engineering Roadmap](docs/product/roadmap.md)
 
