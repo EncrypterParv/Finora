@@ -45,7 +45,7 @@ calculated.
 | Landing page | Implemented prototype | Public product explanation and interactive sample walkthrough. A proposed three-tier plans section now lives here. |
 | Authenticated workspace | Real account/transaction loading; statement review/import implemented | New users see empty states, add an account label, preview a statement, edit candidate transactions, and explicitly confirm persistence. Browser visual QA remains pending because the app server was not started. |
 | Plans | Illustrative only | Prices and feature tiers are concepts. No subscription, checkout, or server-side entitlement enforcement exists. |
-| Login and RBAC | Supabase Auth flow wired; hosted sign-up not yet verified; RBAC remains mock-only | Sign-up now reports safe provider codes, keeps email-confirmation-required state visible, and sends successful immediate sessions to the workspace with an account-created message. The judge demo expects Supabase Confirm email off; this does not verify email ownership. Password recovery still requires working email delivery. The role editor is not authorization. |
+| Login and RBAC | Supabase Auth signup OTP, login, and recovery UI implemented; hosted SMTP and end-to-end verification pending; RBAC remains mock-only | Signup requires the six-digit email code before entering the workspace; the login flow can resend a code for an unconfirmed account. Auth diagnostics expose only safe provider codes/status. Supabase Confirm email must stay on and the Confirm signup template must send `{{ .Token }}`. Hosted SMTP and full signup/recovery smoke checks remain pending. The role editor is not authorization. |
 | Database | Initial Supabase schema applied and verified | The checked-in migration mirrors current SQLAlchemy entities, creates a profile from `auth.users`, and enables owner-scoped RLS on all ten expected tables. A read-only connection and migration-history check passed. |
 | Statement import | CSV implemented; optional OCR path unverified | Preview is non-persistent; edited, confirmed rows save as canonical transactions. CSV parsing rejects ambiguous amount-only layouts. Uploads are capped at 4 MB for Vercel Hobby. PDF/PNG/JPG use optional PaddleX OCR, not installed or benchmarked in this workspace; scanned extraction is unavailable on the default Vercel deployment. XLSX is unsupported. |
 | Calendar | Backend date handling fixed + mock prototype | `GET /calendar/view` accepts an optional `date` (yyyy-mm-dd): week = Monday-Sunday containing it, day = that date, month uses `year`/`month` falling back to it. Omitting `date` keeps the old today-based behavior. The prototype calendar still uses local sample data. |
@@ -124,11 +124,11 @@ recheck them before implementation because code may have changed since then.
    prototype but adds network latency; evaluate cached JWKS verification before
    scaling API traffic.
 8. Vercel Services are beta. `/health` is live, but Auth and database flows
-   still need hosted smoke checks. The judge demo must have Supabase Confirm
-   email disabled for immediate sign-up; this removes email ownership checks.
-   Configure custom SMTP and re-enable confirmation before public use. Uploads
-   are limited to 4 MB under the default function-body limit; larger files need
-   direct storage, and scanned OCR is not included in the default Vercel runtime.
+   still need hosted smoke checks. Supabase Confirm email stays enabled; hosted
+   sign-up requires a Confirm signup template containing `{{ .Token }}` and
+   custom SMTP. Uploads are limited to 4 MB under the default function-body
+   limit; larger files need direct storage, and scanned OCR is not included in
+   the default Vercel runtime.
 
 ## Product decisions and working preferences
 
