@@ -38,3 +38,7 @@ export interface GoalCreate {
   target_date: string;
   expected_annual_return_pct?: number;
 }
+
+export type GoalStatus = "IN_PROGRESS" | "COMPLETED" | "PAUSED";
+
+export type GoalUpdate = Partial<GoalCreate> & { status?: GoalStatus };
