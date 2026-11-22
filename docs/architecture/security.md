@@ -41,4 +41,4 @@ flowchart LR
 2. **Cross-Site Scripting (XSS)**: Next.js automatic React escaping + strict Content Security Policy (CSP).
 3. **Cross-Site Request Forgery (CSRF)**: SameSite=Lax/Strict cookie policies + Anti-CSRF token verification on state-changing POST/PUT/DELETE requests.
 4. **Rate Limiting**: IP and User-based token bucket rate limiting on sensitive endpoints (`/auth/login`, `/statements/upload`, `/bank/sync`).
-5. **Malicious File Ingestion**: Ingestion endpoint validates magic bytes, enforces maximum file size (15MB), and processes in isolated memory buffers without executing filesystem scripts.
+5. **Malicious File Ingestion**: Ingestion endpoint validates magic bytes, enforces a 4 MB upload limit compatible with Vercel Hobby's request-body cap, and processes files in memory without executing filesystem scripts. Larger uploads need a direct-to-object-storage flow.

@@ -24,7 +24,50 @@ import {
 } from "@/types/analytics";
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+  process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+
+export type StatementSourceFormat = "csv" | "pdf" | "image";
+
+export interface StatementDraftTransaction {
+  account_id: string;
+  occurred_at: string;
+  amount: number;
+  currency: string;
+  transaction_type: "DEBIT" | "CREDIT" | "TRANSFER";
+  raw_description: string;
+  merchant_name: string;
+  category_name: string;
+  balance_before?: number | null;
+  balance_after?: number | null;
+  reference_id: string;
+  source: "CSV" | "PDF" | "IMAGE";
+  metadata?: Record<string, unknown>;
+}
+
+export interface BankAccountSummary {
+  id: string;
+  institution_name: string;
+  account_number_masked: string;
+  account_type: string;
+  currency: string;
+}
+
+export interface StatementPreview {
+  format: StatementSourceFormat;
+  needs_review: boolean;
+  warnings: string[];
+  transactions: StatementDraftTransaction[];
+}
+
+async function responseError(response: Response, fallback: string): Promise<Error> {
+  try {
+    const payload = (await response.json()) as { detail?: unknown };
+    if (typeof payload.detail === "string") return new Error(payload.detail);
+  } catch {
+    // Return the stable fallback if the API response is not JSON.
+  }
+  return new Error(fallback);
+}
 
 async function apiFetch(input: RequestInfo | URL, init: RequestInit = {}) {
   const supabase = createSupabaseClient();
@@ -76,6 +119,19 @@ export async function fetchTransactions(
     );
   }
   return res.json();
+}
+
+export async function fetchUserTransactions(
+  limit: number = 200,
+  offset: number = 0,
+): Promise<CanonicalTransaction[]> {
+  const params = new URLSearchParams({
+    limit: limit.toString(),
+    offset: offset.toString(),
+  });
+  const response = await apiFetch(`${API_BASE}/transactions?${params.toString()}`);
+  if (!response.ok) throw await responseError(response, "Could not load your transactions.");
+  return response.json();
 }
 
 export async function fetchTransactionDetail(
@@ -248,7 +304,7 @@ export async function uploadStatement(
   formData.append("account_id", accountId);
   formData.append("file", file);
 
-  const res = await fetch(`${API_BASE}/statements/upload`, {
+  const res = await apiFetch(`${API_BASE}/statements/upload`, {
     method: "POST",
     body: formData,
   });
@@ -258,4 +314,59 @@ export async function uploadStatement(
     );
   }
   return res.json();
+}
+
+export async function fetchBankAccounts(): Promise<BankAccountSummary[]> {
+  const response = await apiFetch(`${API_BASE}/accounts`);
+  if (!response.ok) throw await responseError(response, "Could not load your accounts.");
+  return response.json();
+}
+
+export async function createBankAccount(input: {
+  institution_name: string;
+  account_type: "SAVINGS" | "CURRENT" | "CREDIT";
+  last_four?: string;
+}): Promise<BankAccountSummary> {
+  const response = await apiFetch(`${API_BASE}/accounts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      institution_name: input.institution_name,
+      account_type: input.account_type,
+      ...(input.last_four ? { account_last4: input.last_four } : {}),
+      adapter_type: "STATEMENT_IMPORT",
+    }),
+  });
+  if (!response.ok) throw await responseError(response, "Could not save this account.");
+  return response.json();
+}
+
+export async function previewStatement(file: File): Promise<StatementPreview> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await apiFetch(`${API_BASE}/statements/preview`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!response.ok) throw await responseError(response, "Could not read this statement.");
+  return response.json();
+}
+
+export async function confirmStatementImport(input: {
+  account_id: string;
+  source_format: StatementSourceFormat;
+  transactions: StatementDraftTransaction[];
+}): Promise<{
+  account_id: string;
+  transactions_confirmed: number;
+  transactions_added: number;
+  duplicates_skipped: number;
+}> {
+  const response = await apiFetch(`${API_BASE}/statements/import`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) throw await responseError(response, "Could not save these transactions.");
+  return response.json();
 }

@@ -3,7 +3,9 @@
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func
 from app.db.seeder import seed_demo_data_if_empty
+from app.db.models.transaction import Transaction
 
 
 @pytest.mark.asyncio
@@ -141,6 +143,75 @@ async def test_bank_sync_endpoint(client: AsyncClient, db_session: AsyncSession)
     assert data["account_id"] == "acc-1"
     assert "transactions_added" in data
     assert "new_balance" in data
+
+
+@pytest.mark.asyncio
+async def test_statement_import_requires_review_and_persists_user_edits(
+    client: AsyncClient, db_session: AsyncSession
+):
+    await seed_demo_data_if_empty(db_session)
+
+    created = await client.post(
+        "/api/v1/accounts",
+        json={
+            "institution_name": "Example Bank",
+            "account_type": "SAVINGS",
+            "account_last4": "1234",
+            "adapter_type": "STATEMENT_IMPORT",
+        },
+    )
+    assert created.status_code == 201
+    account = created.json()
+    assert account["account_number_masked"].endswith("1234")
+
+    without_last_four = await client.post(
+        "/api/v1/accounts",
+        json={
+            "institution_name": "Other Example Bank",
+            "account_type": "CURRENT",
+            "adapter_type": "STATEMENT_IMPORT",
+        },
+    )
+    assert without_last_four.status_code == 201
+    assert without_last_four.json()["account_number_masked"] == "XXXX-XXXX"
+
+    before = await db_session.scalar(select(func.count()).select_from(Transaction))
+    preview = await client.post(
+        "/api/v1/statements/preview",
+        files={
+            "file": (
+                "statement.csv",
+                b"Date,Description,Debit,Credit,Balance\n2026-10-01,COFFEE SHOP,80,,920\n",
+                "text/csv",
+            )
+        },
+    )
+    assert preview.status_code == 200
+    draft = preview.json()
+    assert draft["needs_review"] is True
+    assert len(draft["transactions"]) == 1
+    after_preview = await db_session.scalar(select(func.count()).select_from(Transaction))
+    assert after_preview == before
+
+    transaction = draft["transactions"][0]
+    transaction["category_name"] = "Reviewed category"
+    import_payload = {
+        "account_id": account["id"],
+        "source_format": "csv",
+        "transactions": [transaction],
+    }
+    imported = await client.post("/api/v1/statements/import", json=import_payload)
+    assert imported.status_code == 200
+    assert imported.json()["transactions_added"] == 1
+
+    saved = await client.get("/api/v1/transactions")
+    row = next(item for item in saved.json() if item["account_id"] == account["id"])
+    assert row["category_name"] == "Reviewed category"
+
+    repeated = await client.post("/api/v1/statements/import", json=import_payload)
+    assert repeated.status_code == 200
+    assert repeated.json()["transactions_added"] == 0
+    assert repeated.json()["duplicates_skipped"] == 1
 
 
 

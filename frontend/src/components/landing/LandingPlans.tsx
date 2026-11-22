@@ -37,8 +37,8 @@ export function LandingPlans() {
           </h2>
         </div>
         <p>
-          Compare the early plan concepts. Prices and features are illustrative;
-          subscriptions and checkout are not connected in this prototype.
+          Compare proposed plan concepts. Prices and features are illustrative;
+          subscriptions and checkout are not available yet.
         </p>
       </div>
       <div className="plans-grid">

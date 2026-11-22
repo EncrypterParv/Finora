@@ -37,10 +37,20 @@ async def _get_owned_transaction(db: AsyncSession, transaction_id: str, user_id:
     return tx
 
 
+# Merchant/category for display: names the user confirmed during statement review win over the regex guess.
+def _display_names(r: Transaction) -> tuple[str, str]:
+    """Return (merchant, category), preferring reviewed names saved in metadata."""
+    merchant, cat = resolve_merchant_and_category(r.raw_description)
+    saved_metadata = r.metadata_ or {}
+    merchant = saved_metadata.get("reviewed_merchant_name") or merchant
+    cat = saved_metadata.get("reviewed_category_name") or cat
+    return merchant, cat
+
+
 # Serializes one DB row into the list-item shape (adds the derived merchant/category names).
 def _to_response(r: Transaction) -> CanonicalTransactionResponse:
     """Map a Transaction row to CanonicalTransactionResponse."""
-    merchant, cat = resolve_merchant_and_category(r.raw_description)
+    merchant, cat = _display_names(r)
     return CanonicalTransactionResponse(
         id=r.id,
         user_id=r.user_id,
@@ -185,7 +195,7 @@ async def get_transaction_detail(
     """
     tx = await _get_owned_transaction(db, transaction_id, current_user.id)
 
-    merchant, cat = resolve_merchant_and_category(tx.raw_description)
+    merchant, cat = _display_names(tx)
 
     # Check if transaction is an anomaly (> 3000 on dining or midnight)
     is_anomaly = float(tx.amount) > 3000 and cat in ("Food & Dining", "Entertainment")

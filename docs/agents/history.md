@@ -159,6 +159,22 @@ assumptions from old plans.
   financial data remains synthetic and API-backed dashboard persistence is not
   implemented.
 
+## 2026-11-21 — Login privacy and password recovery
+
+- Replaced raw Supabase login/signup errors with neutral, actionable copy. The
+  sign-in message points new users to account creation without checking or
+  disclosing whether an address exists; password-reset requests use the same
+  privacy-preserving response.
+- Added a Supabase password-recovery request and reset form, wired through the
+  existing auth callback. Added handling for expired links and clarified that
+  no bank connection or bank password is requested.
+- The sign-in API intentionally does not distinguish an unknown account from a
+  wrong password. Do not add an email lookup endpoint or query `auth.users` in
+  the browser.
+- At this milestone, live signup/confirmation email, reset-email delivery,
+  deployed-domain redirects, and financial-data persistence still needed
+  verification.
+
 ## 2026-11-22 — Accounts API, real budget spend, calendar dates
 
 - Added `/accounts` CRUD (`app/api/v1/accounts.py`, `app/schemas/account.py`).
@@ -183,9 +199,65 @@ assumptions from old plans.
   behavior is unchanged. `month` is now validated to 1-12 (previously an
   invalid month caused a server error).
 - Backend tests: 52 passing (was 28).
-- Not completed: no frontend screens call `/accounts` or the updated budget and
-  calendar endpoints; budget `categories` remain empty; budget "today" (UTC)
+- At this milestone, frontend screens did not yet call `/accounts` or the
+  updated budget and calendar endpoints; the statement workflow below later
+  reuses `/accounts`. Budget `categories` remain empty; budget "today" (UTC)
   and calendar "today" (server local date) are not yet aligned.
+
+## 2026-11-22 — First authenticated financial data workflow
+
+- Replaced the signed-in synthetic dashboard entry with user-scoped account
+  and transaction loading, honest empty states, and a statement preview →
+  editable review → explicit confirmation flow. Preview writes no records;
+  only confirmed canonical transactions are saved. Re-imports are deduplicated.
+- Reused upstream's `/accounts` CRUD rather than adding a second account API.
+  Account labels can omit last-four digits; statement-only accounts use the
+  `STATEMENT_IMPORT` adapter marker and never collect bank credentials.
+- CSV parsing rejects ambiguous amount-only files and malformed transaction
+  rows instead of guessing or silently dropping them. PDF/PNG/JPG extraction
+  uses optional local PaddleX PP-StructureV3 with file limits and temporary-file
+  cleanup. The OCR runtime is not installed or accuracy-tested here; its output
+  must remain a user-reviewed draft.
+- Updated login/landing copy, README, Supabase setup, and continuity docs to
+  explain the empty-first experience, review-before-save boundary, and current
+  implementation limits.
+- A scoped override pins the affected TypeScript ESLint parser dependency to
+  `minimatch@11.0.1` after GitHub reported a moderate advisory on the fork's
+  default branch.
+- Validation after rebasing: 58 backend tests passed; frontend lint, typecheck,
+  and production build passed. Browser visual QA and live Supabase email-flow
+  verification were not performed.
+- Co-authors: Yash Srivastava and Devansh Chauhan; see the feature branch commit
+  for the recorded trailers.
+
+## 2026-11-22 — Vercel Services deployment preparation
+
+- [92c1305](https://github.com/TarunyaProgrammer/FinSOL2/commit/92c1305)
+  added root vercel.json to deploy frontend/ (Next.js) and backend/ (FastAPI)
+  as one Vercel Services project, routing /api/v1/* and /health to FastAPI and
+  other paths to Next.js.
+- Changed the frontend API default to same-origin /api/v1, so production
+  requests follow the Vercel route table while local Next.js rewrites continue
+  to proxy to localhost.
+- Reduced statement upload cap from 15 MB to 4 MB to stay below Vercel's
+  standard 4.5 MB function request limit, including multipart overhead. The UI
+  now rejects oversized files before upload.
+- Added a Vercel setup guide covering env vars, Supabase URL allowlisting, and
+  deployment limits. The repo does not contain Vercel secrets; dashboard
+  values and hosted-flow verification remain pending.
+- Vercel Services remain a beta feature; the Python runtime is generally
+  available.
+
+## 2026-11-22 — Vercel FastAPI dependency manifest fix
+
+- Vercel runtime logs for `/health` showed the backend could not import
+  FastAPI. The existing `backend/pyproject.toml` only contained Ruff settings,
+  so the deployed Python environment had no application dependencies.
+- Added PEP 621 runtime dependencies to that manifest. A local FastAPI
+  `/health` request returns 200; the new Vercel deployment still needs runtime
+  verification.
+- Keep in mind: the Vercel backend does not install the optional PaddleX OCR
+  runtime, so CSV is the only supported statement format in that deployment.
 
 ## 2026-11-22 — Transaction filters, manual entry, and deletion
 

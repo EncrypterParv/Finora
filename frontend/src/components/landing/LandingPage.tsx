@@ -123,7 +123,7 @@ export function LandingPage({ art }: { art: ReactNode }) {
             </p>
             <div className="hero-actions">
               <Link className="landing-button" href="/login">
-                Explore the prototype <Arrow />
+                Open your workspace <Arrow />
               </Link>
               <a className="landing-text-link" href="#how-it-works">
                 Take a closer look <span aria-hidden="true">↓</span>
@@ -300,19 +300,19 @@ export function LandingPage({ art }: { art: ReactNode }) {
             {[
               [
                 "Is this connected to my real bank?",
-                "No. This preview uses synthetic sample data and simulated bank integrations. You can explore without connecting an account or sharing credentials.",
+                "No. Finora does not connect to your bank. You can add a statement file and review the extracted records; we never ask for your online banking password or full account number.",
               ],
               [
                 "How does the intelligence work?",
                 "The current approach combines spending averages, statistical comparisons, and transparent rules. Trained machine learning models are a future direction; forecasts are estimates, not guarantees.",
               ],
               [
-                "What can I try in the demo?",
-                "Create an account or sign in to explore the prototype. Dashboard figures are synthetic, and prototype changes are not saved.",
+                "What will I see after signing in?",
+                "Your workspace starts empty. Add an account label and a bank statement to see your own records. Nothing is saved from a statement until you review and confirm it.",
               ],
               [
                 "Will Finora move my money?",
-                "No. Finora helps explain and plan. The preview does not make payments, execute trades, or move funds.",
+                "No. Finora helps explain and plan. It does not make payments, execute trades, or move funds.",
               ],
             ].map(([question, answer]) => (
               <details key={question}>
@@ -335,7 +335,7 @@ export function LandingPage({ art }: { art: ReactNode }) {
           <Link href="/login" className="landing-button">
             Step inside Finora <Arrow />
           </Link>
-          <small>Create an account or sign in. The dashboard uses synthetic data.</small>
+          <small>Create an account or sign in. Your workspace starts empty until you add records.</small>
         </section>
       </main>
       <footer className="landing-footer">
@@ -343,7 +343,7 @@ export function LandingPage({ art }: { art: ReactNode }) {
           <Wordmark />
         </Link>
         <span>Made for a more considered financial life.</span>
-        <span>© {new Date().getFullYear()} Finora · Frontend preview</span>
+        <span>© {new Date().getFullYear()} Finora · Sample workspace</span>
       </footer>
     </div>
   );
