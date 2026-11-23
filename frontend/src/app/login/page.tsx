@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import "@/components/landing/landing.css";
 import "@/components/landing/refinement.css";
 
-type AuthOperation = "sign_up" | "signup_verify" | "confirmation_resend" | "sign_in" | "password_reset";
+type AuthOperation = "sign_up" | "sign_in" | "password_reset";
 
 type AuthFailure = {
   code?: string;
@@ -30,19 +30,8 @@ function readAuthFailure(error: unknown): AuthFailure {
 }
 
 function authErrorMessage(operation: AuthOperation, failure: AuthFailure) {
-  if (failure.code === "email_address_not_authorized") {
-    return operation === "confirmation_resend"
-      ? "Supabase could not deliver the verification email because its default sender is restricted to organization addresses. Configure custom SMTP, then request another code."
-      : "Supabase could not deliver the verification email because its default sender is restricted to organization addresses. Configure custom SMTP, then create your account again.";
-  }
-  if (failure.code === "over_email_send_rate_limit") {
-    return "Supabase has paused confirmation emails because its sender limit was reached. Your account may already be waiting for verification. Set up custom SMTP and wait for the limit to reset before requesting another email.";
-  }
   if (failure.code === "over_request_rate_limit" || failure.status === 429) {
     return "Supabase has temporarily rate-limited authentication requests from this browser or network. Wait before trying again; repeated attempts can extend the limit.";
-  }
-  if (operation === "signup_verify" && ["otp_expired", "invalid_token", "invalid_otp"].includes(failure.code ?? "")) {
-    return "That code is incorrect or expired. Check the latest email or request a new code.";
   }
   if (failure.code === "weak_password") {
     return "Choose a stronger password and try again. Use at least 8 characters and avoid a commonly used password.";
@@ -51,7 +40,7 @@ function authErrorMessage(operation: AuthOperation, failure: AuthFailure) {
     return "Check the email address and try again.";
   }
   if (failure.code === "email_not_confirmed") {
-    return "This address still needs confirmation. Request a new code below, then enter it here.";
+    return "This account was created while email confirmation was enabled. Turning confirmation off does not necessarily verify existing accounts; the project owner may need to confirm or recreate this account.";
   }
   if (failure.code === "signup_disabled" || failure.code === "email_provider_disabled") {
     return "Account creation is disabled in this Supabase project. Enable email sign-ups in Auth settings, then try again.";
@@ -68,30 +57,12 @@ function authErrorMessage(operation: AuthOperation, failure: AuthFailure) {
   if (operation === "password_reset") {
     return "If an account can be found for that email, we’ll send a password reset link.";
   }
-  if (operation === "signup_verify") {
-    return "We couldn’t verify that code. Check the digits and try again.";
-  }
-  if (operation === "confirmation_resend") {
-    return "We couldn’t resend the code. Check the technical details below and try again.";
-  }
   return "We couldn’t create your account. Check the technical details below and try again.";
 }
 
 function authDiagnostic(operation: AuthOperation, failure: AuthFailure) {
   const safeCode = failure.code?.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80);
   return `${operation} · ${safeCode || "no provider code"} · ${failure.status ? `HTTP ${failure.status}` : "network or client error"}`;
-}
-
-function accountConfirmationUrl(origin: string) {
-  const url = new URL("/auth/callback", origin);
-  url.searchParams.set("next", "/dashboard?welcome=account-created");
-  return url.toString();
-}
-
-function maskEmail(email: string) {
-  const [name, domain] = email.split("@");
-  if (!name || !domain) return email;
-  return `${name.slice(0, 1)}•••@${domain}`;
 }
 
 export default function LoginPage() {
@@ -101,17 +72,15 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [diagnostic, setDiagnostic] = useState("");
-  const [pendingConfirmation, setPendingConfirmation] = useState(false);
-  const [confirmationEmail, setConfirmationEmail] = useState("");
-  const [mode, setMode] = useState<"sign-in" | "sign-up" | "recover" | "verify">("sign-in");
+  const [mode, setMode] = useState<"sign-in" | "sign-up" | "recover">("sign-in");
   const [pending, setPending] = useState(false);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("mode") === "recover") {
       setMode("recover");
     }
-    if (new URLSearchParams(window.location.search).get("error") === "confirmation") {
-      setError("That email link could not be confirmed. Request a new link or try signing in again.");
+    if (new URLSearchParams(window.location.search).get("error") === "callback") {
+      setError("That password-reset link could not be completed. Request a new reset link and try again.");
     }
   }, []);
 
@@ -121,8 +90,6 @@ export default function LoginPage() {
     setError("");
     setNotice("");
     setDiagnostic("");
-    setPendingConfirmation(false);
-
     if (!getSupabaseConfig()) {
       setError("Supabase is not configured yet. Add the project URL and publishable key to frontend/.env.local.");
       return;
@@ -143,18 +110,6 @@ export default function LoginPage() {
         return;
       }
 
-      if (mode === "verify") {
-        const { error: resendError } = await supabase.auth.resend({
-          type: "signup",
-          email,
-        });
-        if (resendError) throw resendError;
-        setConfirmationEmail(email);
-        setPendingConfirmation(true);
-        setNotice("If an unconfirmed Finora account exists for this address, a verification email is on its way.");
-        return;
-      }
-
       if (mode === "sign-up") {
         const fullName = String(values.get("full_name") ?? "").trim();
         const { data, error: authError } = await supabase.auth.signUp({
@@ -162,7 +117,6 @@ export default function LoginPage() {
           password,
           options: {
             data: { full_name: fullName, currency: "INR" },
-            emailRedirectTo: accountConfirmationUrl(window.location.origin),
           },
         });
         if (authError) throw authError;
@@ -170,8 +124,8 @@ export default function LoginPage() {
           router.replace("/dashboard?welcome=account-created");
           router.refresh();
         } else {
-          setConfirmationEmail(email);
-          setPendingConfirmation(true);
+          setDiagnostic("sign_up · project_requires_confirmation · no session");
+          setError("Supabase did not issue an active session. Email confirmation may still be enabled, or this email may already have an account. Check Auth settings; if you already registered, try signing in.");
         }
         return;
       }
@@ -183,13 +137,8 @@ export default function LoginPage() {
     } catch (cause) {
       // Provider errors can contain request details, so log only operation,
       // provider code, status, and error class. Never log email or password.
-      const operation: AuthOperation = mode === "sign-up" ? "sign_up" : mode === "recover" ? "password_reset" : mode === "verify" ? "confirmation_resend" : "sign_in";
+      const operation: AuthOperation = mode === "sign-up" ? "sign_up" : mode === "recover" ? "password_reset" : "sign_in";
       const failure = readAuthFailure(cause);
-      if (operation === "sign_in" && failure.code === "email_not_confirmed") {
-        const email = String(values.get("email") ?? "").trim();
-        setConfirmationEmail(email);
-        setPendingConfirmation(true);
-      }
       console.error("[Finora Auth] request failed", {
         operation,
         code: failure.code,
@@ -201,86 +150,6 @@ export default function LoginPage() {
     } finally {
       setPending(false);
     }
-  }
-
-  async function verifySignupOtp(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const values = new FormData(event.currentTarget);
-    const token = String(values.get("signup_otp") ?? "").replace(/\D/g, "").slice(0, 6);
-    setError("");
-    setNotice("");
-    setDiagnostic("");
-
-    if (token.length !== 6) {
-      setError("Enter the 6-digit code from your confirmation email.");
-      return;
-    }
-
-    setPending(true);
-    try {
-      const { data, error: verifyError } = await createClient().auth.verifyOtp({
-        email: confirmationEmail,
-        token,
-        type: "email",
-      });
-      if (verifyError) throw verifyError;
-      if (!data.session) {
-        setMode("sign-in");
-        setPendingConfirmation(false);
-        setNotice("Your email is confirmed. Sign in to open your Finora workspace.");
-        return;
-      }
-      router.replace("/dashboard?welcome=account-created");
-      router.refresh();
-    } catch (cause) {
-      const failure = readAuthFailure(cause);
-      console.error("[Finora Auth] request failed", {
-        operation: "signup_verify",
-        code: failure.code,
-        status: failure.status,
-        name: failure.name,
-      });
-      setDiagnostic(authDiagnostic("signup_verify", failure));
-      setError(authErrorMessage("signup_verify", failure));
-    } finally {
-      setPending(false);
-    }
-  }
-
-  async function resendSignupOtp() {
-    if (!confirmationEmail || pending) return;
-    setError("");
-    setNotice("");
-    setDiagnostic("");
-    setPending(true);
-    try {
-      const { error: resendError } = await createClient().auth.resend({
-        type: "signup",
-        email: confirmationEmail,
-      });
-      if (resendError) throw resendError;
-      setNotice("If this address can receive a code, a new confirmation email is on its way. Use the latest code.");
-    } catch (cause) {
-      const failure = readAuthFailure(cause);
-      console.error("[Finora Auth] request failed", {
-        operation: "confirmation_resend",
-        code: failure.code,
-        status: failure.status,
-        name: failure.name,
-      });
-      setDiagnostic(authDiagnostic("confirmation_resend", failure));
-      setError(authErrorMessage("confirmation_resend", failure));
-    } finally {
-      setPending(false);
-    }
-  }
-
-  function changeConfirmationEmail() {
-    setPendingConfirmation(false);
-    setConfirmationEmail("");
-    setError("");
-    setNotice("");
-    setDiagnostic("");
   }
 
   return (
@@ -312,41 +181,22 @@ export default function LoginPage() {
           <Arrow />
           Back to Finora
         </Link>
-        <h1>{pendingConfirmation ? "Confirm your email." : mode === "sign-in" ? "Come on in." : mode === "recover" ? "Reset your password." : "Create your account."}</h1>
+        <h1>{mode === "sign-in" ? "Come on in." : mode === "recover" ? "Reset your password." : "Create your account."}</h1>
         <p>
-          {pendingConfirmation
-            ? `Enter the 6-digit code sent to ${maskEmail(confirmationEmail)}. Your account stays protected until the address is confirmed.`
-          : mode === "recover"
+          {mode === "recover"
             ? "Enter the email address you used for Finora. We’ll send a reset link if an account can be found."
-            : mode === "verify"
-              ? "Already created an account but still need to confirm your email? Request a new verification email here."
-            : `${mode === "sign-up" ? "Create a Finora account to access your workspace." : "Sign in to your Finora account."} Finora does not connect to your bank. Your workspace starts empty until you add and confirm your own records.`}
+            : mode === "sign-up"
+              ? "Create a Finora account to access your workspace. Email addresses are not verified right now, so use one you can access if you need password recovery. Finora does not connect to your bank, and your workspace starts empty until you add your own records."
+              : "Sign in to your Finora account. Finora does not connect to your bank. Your workspace starts empty until you add and confirm your own records."}
         </p>
-        {pendingConfirmation && <p role="status" className="login-confirmation-note">The code is valid for a limited time. If you don’t receive it, check spam or ask the project owner to configure the Supabase email sender.</p>}
         {!supabaseConfigured && (
           <p role="status" className="login-credentials">
             Add the Supabase project URL and publishable key to
             frontend/.env.local, then restart the dev server.
           </p>
         )}
-        <form onSubmit={pendingConfirmation ? verifySignupOtp : submit}>
-          {pendingConfirmation ? (
-            <>
-              <label htmlFor="signup_otp">6-digit email code</label>
-              <input
-                id="signup_otp"
-                name="signup_otp"
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                pattern="[0-9]{6}"
-                maxLength={6}
-                required
-                placeholder="000000"
-                aria-describedby={error ? "auth-message" : undefined}
-              />
-            </>
-          ) : mode === "sign-up" ? (
+        <form onSubmit={submit}>
+          {mode === "sign-up" ? (
             <>
               <label htmlFor="full_name">Full name</label>
               <input
@@ -358,8 +208,7 @@ export default function LoginPage() {
               />
             </>
           ) : null}
-          {!pendingConfirmation && <label htmlFor="email">Email</label>}
-          {!pendingConfirmation && (
+          <label htmlFor="email">Email</label>
           <input
             id="email"
             name="email"
@@ -371,9 +220,8 @@ export default function LoginPage() {
             placeholder="you@example.com"
             aria-describedby={error ? "auth-message" : undefined}
           />
-          )}
-          {!pendingConfirmation && mode !== "recover" && mode !== "verify" && <label htmlFor="password">Password</label>}
-          {!pendingConfirmation && mode !== "recover" && mode !== "verify" && (
+          {mode !== "recover" && <label htmlFor="password">Password</label>}
+          {mode !== "recover" && (
             <div className="password-field">
               <input
                 id="password"
@@ -408,30 +256,23 @@ export default function LoginPage() {
             </details>
           )}
           <button className="landing-button" type="submit" disabled={pending}>
-            {pending ? "Please wait…" : pendingConfirmation ? "Verify and continue" : mode === "sign-in" ? "Sign in" : mode === "recover" ? "Send reset link" : mode === "verify" ? "Send verification email" : "Create account"}
-            {!pendingConfirmation && mode !== "recover" && <Arrow />}
+            {pending ? "Please wait…" : mode === "sign-in" ? "Sign in" : mode === "recover" ? "Send reset link" : "Create account"}
+            {mode !== "recover" && <Arrow />}
           </button>
         </form>
         {notice && <p role="status" className="login-credentials">{notice}</p>}
-        {pendingConfirmation && (
-          <div className="login-confirmation-actions">
-            <button type="button" onClick={resendSignupOtp} disabled={pending}>Resend code</button>
-            <button type="button" onClick={changeConfirmationEmail} disabled={pending}>Use a different email</button>
-          </div>
-        )}
-        {!pendingConfirmation && <div className="login-credentials">
-          <span>{mode === "sign-up" ? "Already registered?" : mode === "recover" || mode === "verify" ? "Back to sign in?" : "New to Finora?"}</span>
+        <div className="login-credentials">
+          <span>{mode === "sign-up" ? "Already registered?" : mode === "recover" ? "Back to sign in?" : "New to Finora?"}</span>
           <button
             type="button"
             className="font-semibold text-[#4e342e] underline underline-offset-2"
-            onClick={() => { setMode(mode === "sign-up" || mode === "recover" || mode === "verify" ? "sign-in" : "sign-up"); setError(""); setNotice(""); setDiagnostic(""); setPendingConfirmation(false); }}
+            onClick={() => { setMode(mode === "sign-up" || mode === "recover" ? "sign-in" : "sign-up"); setError(""); setNotice(""); setDiagnostic(""); }}
           >
-            {mode === "sign-up" || mode === "recover" || mode === "verify" ? "Sign in" : "Create an account"}
+            {mode === "sign-up" || mode === "recover" ? "Sign in" : "Create an account"}
           </button>
-        </div>}
+        </div>
         {mode === "sign-in" && <div className="login-auth-links">
           <button type="button" className="login-recovery-link" onClick={() => { setMode("recover"); setError(""); setNotice(""); setDiagnostic(""); }}>Forgot password?</button>
-          <button type="button" className="login-recovery-link" onClick={() => { setMode("verify"); setError(""); setNotice(""); setDiagnostic(""); }}>Need a verification email?</button>
         </div>}
         <p className="demo-explanation">
           Sign-in uses Supabase Auth. Statement files are reviewed before
