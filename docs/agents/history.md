@@ -437,6 +437,9 @@ assumptions from old plans.
 
 ## 2026-11-23 — Signup confirmation toast
 
+- [7fd9213](https://github.com/TarunyaProgrammer/FinSOL2/commit/7fd9213)
+  replaces the in-flow account-created banner with the notification behavior
+  below.
 - Replaced the in-flow account-created banner with a fixed, dismissible toast
   that slides in from the right, announces itself to assistive technology, and
   dismisses after 5.5 seconds. It respects reduced-motion settings and removes
