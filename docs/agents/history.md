@@ -468,6 +468,8 @@ assumptions from old plans.
 
 ## 2026-11-23 — Reassuring empty states and shorter signup toast
 
+- [c567b1d](https://github.com/TarunyaProgrammer/FinSOL2/commit/c567b1d)
+  implemented this follow-up.
 - The account-ready toast now starts its exit animation after five seconds.
 - Budgets and goals use their explicit empty states only after a successful
   empty-list response (`No budgets yet` / `No goals yet`). Request failures stay
