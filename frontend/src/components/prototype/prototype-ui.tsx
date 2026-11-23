@@ -87,7 +87,10 @@ export function toIso(year: number, month: number, day: number): string {
 // Formats a yyyy-mm-dd (or full ISO) value without shifting it across timezones.
 export function formatDate(value: string | null | undefined, options: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", year: "numeric" }): string {
   if (!value) return "";
-  const date = new Date(value.length === 10 ? `${value}T00:00:00Z` : value);
+  // A timestamp without a timezone (e.g. "2026-11-14T00:00:00") is UTC from the API; mark it so the
+  // browser doesn't read it as local time and shift it to the previous day.
+  const hasZone = /[zZ]$|[+-]\d{2}:?\d{2}$/.test(value);
+  const date = new Date(value.length === 10 ? `${value}T00:00:00Z` : hasZone ? value : `${value}Z`);
   if (Number.isNaN(date.getTime())) return "";
   return date.toLocaleDateString("en-IN", { ...options, timeZone: "UTC" });
 }
