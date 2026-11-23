@@ -78,8 +78,9 @@ URL Configuration**:
    each preview domain explicitly before testing Auth on a preview deployment.
 
 The callback route is `/auth/callback` for password recovery. Email
-confirmation is intended to be off for the current demo; signup should establish
-a session directly. Password reset still depends on working email delivery.
+confirmation is off in the hosted Supabase project for the current demo, so a
+new signup should establish a session directly. Password reset still depends
+on working email delivery.
 
 ## Verify the judge deployment
 
