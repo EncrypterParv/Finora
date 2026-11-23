@@ -407,6 +407,16 @@ assumptions from old plans.
   existing unverified account may remain unverified after the toggle changes;
   do not claim this update confirms it or delete it without the user's request.
 
+## 2026-11-23 — Hosted signup confirmation disabled
+
+- After the user explicitly confirmed the change, switched off **Confirm
+  email** in the Finora Supabase project's **Authentication → Sign In / Providers**
+  settings. The dashboard confirmed the save succeeded and the setting shows
+  off; **Allow new users to sign up** and the Email provider remain enabled.
+- This applies to new signups and does not necessarily confirm accounts created
+  while confirmation was enabled. Custom SMTP remains unconfigured; signup no
+  longer depends on it, while password recovery does.
+
 ## Updating this history
 
 Append a dated entry after a meaningful feature or architecture milestone. Add

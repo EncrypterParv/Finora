@@ -15,17 +15,15 @@ and the backend Session pooler connection is configured in ignored
 the ten expected tables, their RLS flags, and the migration-history entry were
 verified. Supabase Auth remains the identity and password provider. For the
 current demo, the app expects email confirmation to be disabled so signup
-returns a session immediately. The checked-in local Supabase config reflects
-that setting. The hosted project still has confirmation enabled as of the last
-dashboard review, so hosted signup will not complete until that setting is
-changed.
+returns a session immediately. The checked-in local Supabase config and hosted
+project now reflect that setting.
 
 The hosted Auth dashboard was reviewed on 2026-11-23: **Confirm sign up** is
 enabled, custom SMTP is not configured, and an existing user is still awaiting
-email verification. The user chose to disable confirmation for the current
-demo, but the hosted toggle has not yet been changed. Do not create repeated
-test users while the current Auth rate limit is active. Turning confirmation
-off does not necessarily verify accounts created earlier.
+email verification. On 2026-11-23, **Confirm email** was turned off for the
+current demo. Custom SMTP is still not configured. Turning confirmation off
+does not necessarily verify accounts created earlier; use a fresh email for
+the first test signup if the earlier account is still pending.
 
 The configured pooler hostname contains `ap-northeast-1` (Tokyo), while the
 product context currently describes India as the primary audience. Confirm the
@@ -65,7 +63,7 @@ and [Supabase's region-change guidance](https://supabase.com/kb/troubleshooting/
 4. In **Authentication → Providers → Email**, keep Email enabled and switch
    **Confirm email** off for this demo. This permits signup with an address the
    user has not proved they own. Do not use this policy for a public production
-   launch. The hosted setting still needs to be changed by the project owner.
+   launch. The hosted project has already been set this way.
 5. No confirmation email template or SMTP provider is needed for signup while
    confirmation is off. Password recovery still sends an email, so configure
    SMTP only if you want that recovery flow to work. **Resend** is one option;
@@ -94,7 +92,7 @@ and [Supabase's region-change guidance](https://supabase.com/kb/troubleshooting/
    if you use password recovery. Keep the two local callback URLs above for
    local development. The callback exchanges Supabase's PKCE code server-side
    before opening the reset-password page.
-8. After the hosted confirmation setting is off, test signup once. A successful
+8. Test signup once. A successful
    signup should open the workspace immediately. If Supabase returns no
    session, check **Confirm email** and whether that address already has an
    account; the form shows safe technical details. An account created earlier
