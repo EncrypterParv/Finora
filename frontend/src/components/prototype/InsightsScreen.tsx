@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ArrowDownRight, ArrowUpRight, Minus, RotateCw } from "lucide-react";
 import { fetchIntelligenceOverview } from "@/lib/api";
 import { BehaviourShiftDTO, IntelligenceOverviewDTO } from "@/types/analytics";
+import { InsightsLoadingSkeleton } from "./PrototypeSkeletons";
 import { EmptyPanel, PageTitle, Panel, ProgressBar, SecondaryButton, formatDate, money, toNumber } from "./prototype-ui";
 
 // A 0–1 ratio from the API (sent as a string or number) shown as a whole percentage.
@@ -31,7 +32,7 @@ export function InsightsScreen({ onAddStatement }: { onAddStatement: () => void 
 
   return <>
     <PageTitle title="Insights" description="Calculated from your recorded transactions using statistics and simple rules, not a trained AI model." />
-    {loading ? <Panel className="p-8 text-sm text-[#766e65]"><span role="status">Working out your insights…</span></Panel>
+    {loading && !data ? <InsightsLoadingSkeleton />
       : error || !data ? <Panel className="p-6"><p role="alert" className="text-sm text-[#9f2f2d]">{error || "Could not load your insights."}</p><SecondaryButton className="mt-4" onClick={() => setReloadKey((key) => key + 1)}><RotateCw size={15} /> Try again</SecondaryButton></Panel>
       : sufficiency?.status === "INSUFFICIENT" ? <EmptyPanel title="Not enough history yet" body="Insights need at least 5 transactions spread across 7 days. More history gives better results; two to three months of statements works best." onAdd={onAddStatement} actionLabel="Add a bank statement" />
       : <>

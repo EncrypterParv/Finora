@@ -26,33 +26,193 @@ import {
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "/api/v1";
 
-// Short-lived, browser-memory-only cache for read-only API responses. Requests
-// are partitioned by the authenticated Supabase user and every mutation
-// invalidates that user's entries before it is sent.
-const API_CACHE_TTL_MS = 30_000;
-const API_CACHE_MAX_ENTRIES = 50;
+// Session cache for repeat reads. Entries live until a relevant mutation,
+// sign-out, LRU eviction, or page reload. User data never enters localStorage.
+const API_CACHE_MAX_ENTRIES = 60;
+const API_CACHE_MAX_BYTES = 5 * 1024 * 1024;
+const API_CACHE_MAX_ENTRY_BYTES = 1024 * 1024;
+const API_CACHE_TAGS = ["accounts", "transactions", "calendar", "budgets", "goals", "analytics"] as const;
+type ApiCacheTag = (typeof API_CACHE_TAGS)[number];
 type CachedApiResponse = {
+  userId: string;
+  tags: ApiCacheTag[];
   body: string;
   status: number;
   statusText: string;
   headers: [string, string][];
-  expiresAt: number;
+  sizeBytes: number;
 };
 const apiResponseCache = new Map<string, CachedApiResponse>();
-const apiCacheGenerations = new Map<string, number>();
+const apiCacheInFlight = new Map<string, Promise<CachedApiResponse>>();
+const apiCacheGenerations = new Map<string, Map<ApiCacheTag, number>>();
 let apiCacheEpoch = 0;
+let apiCacheBytes = 0;
+let apiCacheChannel: BroadcastChannel | null = null;
+
+function removeCachedResponse(key: string) {
+  const cached = apiResponseCache.get(key);
+  if (!cached) return;
+  apiResponseCache.delete(key);
+  apiCacheBytes -= cached.sizeBytes;
+}
+
+function clearAllCachedResponses() {
+  apiCacheEpoch += 1;
+  apiResponseCache.clear();
+  apiCacheInFlight.clear();
+  apiCacheGenerations.clear();
+  apiCacheBytes = 0;
+}
+
+function ensureApiCacheChannel() {
+  if (typeof window === "undefined" || typeof BroadcastChannel === "undefined") return null;
+  if (apiCacheChannel) return apiCacheChannel;
+
+  try {
+    apiCacheChannel = new BroadcastChannel("finora-api-cache-v2");
+  } catch {
+    // Browser privacy settings may disable channels; same-tab invalidation remains active.
+    return null;
+  }
+  apiCacheChannel.addEventListener("message", (event: MessageEvent<unknown>) => {
+    const message = event.data as { type?: unknown; userId?: unknown; tags?: unknown } | null;
+    if (message?.type === "clear") {
+      clearAllCachedResponses();
+      return;
+    }
+    if (message?.type !== "invalidate" || typeof message.userId !== "string" || !Array.isArray(message.tags)) return;
+    const tags = message.tags.filter((tag): tag is ApiCacheTag => API_CACHE_TAGS.includes(tag as ApiCacheTag));
+    if (tags.length) invalidateApiCache(message.userId, tags, false);
+  });
+  return apiCacheChannel;
+}
+
+function invalidateApiCache(userId: string, tags: readonly ApiCacheTag[], broadcast = true) {
+  if (tags.length === 0) return;
+  const versions = apiCacheGenerations.get(userId) ?? new Map<ApiCacheTag, number>();
+  for (const tag of tags) versions.set(tag, (versions.get(tag) ?? 0) + 1);
+  apiCacheGenerations.set(userId, versions);
+
+  for (const [key, cached] of apiResponseCache) {
+    if (cached.userId === userId && cached.tags.some((tag) => tags.includes(tag))) removeCachedResponse(key);
+  }
+  if (broadcast) ensureApiCacheChannel()?.postMessage({ type: "invalidate", userId, tags });
+}
+
+function cacheTagsForRead(url: string): ApiCacheTag[] {
+  const path = new URL(url, "http://finora.local").pathname;
+  if (path.endsWith("/calendar/view")) return ["calendar", "transactions"];
+  if (/\/transactions(?:\/|$)/.test(path)) return ["transactions"];
+  if (/\/accounts(?:\/|$)/.test(path)) return ["accounts"];
+  if (/\/budgets(?:\/|$)/.test(path)) return ["budgets", "transactions"];
+  if (/\/goals(?:\/|$)/.test(path)) return ["goals"];
+  if (/\/analytics(?:\/|$)/.test(path)) return ["analytics", "transactions", "budgets"];
+  return [];
+}
+
+function cacheTagsForMutation(url: string, method: string): ApiCacheTag[] | null {
+  const parsed = new URL(url, "http://finora.local");
+  const path = parsed.pathname;
+  if (path.endsWith("/statements/preview")) return [];
+  if (path.endsWith("/statements/import") || path.endsWith("/statements/upload")) {
+    return ["transactions", "calendar", "budgets", "analytics"];
+  }
+  if (path.endsWith("/bank/sync")) {
+    return ["accounts", "transactions", "calendar", "budgets", "analytics"];
+  }
+  if (/\/transactions(?:\/|$)/.test(path)) return ["transactions", "calendar", "budgets", "analytics"];
+  if (/\/accounts(?:\/|$)/.test(path)) {
+    return method === "DELETE" && parsed.searchParams.get("delete_transactions") === "true"
+      ? ["accounts", "transactions", "calendar", "budgets", "analytics"]
+      : ["accounts"];
+  }
+  if (/\/budgets(?:\/|$)/.test(path)) return ["budgets", "analytics"];
+  if (/\/goals(?:\/|$)/.test(path)) return ["goals"];
+  return null;
+}
+
+function cacheVersionKey(userId: string, tags: readonly ApiCacheTag[]) {
+  const versions = apiCacheGenerations.get(userId);
+  return [...tags].sort().map((tag) => `${tag}:${versions?.get(tag) ?? 0}`).join(",");
+}
+
+function responseFromSnapshot(snapshot: CachedApiResponse) {
+  const bodylessStatus = snapshot.status === 204 || snapshot.status === 205 || snapshot.status === 304;
+  return new Response(bodylessStatus ? null : snapshot.body, {
+    status: snapshot.status,
+    statusText: snapshot.statusText,
+    headers: snapshot.headers,
+  });
+}
+
+async function fetchCachedApiResponse(
+  userId: string,
+  url: string,
+  tags: ApiCacheTag[],
+  fetcher: () => Promise<Response>,
+): Promise<Response> {
+  ensureApiCacheChannel();
+  const cacheKey = `${userId}:${url}`;
+  const cached = apiResponseCache.get(cacheKey);
+  if (cached) {
+    // Map insertion order is the LRU order: a hit makes this entry newest.
+    apiResponseCache.delete(cacheKey);
+    apiResponseCache.set(cacheKey, cached);
+    return responseFromSnapshot(cached);
+  }
+
+  const requestEpoch = apiCacheEpoch;
+  const versionKey = cacheVersionKey(userId, tags);
+  const flightKey = `${cacheKey}:${requestEpoch}:${versionKey}`;
+  let pending = apiCacheInFlight.get(flightKey);
+  if (!pending) {
+    pending = (async () => {
+      const response = await fetcher();
+      const body = await response.clone().text();
+      const snapshotHeaders = new Headers();
+      for (const name of ["content-type", "x-total-count", "retry-after", "x-request-id", "www-authenticate"]) {
+        const value = response.headers.get(name);
+        if (value !== null) snapshotHeaders.set(name, value);
+      }
+      const snapshot: CachedApiResponse = {
+        userId,
+        tags,
+        body,
+        status: response.status,
+        statusText: response.statusText,
+        headers: Array.from(snapshotHeaders.entries()),
+        sizeBytes: new TextEncoder().encode(body).byteLength,
+      };
+
+      const stillCurrent = requestEpoch === apiCacheEpoch && versionKey === cacheVersionKey(userId, tags);
+      if (!response.ok || !stillCurrent || snapshot.sizeBytes > API_CACHE_MAX_ENTRY_BYTES) return snapshot;
+
+      while (apiResponseCache.size >= API_CACHE_MAX_ENTRIES || apiCacheBytes + snapshot.sizeBytes > API_CACHE_MAX_BYTES) {
+        const oldestKey = apiResponseCache.keys().next().value;
+        if (oldestKey === undefined) break;
+        removeCachedResponse(oldestKey);
+      }
+      apiResponseCache.set(cacheKey, snapshot);
+      apiCacheBytes += snapshot.sizeBytes;
+      return snapshot;
+    })();
+    apiCacheInFlight.set(flightKey, pending);
+  }
+
+  try {
+    return responseFromSnapshot(await pending);
+  } finally {
+    if (apiCacheInFlight.get(flightKey) === pending) apiCacheInFlight.delete(flightKey);
+  }
+}
 
 export function clearApiResponseCache(userId?: string) {
   if (!userId) {
-    apiCacheEpoch += 1;
-    apiResponseCache.clear();
-    apiCacheGenerations.clear();
+    clearAllCachedResponses();
+    ensureApiCacheChannel()?.postMessage({ type: "clear" });
     return;
   }
-  apiCacheGenerations.set(userId, (apiCacheGenerations.get(userId) ?? 0) + 1);
-  for (const key of apiResponseCache.keys()) {
-    if (key.startsWith(`${userId}:`)) apiResponseCache.delete(key);
-  }
+  invalidateApiCache(userId, API_CACHE_TAGS);
 }
 
 export type StatementSourceFormat = "csv" | "pdf" | "image";
@@ -137,51 +297,18 @@ async function apiFetch(input: RequestInfo | URL, init: RequestInit = {}) {
   }
 
   const requestUrl = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
-  const cacheKey = userId ? `${userId}:${requestUrl}` : "";
-  const requestEpoch = apiCacheEpoch;
-  const requestGeneration = userId ? apiCacheGenerations.get(userId) ?? 0 : 0;
-  if (method === "GET" && cacheKey) {
-    const cached = apiResponseCache.get(cacheKey);
-    if (cached && cached.expiresAt > Date.now()) {
-      // Refresh insertion order so frequently revisited screens stay in cache.
-      apiResponseCache.delete(cacheKey);
-      apiResponseCache.set(cacheKey, cached);
-      return new Response(cached.body, {
-        status: cached.status,
-        statusText: cached.statusText,
-        headers: cached.headers,
-      });
-    }
-    if (cached) apiResponseCache.delete(cacheKey);
-  } else if (userId && method !== "GET") {
-    clearApiResponseCache(userId);
+  const fetcher = () => fetch(input, { ...init, headers });
+
+  if (method === "GET" && userId) {
+    const tags = cacheTagsForRead(requestUrl);
+    if (tags.length) return fetchCachedApiResponse(userId, requestUrl, tags, fetcher);
   }
 
-  const response = await fetch(input, { ...init, headers });
-  if (method !== "GET" && userId) clearApiResponseCache(userId);
-  if (method === "GET" && cacheKey && response.ok && requestEpoch === apiCacheEpoch && requestGeneration === (apiCacheGenerations.get(userId!) ?? 0)) {
-    const body = await response.clone().text();
-    const now = Date.now();
-    for (const [key, value] of apiResponseCache) {
-      if (value.expiresAt <= now) apiResponseCache.delete(key);
-    }
-    while (apiResponseCache.size >= API_CACHE_MAX_ENTRIES) {
-      const oldestKey = apiResponseCache.keys().next().value;
-      if (oldestKey === undefined) break;
-      apiResponseCache.delete(oldestKey);
-    }
-    const cachedHeaders = new Headers();
-    for (const name of ["content-type", "x-total-count"]) {
-      const value = response.headers.get(name);
-      if (value !== null) cachedHeaders.set(name, value);
-    }
-    apiResponseCache.set(cacheKey, {
-      body,
-      status: response.status,
-      statusText: response.statusText,
-      headers: Array.from(cachedHeaders.entries()),
-      expiresAt: now + API_CACHE_TTL_MS,
-    });
+  const response = await fetcher();
+  if (method !== "GET" && userId && response.ok) {
+    const tags = cacheTagsForMutation(requestUrl, method);
+    if (tags === null) clearApiResponseCache(userId);
+    else if (tags.length) invalidateApiCache(userId, tags);
   }
   return response;
 }

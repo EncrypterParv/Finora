@@ -37,15 +37,16 @@ import {
 import { CanonicalTransaction } from "@/types/transaction";
 import { formatCurrency } from "@/lib/utils";
 import { endDemoSession } from "@/lib/demo-session";
+import { SectionLoadingSkeleton, WorkspaceLoadingSkeleton } from "./PrototypeSkeletons";
 import { PageTitle } from "./prototype-ui";
 import "./prototype-dashboard.css";
 
-const AccountsScreen = dynamic(() => import("./AccountsScreen").then((module) => module.AccountsScreen), { loading: () => <SectionLoading /> });
-const BudgetsScreen = dynamic(() => import("./BudgetsScreen").then((module) => module.BudgetsScreen), { loading: () => <SectionLoading /> });
-const CalendarScreen = dynamic(() => import("./CalendarScreen").then((module) => module.CalendarScreen), { loading: () => <SectionLoading /> });
-const GoalsScreen = dynamic(() => import("./GoalsScreen").then((module) => module.GoalsScreen), { loading: () => <SectionLoading /> });
-const InsightsScreen = dynamic(() => import("./InsightsScreen").then((module) => module.InsightsScreen), { loading: () => <SectionLoading /> });
-const TransactionsScreen = dynamic(() => import("./TransactionsScreen").then((module) => module.TransactionsScreen), { loading: () => <SectionLoading /> });
+const AccountsScreen = dynamic(() => import("./AccountsScreen").then((module) => module.AccountsScreen), { loading: () => <SectionLoadingSkeleton /> });
+const BudgetsScreen = dynamic(() => import("./BudgetsScreen").then((module) => module.BudgetsScreen), { loading: () => <SectionLoadingSkeleton /> });
+const CalendarScreen = dynamic(() => import("./CalendarScreen").then((module) => module.CalendarScreen), { loading: () => <SectionLoadingSkeleton /> });
+const GoalsScreen = dynamic(() => import("./GoalsScreen").then((module) => module.GoalsScreen), { loading: () => <SectionLoadingSkeleton /> });
+const InsightsScreen = dynamic(() => import("./InsightsScreen").then((module) => module.InsightsScreen), { loading: () => <SectionLoadingSkeleton /> });
+const TransactionsScreen = dynamic(() => import("./TransactionsScreen").then((module) => module.TransactionsScreen), { loading: () => <SectionLoadingSkeleton /> });
 
 type Section = "overview" | "calendar" | "insights" | "transactions" | "budgets" | "goals" | "accounts" | "import";
 type AccountType = "SAVINGS" | "CURRENT" | "CREDIT";
@@ -240,11 +241,7 @@ export function PrototypeDashboard({
 }
 
 function LoadingWorkspace() {
-  return <div role="status" className="rounded-xl border border-[#e8e4dc] bg-white p-8 text-sm text-[#766e65]">Loading your workspace…</div>;
-}
-
-function SectionLoading() {
-  return <div role="status" className="rounded-xl border border-[#e8e4dc] bg-white p-8 text-sm text-[#766e65]">Opening this section…</div>;
+  return <WorkspaceLoadingSkeleton />;
 }
 
 function LoadError({ message, onRetry }: { message: string; onRetry: () => void }) {

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Pencil, Plus, RotateCw, Trash2 } from "lucide-react";
 import { createBudget, deleteBudget, fetchBudgets, updateBudget } from "@/lib/api";
 import { BudgetResponse } from "@/types/budget";
+import { CollectionLoadingSkeleton } from "./PrototypeSkeletons";
 import {
   ConfirmStrip,
   EmptyPanel,
@@ -52,13 +53,13 @@ export function BudgetsScreen() {
       action={<PrimaryButton onClick={() => setShowCreate((open) => !open)} aria-expanded={showCreate}><Plus size={16} /> New budget</PrimaryButton>}
     />
     {showCreate && <Panel className="mb-4 p-5"><BudgetForm onCancel={() => setShowCreate(false)} onSaved={(budget) => { setBudgets((current) => [budget, ...current]); setShowCreate(false); }} /></Panel>}
-    {loading ? <Panel className="p-8 text-sm text-[#766e65]"><span role="status">Loading your budgets…</span></Panel>
+    {loading && budgets.length === 0 ? <CollectionLoadingSkeleton label="Loading your budgets" />
       : error ? <Panel className="p-6"><p role="alert" className="text-sm text-[#9f2f2d]">{error}</p><SecondaryButton className="mt-4" onClick={() => setReloadKey((key) => key + 1)}><RotateCw size={15} /> Try again</SecondaryButton></Panel>
       : ordered.length === 0 ? (!showCreate && <EmptyPanel title="No budgets yet" body="A budget is a spending limit for a period, like ₹20,000 for this month. Every spending transaction in those dates counts toward it, across all your accounts." onAdd={() => setShowCreate(true)} actionLabel="Create your first budget" />)
       : <div className="grid gap-4 lg:grid-cols-2">{ordered.map((budget) => <BudgetCard key={budget.id} budget={budget} today={today}
           onUpdated={(updated) => setBudgets((current) => current.map((item) => item.id === updated.id ? updated : item))}
           onDeleted={(id) => setBudgets((current) => current.filter((item) => item.id !== id))} />)}</div>}
-    {!loading && ordered.length > 0 && <p className="mt-4 text-xs text-[#837970]">Budgets count all spending across your accounts in their dates. Per-category limits are coming later.</p>}
+    {ordered.length > 0 && <p className="mt-4 text-xs text-[#837970]">Budgets count all spending across your accounts in their dates. Per-category limits are coming later.</p>}
   </>;
 }
 

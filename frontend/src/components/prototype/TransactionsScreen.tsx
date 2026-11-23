@@ -27,6 +27,7 @@ import {
   todayIso,
   toNumber,
 } from "./prototype-ui";
+import { TransactionsLoadingSkeleton } from "./PrototypeSkeletons";
 
 const PAGE_SIZE = 25;
 
@@ -180,7 +181,7 @@ export function TransactionsScreen({ accounts, onRecordsChanged, onAddStatement 
     {notice && <div className="mb-4"><SuccessNote message={notice} /></div>}
     {error && <div className="mb-4"><ErrorNote message={error} /></div>}
 
-    {!loading && total === 0 && !error ? (
+    {loading && items.length === 0 && !error ? <TransactionsLoadingSkeleton /> : !loading && total === 0 && !error ? (
       anyFilter
         ? <Panel className="px-6 py-9"><h2 className="text-lg font-semibold">No transactions match these filters</h2><p className="mt-2 text-sm text-[#766e65]">Try a shorter search or a wider date range.</p><button type="button" onClick={clearFilters} className="prototype-inline-link mt-3 text-sm font-medium">Clear filters</button></Panel>
         : <EmptyPanel title="No transactions yet" body="Import a bank statement, or add a cash transaction by hand. Only records you confirm are saved." onAdd={onAddStatement} />

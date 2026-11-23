@@ -448,6 +448,22 @@ assumptions from old plans.
 - The toast does not take focus or change page layout. Browser visual QA remains
   pending because the app server was not started.
 
+## 2026-11-23 — Targeted session cache and loading skeletons
+
+- Replaced the 30-second cache with a bounded, user-scoped in-memory cache for
+  the current browser tab. Relevant successful mutations invalidate dependent
+  data groups; same-browser tabs receive those invalidations. Identical reads
+  are deduplicated, and least-recently-used entries are evicted at 60 responses
+  or 5 MB. Sign-out clears the cache; reload also starts with an empty cache.
+- Added layout-matched skeletons for route loading, the signed-in workspace,
+  dynamically imported sections, and initial transaction, calendar, insights,
+  budget, and goal reads. Existing data stays visible during refreshes.
+- GraphQL was not introduced: the current FastAPI REST endpoints already support
+  paginated transactions, and GraphQL alone would not reduce request latency.
+  This client strategy reduces repeat calls from Finora but does not enforce
+  server-side API rate limits. Lighthouse and live visual measurements remain
+  pending because the app server was not started.
+
 ## Updating this history
 
 Append a dated entry after a meaningful feature or architecture milestone. Add
