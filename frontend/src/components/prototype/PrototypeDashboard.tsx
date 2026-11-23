@@ -8,6 +8,7 @@ import {
   Check,
   FileUp,
   LayoutDashboard,
+  Lightbulb,
   LogOut,
   PiggyBank,
   RotateCw,
@@ -35,16 +36,18 @@ import { AccountsScreen } from "./AccountsScreen";
 import { BudgetsScreen } from "./BudgetsScreen";
 import { CalendarScreen } from "./CalendarScreen";
 import { GoalsScreen } from "./GoalsScreen";
+import { InsightsScreen } from "./InsightsScreen";
 import { TransactionsScreen } from "./TransactionsScreen";
 import { PageTitle } from "./prototype-ui";
 import "./prototype-dashboard.css";
 
-type Section = "overview" | "calendar" | "transactions" | "budgets" | "goals" | "accounts" | "import";
+type Section = "overview" | "calendar" | "insights" | "transactions" | "budgets" | "goals" | "accounts" | "import";
 type AccountType = "SAVINGS" | "CURRENT" | "CREDIT";
 
 const navigation: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "calendar", label: "Calendar", icon: CalendarDays },
+  { id: "insights", label: "Insights", icon: Lightbulb },
   { id: "transactions", label: "Transactions", icon: ArrowDownLeft },
   { id: "budgets", label: "Budgets", icon: PiggyBank },
   { id: "goals", label: "Goals", icon: Target },
@@ -182,12 +185,14 @@ export function PrototypeDashboard({
                 <TransactionsScreen accounts={accounts} onRecordsChanged={reloadWorkspace} onAddStatement={() => setSection("import")} />
               ) : section === "calendar" ? (
                 <CalendarScreen onAddStatement={() => setSection("import")} />
+              ) : section === "insights" ? (
+                <InsightsScreen onAddStatement={() => setSection("import")} />
               ) : section === "budgets" ? (
                 <BudgetsScreen />
               ) : section === "goals" ? (
                 <GoalsScreen />
               ) : (
-                <OverviewView userName={userName} accounts={accounts} transactions={transactions} onAdd={() => setSection("import")} />
+                <OverviewView userName={userName} accounts={accounts} transactions={transactions} onAdd={() => setSection("import")} onInsights={() => setSection("insights")} />
               )}
             </>
           )}
@@ -205,7 +210,7 @@ function LoadError({ message, onRetry }: { message: string; onRetry: () => void 
   return <section className="rounded-xl border border-[#ead7d2] bg-white p-7" role="alert"><h1 className="text-xl font-semibold">Your records are temporarily unavailable</h1><p className="mt-2 text-sm text-[#766e65]">{message}</p><button type="button" onClick={onRetry} className="prototype-primary-action mt-5 inline-flex items-center gap-2 rounded-md bg-[#4e342e] px-4 py-2.5 text-sm font-medium text-white"><RotateCw size={15} /> Try again</button></section>;
 }
 
-function OverviewView({ userName, accounts, transactions, onAdd }: { userName: string; accounts: BankAccountSummary[]; transactions: CanonicalTransaction[]; onAdd: () => void }) {
+function OverviewView({ userName, accounts, transactions, onAdd, onInsights }: { userName: string; accounts: BankAccountSummary[]; transactions: CanonicalTransaction[]; onAdd: () => void; onInsights: () => void }) {
   if (transactions.length === 0) {
     return accounts.length === 0 ? <FirstUseEmptyState userName={userName} onAdd={onAdd} /> : <NoTransactionsState accounts={accounts} onAdd={onAdd} />;
   }
@@ -218,7 +223,7 @@ function OverviewView({ userName, accounts, transactions, onAdd }: { userName: s
       <Metric label="Imported transactions" value={String(transactions.length)} detail={transactions.length === 200 ? "Showing the latest 200 records" : "Confirmed records"} icon={ArrowDownLeft} />
     </div>
     <section className="mt-6 rounded-xl border border-[#e8e4dc] bg-white p-5 md:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3"><div><span className="prototype-eyebrow">Your records</span><h2 className="mt-1 font-semibold">Recent transactions</h2></div><button type="button" onClick={onAdd} className="prototype-inline-link inline-flex items-center gap-1 text-xs font-medium">Add another statement <ArrowRight size={14} /></button></div>
+      <div className="flex flex-wrap items-start justify-between gap-3"><div><span className="prototype-eyebrow">Your records</span><h2 className="mt-1 font-semibold">Recent transactions</h2></div><div className="flex flex-wrap items-center gap-x-4 gap-y-2"><button type="button" onClick={onInsights} className="prototype-inline-link inline-flex items-center gap-1 text-xs font-medium">See insights <ArrowRight size={14} /></button><button type="button" onClick={onAdd} className="prototype-inline-link inline-flex items-center gap-1 text-xs font-medium">Add another statement <ArrowRight size={14} /></button></div></div>
       <TransactionRows transactions={mostRecent} />
     </section>
     <p className="mt-4 text-xs text-[#837970]">Balances and insights appear only when they can be calculated from your imported records.</p>

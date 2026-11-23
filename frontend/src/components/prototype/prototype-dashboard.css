@@ -578,6 +578,83 @@
   color: #8a7a6d;
 }
 
+/* Insights: warm red for concerning changes and large outliers, green for positive ones. */
+.prototype-tag[data-tone="concerning"] {
+  border-color: #ead7d2;
+  background: #fdf6f4;
+  color: #9f2f2d;
+}
+
+.prototype-tag[data-tone="positive"] {
+  border-color: #cfe0cc;
+  background: #edf5ed;
+  color: #3e6545;
+}
+
+.insights-direction {
+  color: #8a7a6d;
+}
+
+.insights-direction[data-tone="concerning"] {
+  color: #9f2f2d;
+}
+
+.insights-direction[data-tone="positive"] {
+  color: #477250;
+}
+
+/* Insights forecast: straight track with the 80% range band, spent-so-far fill and an expected-total marker. */
+.insights-range {
+  position: relative;
+  height: 12px;
+  border-radius: 2px;
+  background: #efe7dc;
+}
+
+.insights-range > span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.insights-range-band {
+  background: #ecd3bb;
+}
+
+.insights-range-spent {
+  left: 0;
+  border-radius: 2px 0 0 2px;
+  background: #4e342e;
+}
+
+.insights-range-expected {
+  top: -3px !important;
+  bottom: -3px !important;
+  width: 2px;
+  margin-left: -1px;
+  background: #b7682b;
+}
+
+.insights-key {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.insights-key-spent {
+  background: #4e342e;
+}
+
+.insights-key-expected {
+  width: 3px;
+  background: #b7682b;
+}
+
+.insights-key-band {
+  background: #ecd3bb;
+}
+
 /* ---- Calendar: the spending heat grid ---- */
 
 .calendar-period {
