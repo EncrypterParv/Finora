@@ -417,6 +417,21 @@ assumptions from old plans.
   while confirmation was enabled. Custom SMTP remains unconfigured; signup no
   longer depends on it, while password recovery does.
 
+## 2026-11-23 — Workspace performance and keyboard navigation
+
+- Added a 30-second in-memory cache for successful authenticated API GET
+  responses. Cache entries are partitioned by Supabase user ID, capped at 50,
+  invalidated before that user's writes, and cleared at sign-out. The cache
+  improves repeat visits to screens without storing financial data persistently.
+- The Overview now fetches only its five displayed recent transactions and
+  reads the full total from `X-Total-Count`, instead of downloading up to 200
+  records for that screen. Dashboard feature screens are split into on-demand
+  chunks, and the workspace has a keyboard skip link and 44px mobile section
+  navigation targets.
+- Frontend lint, typecheck, and production build are the required validation
+  gates. No browser-based Lighthouse score or visual audit has been recorded;
+  the app server was not started for this change.
+
 ## Updating this history
 
 Append a dated entry after a meaningful feature or architecture milestone. Add

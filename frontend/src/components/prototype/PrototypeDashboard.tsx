@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   ArrowDownLeft,
   ArrowRight,
@@ -25,8 +26,9 @@ import {
   BankAccountSummary,
   createBankAccount,
   confirmStatementImport,
+  clearApiResponseCache,
   fetchBankAccounts,
-  fetchUserTransactions,
+  fetchTransactionPage,
   previewStatement,
   StatementDraftTransaction,
   StatementPreview,
@@ -34,14 +36,15 @@ import {
 import { CanonicalTransaction } from "@/types/transaction";
 import { formatCurrency } from "@/lib/utils";
 import { endDemoSession } from "@/lib/demo-session";
-import { AccountsScreen } from "./AccountsScreen";
-import { BudgetsScreen } from "./BudgetsScreen";
-import { CalendarScreen } from "./CalendarScreen";
-import { GoalsScreen } from "./GoalsScreen";
-import { InsightsScreen } from "./InsightsScreen";
-import { TransactionsScreen } from "./TransactionsScreen";
 import { PageTitle } from "./prototype-ui";
 import "./prototype-dashboard.css";
+
+const AccountsScreen = dynamic(() => import("./AccountsScreen").then((module) => module.AccountsScreen), { loading: () => <SectionLoading /> });
+const BudgetsScreen = dynamic(() => import("./BudgetsScreen").then((module) => module.BudgetsScreen), { loading: () => <SectionLoading /> });
+const CalendarScreen = dynamic(() => import("./CalendarScreen").then((module) => module.CalendarScreen), { loading: () => <SectionLoading /> });
+const GoalsScreen = dynamic(() => import("./GoalsScreen").then((module) => module.GoalsScreen), { loading: () => <SectionLoading /> });
+const InsightsScreen = dynamic(() => import("./InsightsScreen").then((module) => module.InsightsScreen), { loading: () => <SectionLoading /> });
+const TransactionsScreen = dynamic(() => import("./TransactionsScreen").then((module) => module.TransactionsScreen), { loading: () => <SectionLoading /> });
 
 type Section = "overview" | "calendar" | "insights" | "transactions" | "budgets" | "goals" | "accounts" | "import";
 type AccountType = "SAVINGS" | "CURRENT" | "CREDIT";
@@ -73,6 +76,7 @@ export function PrototypeDashboard({
   const [section, setSection] = useState<Section>("overview");
   const [accounts, setAccounts] = useState<BankAccountSummary[]>([]);
   const [transactions, setTransactions] = useState<CanonicalTransaction[]>([]);
+  const [transactionCount, setTransactionCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [refreshError, setRefreshError] = useState("");
@@ -88,11 +92,12 @@ export function PrototypeDashboard({
       try {
         const [loadedAccounts, loadedTransactions] = await Promise.all([
           fetchBankAccounts(),
-          fetchUserTransactions(),
+          fetchTransactionPage({}, 5, 0),
         ]);
         if (!active) return;
         setAccounts(loadedAccounts);
-        setTransactions(loadedTransactions);
+        setTransactions(loadedTransactions.items);
+        setTransactionCount(loadedTransactions.total);
       } catch {
         if (active) setLoadError("We couldn’t load your financial records. Check your connection and try again.");
       } finally {
@@ -108,10 +113,11 @@ export function PrototypeDashboard({
     try {
       const [loadedAccounts, loadedTransactions] = await Promise.all([
         fetchBankAccounts(),
-        fetchUserTransactions(),
+        fetchTransactionPage({}, 5, 0),
       ]);
       setAccounts(loadedAccounts);
-      setTransactions(loadedTransactions);
+      setTransactions(loadedTransactions.items);
+      setTransactionCount(loadedTransactions.total);
     } catch {
       setRefreshError("Your change was saved, but we couldn’t refresh the workspace. Reload the page to see the latest records.");
     }
@@ -122,6 +128,7 @@ export function PrototypeDashboard({
     try {
       await createClient().auth.signOut();
     } finally {
+      clearApiResponseCache();
       router.replace("/login");
       router.refresh();
       setSigningOut(false);
@@ -147,6 +154,7 @@ export function PrototypeDashboard({
 
   return (
     <div className="finora-prototype min-h-screen bg-[#f3eee5] text-[#28231f]">
+      <a className="prototype-skip-link" href="#workspace-main">Skip to main content</a>
       <aside className="prototype-sidebar fixed inset-y-0 left-0 hidden w-[244px] flex-col border-r border-[#e3d9cc] bg-[#f8f4ec] px-4 py-5 md:flex">
         <div className="prototype-brand mb-10 px-2"><FinoraMark size="md" /><div className="prototype-brand-caption pl-1 text-[11px] text-[#837970]">Personal finance workspace</div></div>
         <div className="prototype-nav-label mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#968d82]">Your workspace</div>
@@ -174,11 +182,11 @@ export function PrototypeDashboard({
             </div>
           </div>
           <nav className="prototype-mobile-nav mx-auto mt-3 flex max-w-[1280px] gap-1 overflow-x-auto pb-0.5 md:hidden" aria-label="Workspace sections">
-            {navigation.map(({ id, label }) => <button key={id} type="button" onClick={() => setSection(id)} aria-current={section === id ? "page" : undefined} className={`shrink-0 rounded-md px-3 py-2 text-xs ${section === id ? "bg-[#4e342e] text-white" : "bg-white text-[#655c54]"}`}>{label}</button>)}
+            {navigation.map(({ id, label }) => <button key={id} type="button" onClick={() => setSection(id)} aria-current={section === id ? "page" : undefined} className={`min-h-11 shrink-0 rounded-md px-3 py-2 text-xs ${section === id ? "bg-[#4e342e] text-white" : "bg-white text-[#655c54]"}`}>{label}</button>)}
           </nav>
         </header>
 
-        <main className="prototype-content mx-auto max-w-[1280px] px-4 py-6 md:px-8 md:py-8" aria-busy={loading}>
+        <main id="workspace-main" tabIndex={-1} className="prototype-content mx-auto max-w-[1280px] px-4 py-6 md:px-8 md:py-8" aria-busy={loading}>
           {accountCreated && <section role="status" className="mb-5 flex items-start gap-3 rounded-xl border border-[#d7e5d1] bg-[#f4f8f0] p-4 text-[#334b32]">
             <Check size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
             <div><h2 className="font-semibold">Your account is ready.</h2><p className="mt-1 text-sm leading-6">You’re signed in to Finora. Your workspace starts empty; add a statement whenever you’re ready.</p></div>
@@ -201,7 +209,7 @@ export function PrototypeDashboard({
               ) : section === "goals" ? (
                 <GoalsScreen />
               ) : (
-                <OverviewView userName={userName} accounts={accounts} transactions={transactions} onAdd={() => setSection("import")} onInsights={() => setSection("insights")} />
+                <OverviewView userName={userName} accounts={accounts} transactions={transactions} transactionCount={transactionCount} onAdd={() => setSection("import")} onInsights={() => setSection("insights")} />
               )}
             </>
           )}
@@ -215,11 +223,15 @@ function LoadingWorkspace() {
   return <div role="status" className="rounded-xl border border-[#e8e4dc] bg-white p-8 text-sm text-[#766e65]">Loading your workspace…</div>;
 }
 
+function SectionLoading() {
+  return <div role="status" className="rounded-xl border border-[#e8e4dc] bg-white p-8 text-sm text-[#766e65]">Opening this section…</div>;
+}
+
 function LoadError({ message, onRetry }: { message: string; onRetry: () => void }) {
   return <section className="rounded-xl border border-[#ead7d2] bg-white p-7" role="alert"><h1 className="text-xl font-semibold">Your records are temporarily unavailable</h1><p className="mt-2 text-sm text-[#766e65]">{message}</p><button type="button" onClick={onRetry} className="prototype-primary-action mt-5 inline-flex items-center gap-2 rounded-md bg-[#4e342e] px-4 py-2.5 text-sm font-medium text-white"><RotateCw size={15} /> Try again</button></section>;
 }
 
-function OverviewView({ userName, accounts, transactions, onAdd, onInsights }: { userName: string; accounts: BankAccountSummary[]; transactions: CanonicalTransaction[]; onAdd: () => void; onInsights: () => void }) {
+function OverviewView({ userName, accounts, transactions, transactionCount, onAdd, onInsights }: { userName: string; accounts: BankAccountSummary[]; transactions: CanonicalTransaction[]; transactionCount: number; onAdd: () => void; onInsights: () => void }) {
   if (transactions.length === 0) {
     return accounts.length === 0 ? <FirstUseEmptyState userName={userName} onAdd={onAdd} /> : <NoTransactionsState accounts={accounts} onAdd={onAdd} />;
   }
@@ -229,7 +241,7 @@ function OverviewView({ userName, accounts, transactions, onAdd, onInsights }: {
     <PageTitle title={userName ? `Welcome, ${userName.split(" ")[0]}.` : "Your money, in one view."} description="A clear view of the records you’ve added to Finora." action={<button type="button" onClick={onAdd} className="prototype-primary-action inline-flex items-center gap-2 rounded-md bg-[#4e342e] px-3.5 py-2.5 text-sm font-medium text-white"><FileUp size={16} /> Add a statement</button>} />
     <div className="grid gap-4 sm:grid-cols-2">
       <Metric label="Accounts added" value={String(accounts.length)} detail="Only accounts you added" icon={WalletCards} />
-      <Metric label="Imported transactions" value={String(transactions.length)} detail={transactions.length === 200 ? "Showing the latest 200 records" : "Confirmed records"} icon={ArrowDownLeft} />
+      <Metric label="Imported transactions" value={String(transactionCount)} detail="Confirmed records" icon={ArrowDownLeft} />
     </div>
     <section className="mt-6 rounded-xl border border-[#e8e4dc] bg-white p-5 md:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3"><div><span className="prototype-eyebrow">Your records</span><h2 className="mt-1 font-semibold">Recent transactions</h2></div><div className="flex flex-wrap items-center gap-x-4 gap-y-2"><button type="button" onClick={onInsights} className="prototype-inline-link inline-flex items-center gap-1 text-xs font-medium">See insights <ArrowRight size={14} /></button><button type="button" onClick={onAdd} className="prototype-inline-link inline-flex items-center gap-1 text-xs font-medium">Add another statement <ArrowRight size={14} /></button></div></div>
