@@ -118,6 +118,41 @@ async def test_list_foreign_account_404(client: AsyncClient, seeded):
     assert (await client.get(f"{BASE}?account_id=missing")).status_code == 404
 
 
+@pytest.mark.asyncio
+async def test_monthly_summary_scopes_amounts_by_user_month_and_currency(client: AsyncClient, seeded):
+    usd = _tx("usd", "user-me", "acc-me2", datetime(2026, 10, 5), "20.30", "DEBIT", "USB adapter")
+    usd.currency = "USD"
+    seeded.add_all([
+        usd,
+        _tx("same-day", "user-me", "acc-me2", datetime(2026, 10, 1, 23, 59), "25.50", "DEBIT", "Dinner"),
+        _tx("next-month", "user-me", "acc-me", datetime(2026, 11, 1), "900.00", "DEBIT", "November bill"),
+    ])
+    await seeded.commit()
+
+    result = await client.get(f"{BASE}/summary?month=2026-10-01")
+    assert result.status_code == 200
+    payload = result.json()
+    assert payload["month"] == "2026-10-01"
+    inr, usd = payload["currencies"]
+    assert inr["currency"] == "INR"
+    assert inr["transaction_count"] == 6  # Includes the transfer in the record count.
+    assert [(day["day"], Decimal(day["inflow"]), Decimal(day["spending"])) for day in inr["days"]] == [
+        ("2026-10-01", Decimal("0"), Decimal("125.50")),
+        ("2026-10-05", Decimal("2500"), Decimal("0")),
+        ("2026-10-10", Decimal("0"), Decimal("500")),
+        ("2026-10-20", Decimal("0"), Decimal("50")),
+    ]
+    assert {key: Decimal(value) for key, value in inr["spending_by_account"].items()} == {
+        "acc-me": Decimal("100"), "acc-me2": Decimal("575.50"),
+    }
+    assert usd["currency"] == "USD"
+    assert Decimal(usd["days"][0]["spending"]) == Decimal("20.30")
+
+    empty = await client.get(f"{BASE}/summary?month=2026-09-01")
+    assert empty.json() == {"month": "2026-09-01", "currencies": []}
+    assert (await client.get(f"{BASE}/summary?month=2026-10-02")).status_code == 422
+
+
 # Manual entry: 201, MANUAL source and reference, currency defaults to the account's, balance untouched,
 # visible in list/detail, and counted in a budget covering its date.
 @pytest.mark.asyncio

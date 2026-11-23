@@ -1,9 +1,9 @@
 .iso{
-  --anatomy-page:#0d0a09;--anatomy-card:#17100f;--anatomy-text:#ae9f98;--anatomy-strong:#f4edd8;--anatomy-muted:#7b6961;
-  --anatomy-paper:#17100f;--anatomy-face:#211715;--anatomy-top:#221816;
+  --anatomy-page:#0d0a09;--anatomy-card:#20211f;--anatomy-text:#ae9f98;--anatomy-strong:#f4edd8;--anatomy-muted:#7b6961;
+  --anatomy-paper:#20211f;--anatomy-face:#211715;--anatomy-top:#221816;
   --anatomy-shade-0:#120d0c;--anatomy-shade-1:#16100e;--anatomy-shade-2:#1a1210;--anatomy-shade-3:#1d1513;
-  --anatomy-lit-top:#2e211e;--anatomy-lit-shade:#231917;
-  --anatomy-hi:#ddd6cb;--anatomy-mid:#77655d;--anatomy-lo:#4c3630;--anatomy-faint:#332421;--anatomy-lit:#ffffff;
+  --anatomy-lit-top:#20211f;--anatomy-lit-shade:#231917;
+  --anatomy-hi:#d5d4cc;--anatomy-mid:#575953;--anatomy-lo:#262724;--anatomy-faint:#332421;--anatomy-lit:#ffffff;
   --anatomy-halo:#060404;--anatomy-halo-opacity:.9;--anatomy-dot:#f4edd8;
   --anatomy-red:#ff6b6b;--anatomy-green:#6be0a0;--anatomy-blue:#6b9bff;
   --anatomy-weight:.6px;--anatomy-ease:cubic-bezier(.32,.72,0,1);
@@ -11,12 +11,12 @@
   --anatomy-lift:inset 0 1px 0 0 #ffffff0a,inset 0 0 0 1px #ffffff06,0 0 0 1px #00000026,0 1px 1px -.5px #00000014,0 3px 3px -1.5px #00000014,0 6px 6px -3px #00000014,0 12px 12px -6px #00000014;
 }
 .iso[data-theme="light"]{
-  --anatomy-page:#faf0e7;--anatomy-card:#fdfaf8;--anatomy-text:#6c4d45;--anatomy-strong:#1e1614;--anatomy-muted:#9c8980;
-  --anatomy-paper:#fdfaf8;--anatomy-face:#ffffff;--anatomy-top:#ffffff;
-  --anatomy-shade-0:#e2dcd3;--anatomy-shade-1:#e9e5de;--anatomy-shade-2:#f6f1e1;--anatomy-shade-3:#fbf2ea;
-  --anatomy-lit-top:#ffffff;--anatomy-lit-shade:#f7f2e2;
-  --anatomy-hi:#31231f;--anatomy-mid:#9a877f;--anatomy-lo:#bfb2ad;--anatomy-faint:#ddd7cd;--anatomy-lit:#000000;
-  --anatomy-halo:#947f76;--anatomy-halo-opacity:.32;--anatomy-dot:#49342f;
+  --anatomy-page:#faf0e7;--anatomy-card:#f5f4f0;--anatomy-text:#575953;--anatomy-strong:#1e1614;--anatomy-muted:#62645d;
+  --anatomy-paper:#f5f4f0;--anatomy-face:#ffffff;--anatomy-top:#ffffff;
+  --anatomy-shade-0:#d5d4cc;--anatomy-shade-1:#e5e4de;--anatomy-shade-2:#f5f4f0;--anatomy-shade-3:#f0e9da;
+  --anatomy-lit-top:#ffffff;--anatomy-lit-shade:#f5f4f0;
+  --anatomy-hi:#20211f;--anatomy-mid:#85867b;--anatomy-lo:#bab9af;--anatomy-faint:#d5d4cc;--anatomy-lit:#000000;
+  --anatomy-halo:#85867b;--anatomy-halo-opacity:.32;--anatomy-dot:#262724;
   --anatomy-red:#e5484d;--anatomy-green:#30a46c;--anatomy-blue:#3e63dd;
   --anatomy-lift:inset 0 1px 0 0 #ffffff,0 0 0 1px #0000000f,0 1px 1px -.5px #0000000a,0 3px 3px -1.5px #0000000a,0 6px 6px -3px #0000000a,0 12px 12px -6px #0000000a;
 }

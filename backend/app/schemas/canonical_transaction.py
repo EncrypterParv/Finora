@@ -1,6 +1,6 @@
 """Canonical Transaction schemas and Enums."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from enum import Enum
 from typing import Any, Dict, Literal, Optional
@@ -95,6 +95,24 @@ class TransactionDetailResponse(CanonicalTransactionResponse):
     recommended_daily_spend: Optional[Decimal] = None
     is_anomaly: bool = False
     anomaly_reason: Optional[str] = None
+
+
+class DailyCashFlow(BaseModel):
+    day: date
+    inflow: Decimal = Decimal("0")
+    spending: Decimal = Decimal("0")
+
+
+class CurrencyCashFlow(BaseModel):
+    currency: str
+    transaction_count: int = 0
+    days: list[DailyCashFlow] = Field(default_factory=list)
+    spending_by_account: dict[str, Decimal] = Field(default_factory=dict)
+
+
+class TransactionSummaryResponse(BaseModel):
+    month: date
+    currencies: list[CurrencyCashFlow]
 
 
 class StatementPreviewResponse(BaseModel):

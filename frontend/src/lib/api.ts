@@ -26,6 +26,195 @@ import {
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "/api/v1";
 
+// Session cache for repeat reads. Entries live until a relevant mutation,
+// sign-out, LRU eviction, or page reload. User data never enters localStorage.
+const API_CACHE_MAX_ENTRIES = 60;
+const API_CACHE_MAX_BYTES = 5 * 1024 * 1024;
+const API_CACHE_MAX_ENTRY_BYTES = 1024 * 1024;
+const API_CACHE_TAGS = ["accounts", "transactions", "calendar", "budgets", "goals", "analytics"] as const;
+type ApiCacheTag = (typeof API_CACHE_TAGS)[number];
+type CachedApiResponse = {
+  userId: string;
+  tags: ApiCacheTag[];
+  body: string;
+  status: number;
+  statusText: string;
+  headers: [string, string][];
+  sizeBytes: number;
+};
+const apiResponseCache = new Map<string, CachedApiResponse>();
+const apiCacheInFlight = new Map<string, Promise<CachedApiResponse>>();
+const apiCacheGenerations = new Map<string, Map<ApiCacheTag, number>>();
+let apiCacheEpoch = 0;
+let apiCacheBytes = 0;
+let apiCacheChannel: BroadcastChannel | null = null;
+
+function removeCachedResponse(key: string) {
+  const cached = apiResponseCache.get(key);
+  if (!cached) return;
+  apiResponseCache.delete(key);
+  apiCacheBytes -= cached.sizeBytes;
+}
+
+function clearAllCachedResponses() {
+  apiCacheEpoch += 1;
+  apiResponseCache.clear();
+  apiCacheInFlight.clear();
+  apiCacheGenerations.clear();
+  apiCacheBytes = 0;
+}
+
+function ensureApiCacheChannel() {
+  if (typeof window === "undefined" || typeof BroadcastChannel === "undefined") return null;
+  if (apiCacheChannel) return apiCacheChannel;
+
+  try {
+    apiCacheChannel = new BroadcastChannel("finora-api-cache-v2");
+  } catch {
+    // Browser privacy settings may disable channels; same-tab invalidation remains active.
+    return null;
+  }
+  apiCacheChannel.addEventListener("message", (event: MessageEvent<unknown>) => {
+    const message = event.data as { type?: unknown; userId?: unknown; tags?: unknown } | null;
+    if (message?.type === "clear") {
+      clearAllCachedResponses();
+      return;
+    }
+    if (message?.type !== "invalidate" || typeof message.userId !== "string" || !Array.isArray(message.tags)) return;
+    const tags = message.tags.filter((tag): tag is ApiCacheTag => API_CACHE_TAGS.includes(tag as ApiCacheTag));
+    if (tags.length) invalidateApiCache(message.userId, tags, false);
+  });
+  return apiCacheChannel;
+}
+
+function invalidateApiCache(userId: string, tags: readonly ApiCacheTag[], broadcast = true) {
+  if (tags.length === 0) return;
+  const versions = apiCacheGenerations.get(userId) ?? new Map<ApiCacheTag, number>();
+  for (const tag of tags) versions.set(tag, (versions.get(tag) ?? 0) + 1);
+  apiCacheGenerations.set(userId, versions);
+
+  for (const [key, cached] of apiResponseCache) {
+    if (cached.userId === userId && cached.tags.some((tag) => tags.includes(tag))) removeCachedResponse(key);
+  }
+  if (broadcast) ensureApiCacheChannel()?.postMessage({ type: "invalidate", userId, tags });
+}
+
+function cacheTagsForRead(url: string): ApiCacheTag[] {
+  const path = new URL(url, "http://finora.local").pathname;
+  if (path.endsWith("/calendar/view")) return ["calendar", "transactions"];
+  if (/\/transactions(?:\/|$)/.test(path)) return ["transactions"];
+  if (/\/accounts(?:\/|$)/.test(path)) return ["accounts"];
+  if (/\/budgets(?:\/|$)/.test(path)) return ["budgets", "transactions"];
+  if (/\/goals(?:\/|$)/.test(path)) return ["goals"];
+  if (/\/analytics(?:\/|$)/.test(path)) return ["analytics", "transactions", "budgets"];
+  return [];
+}
+
+function cacheTagsForMutation(url: string, method: string): ApiCacheTag[] | null {
+  const parsed = new URL(url, "http://finora.local");
+  const path = parsed.pathname;
+  if (path.endsWith("/statements/preview")) return [];
+  if (path.endsWith("/statements/import") || path.endsWith("/statements/upload")) {
+    return ["transactions", "calendar", "budgets", "analytics"];
+  }
+  if (path.endsWith("/bank/sync")) {
+    return ["accounts", "transactions", "calendar", "budgets", "analytics"];
+  }
+  if (/\/transactions(?:\/|$)/.test(path)) return ["transactions", "calendar", "budgets", "analytics"];
+  if (/\/accounts(?:\/|$)/.test(path)) {
+    return method === "DELETE" && parsed.searchParams.get("delete_transactions") === "true"
+      ? ["accounts", "transactions", "calendar", "budgets", "analytics"]
+      : ["accounts"];
+  }
+  if (/\/budgets(?:\/|$)/.test(path)) return ["budgets", "analytics"];
+  if (/\/goals(?:\/|$)/.test(path)) return ["goals"];
+  return null;
+}
+
+function cacheVersionKey(userId: string, tags: readonly ApiCacheTag[]) {
+  const versions = apiCacheGenerations.get(userId);
+  return [...tags].sort().map((tag) => `${tag}:${versions?.get(tag) ?? 0}`).join(",");
+}
+
+function responseFromSnapshot(snapshot: CachedApiResponse) {
+  const bodylessStatus = snapshot.status === 204 || snapshot.status === 205 || snapshot.status === 304;
+  return new Response(bodylessStatus ? null : snapshot.body, {
+    status: snapshot.status,
+    statusText: snapshot.statusText,
+    headers: snapshot.headers,
+  });
+}
+
+async function fetchCachedApiResponse(
+  userId: string,
+  url: string,
+  tags: ApiCacheTag[],
+  fetcher: () => Promise<Response>,
+): Promise<Response> {
+  ensureApiCacheChannel();
+  const cacheKey = `${userId}:${url}`;
+  const cached = apiResponseCache.get(cacheKey);
+  if (cached) {
+    // Map insertion order is the LRU order: a hit makes this entry newest.
+    apiResponseCache.delete(cacheKey);
+    apiResponseCache.set(cacheKey, cached);
+    return responseFromSnapshot(cached);
+  }
+
+  const requestEpoch = apiCacheEpoch;
+  const versionKey = cacheVersionKey(userId, tags);
+  const flightKey = `${cacheKey}:${requestEpoch}:${versionKey}`;
+  let pending = apiCacheInFlight.get(flightKey);
+  if (!pending) {
+    pending = (async () => {
+      const response = await fetcher();
+      const body = await response.clone().text();
+      const snapshotHeaders = new Headers();
+      for (const name of ["content-type", "x-total-count", "retry-after", "x-request-id", "www-authenticate"]) {
+        const value = response.headers.get(name);
+        if (value !== null) snapshotHeaders.set(name, value);
+      }
+      const snapshot: CachedApiResponse = {
+        userId,
+        tags,
+        body,
+        status: response.status,
+        statusText: response.statusText,
+        headers: Array.from(snapshotHeaders.entries()),
+        sizeBytes: new TextEncoder().encode(body).byteLength,
+      };
+
+      const stillCurrent = requestEpoch === apiCacheEpoch && versionKey === cacheVersionKey(userId, tags);
+      if (!response.ok || !stillCurrent || snapshot.sizeBytes > API_CACHE_MAX_ENTRY_BYTES) return snapshot;
+
+      while (apiResponseCache.size >= API_CACHE_MAX_ENTRIES || apiCacheBytes + snapshot.sizeBytes > API_CACHE_MAX_BYTES) {
+        const oldestKey = apiResponseCache.keys().next().value;
+        if (oldestKey === undefined) break;
+        removeCachedResponse(oldestKey);
+      }
+      apiResponseCache.set(cacheKey, snapshot);
+      apiCacheBytes += snapshot.sizeBytes;
+      return snapshot;
+    })();
+    apiCacheInFlight.set(flightKey, pending);
+  }
+
+  try {
+    return responseFromSnapshot(await pending);
+  } finally {
+    if (apiCacheInFlight.get(flightKey) === pending) apiCacheInFlight.delete(flightKey);
+  }
+}
+
+export function clearApiResponseCache(userId?: string) {
+  if (!userId) {
+    clearAllCachedResponses();
+    ensureApiCacheChannel()?.postMessage({ type: "clear" });
+    return;
+  }
+  invalidateApiCache(userId, API_CACHE_TAGS);
+}
+
 export type StatementSourceFormat = "csv" | "pdf" | "image";
 
 export interface StatementDraftTransaction {
@@ -100,11 +289,28 @@ async function apiFetch(input: RequestInfo | URL, init: RequestInit = {}) {
   const { data, error } = await supabase.auth.getSession();
   if (error) throw error;
 
+  const method = (init.method ?? "GET").toUpperCase();
+  const userId = data.session?.user.id;
   const headers = new Headers(init.headers);
   if (data.session?.access_token) {
     headers.set("Authorization", `Bearer ${data.session.access_token}`);
   }
-  return fetch(input, { ...init, headers });
+
+  const requestUrl = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+  const fetcher = () => fetch(input, { ...init, headers });
+
+  if (method === "GET" && userId) {
+    const tags = cacheTagsForRead(requestUrl);
+    if (tags.length) return fetchCachedApiResponse(userId, requestUrl, tags, fetcher);
+  }
+
+  const response = await fetcher();
+  if (method !== "GET" && userId && response.ok) {
+    const tags = cacheTagsForMutation(requestUrl, method);
+    if (tags === null) clearApiResponseCache(userId);
+    else if (tags.length) invalidateApiCache(userId, tags);
+  }
+  return response;
 }
 
 // `date` (yyyy-mm-dd) picks which week or day to show; month views use year/month.
@@ -185,6 +391,20 @@ export async function fetchTransactionPage(
   const header = response.headers.get("X-Total-Count");
   const total = header !== null && Number.isFinite(Number(header)) ? Number(header) : offset + items.length;
   return { items, total };
+}
+
+export interface CurrencyCashFlow {
+  currency: string;
+  transaction_count: number;
+  days: { day: string; inflow: string; spending: string }[];
+  spending_by_account: Record<string, string>;
+}
+
+export async function fetchTransactionSummary(month: string): Promise<{ month: string; currencies: CurrencyCashFlow[] }> {
+  const params = new URLSearchParams({ month });
+  const response = await apiFetch(`${API_BASE}/transactions/summary?${params}`);
+  if (!response.ok) throw await responseError(response, "Could not load your monthly summary.");
+  return response.json();
 }
 
 // Records a manual transaction (e.g. cash spending). It does not change the account balance.

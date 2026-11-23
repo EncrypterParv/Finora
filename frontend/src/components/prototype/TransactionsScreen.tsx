@@ -27,6 +27,7 @@ import {
   todayIso,
   toNumber,
 } from "./prototype-ui";
+import { TransactionsLoadingSkeleton } from "./PrototypeSkeletons";
 
 const PAGE_SIZE = 25;
 
@@ -158,7 +159,7 @@ export function TransactionsScreen({ accounts, onRecordsChanged, onAddStatement 
       <div className="flex flex-wrap items-center gap-3">
         <label className="relative min-w-[220px] flex-1">
           <span className="sr-only">Search descriptions</span>
-          <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#9a8b7e]" />
+          <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#62645d]" />
           <input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} maxLength={100} placeholder="Search descriptions, e.g. Swiggy" className={`${inputClass} !mt-0 pl-9`} />
         </label>
         <div className="prototype-segmented" role="radiogroup" aria-label="Transaction type">
@@ -167,7 +168,7 @@ export function TransactionsScreen({ accounts, onRecordsChanged, onAddStatement 
         <SecondaryButton onClick={() => setShowMore((open) => !open)} aria-expanded={showMore}><SlidersHorizontal size={15} /> More filters{activeExtraFilters ? ` (${activeExtraFilters})` : ""}</SecondaryButton>
         {anyFilter && <button type="button" onClick={clearFilters} className="prototype-inline-link inline-flex items-center gap-1 text-xs font-medium"><X size={14} /> Clear filters</button>}
       </div>
-      {showMore && <div className="mt-4 grid gap-3 border-t border-[#eeeae3] pt-4 sm:grid-cols-2 lg:grid-cols-5">
+      {showMore && <div className="mt-4 grid gap-3 border-t border-[#e5e4de] pt-4 sm:grid-cols-2 lg:grid-cols-5">
         <Field label="Account"><select value={more.account_id} onChange={(event) => updateMore({ account_id: event.target.value })} className={inputClass}><option value="">All accounts</option>{accounts.map((account) => <option key={account.id} value={account.id}>{account.institution_name} · {account.account_number_masked}</option>)}</select></Field>
         <Field label="From"><input type="date" value={more.start_date} onChange={(event) => updateMore({ start_date: event.target.value })} className={inputClass} /></Field>
         <Field label="To"><input type="date" value={more.end_date} onChange={(event) => updateMore({ end_date: event.target.value })} className={inputClass} /></Field>
@@ -180,26 +181,26 @@ export function TransactionsScreen({ accounts, onRecordsChanged, onAddStatement 
     {notice && <div className="mb-4"><SuccessNote message={notice} /></div>}
     {error && <div className="mb-4"><ErrorNote message={error} /></div>}
 
-    {!loading && total === 0 && !error ? (
+    {loading && items.length === 0 && !error ? <TransactionsLoadingSkeleton /> : !loading && total === 0 && !error ? (
       anyFilter
-        ? <Panel className="px-6 py-9"><h2 className="text-lg font-semibold">No transactions match these filters</h2><p className="mt-2 text-sm text-[#766e65]">Try a shorter search or a wider date range.</p><button type="button" onClick={clearFilters} className="prototype-inline-link mt-3 text-sm font-medium">Clear filters</button></Panel>
+        ? <Panel className="px-6 py-9"><h2 className="text-lg font-semibold">No transactions match these filters</h2><p className="mt-2 text-sm text-[#575953]">Try a shorter search or a wider date range.</p><button type="button" onClick={clearFilters} className="prototype-inline-link mt-3 text-sm font-medium">Clear filters</button></Panel>
         : <EmptyPanel title="No transactions yet" body="Import a bank statement, or add a cash transaction by hand. Only records you confirm are saved." onAdd={onAddStatement} />
     ) : (
       <Panel className="p-5" >
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#837970]" aria-live="polite">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#62645d]" aria-live="polite">
           <span>{loading ? "Loading transactions…" : `Showing ${firstShown}–${lastShown} of ${total}`}</span>
           {pageCount > 1 && <span>Page {page + 1} of {pageCount}</span>}
         </div>
-        <ul className={`mt-3 divide-y divide-[#f0ede7] ${loading ? "opacity-60" : ""}`} aria-busy={loading}>
+        <ul className={`mt-3 divide-y divide-[#e5e4de] ${loading ? "opacity-60" : ""}`} aria-busy={loading}>
           {items.map((transaction) => {
             const credit = transaction.transaction_type === "CREDIT";
             const transfer = transaction.transaction_type === "TRANSFER";
             const meta = [transaction.category_name, accountLabel.get(transaction.account_id), transaction.source === "MANUAL" ? "Added by hand" : ""].filter(Boolean).join(" · ");
             return <li key={transaction.id} className="py-3">
               <div className="flex items-center gap-3">
-                <div className="hidden w-[74px] shrink-0 text-xs tabular-nums text-[#8a8279] sm:block">{formatDate(transaction.occurred_at, { day: "numeric", month: "short", year: "numeric" })}</div>
-                <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{transaction.raw_description}</div><div className="mt-1 truncate text-[11px] text-[#8a8279]"><span className="sm:hidden">{formatDate(transaction.occurred_at, { day: "numeric", month: "short" })} · </span>{meta}</div></div>
-                <div className={`shrink-0 text-right text-sm font-medium tabular-nums ${credit ? "text-[#477250]" : transfer ? "text-[#766e65]" : "text-[#433b35]"}`}>{credit ? "+" : transfer ? "" : "−"}{money(transaction.amount, transaction.currency, 2)}</div>
+                <div className="hidden w-[74px] shrink-0 text-xs tabular-nums text-[#62645d] sm:block">{formatDate(transaction.occurred_at, { day: "numeric", month: "short", year: "numeric" })}</div>
+                <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{transaction.raw_description}</div><div className="mt-1 truncate text-[11px] text-[#62645d]"><span className="sm:hidden">{formatDate(transaction.occurred_at, { day: "numeric", month: "short" })} · </span>{meta}</div></div>
+                <div className={`shrink-0 text-right text-sm font-medium tabular-nums ${credit ? "text-[#477250]" : transfer ? "text-[#575953]" : "text-[#414340]"}`}>{credit ? "+" : transfer ? "" : "−"}{money(transaction.amount, transaction.currency, 2)}</div>
                 <IconButton label={`Delete ${transaction.raw_description}`} onClick={() => { setConfirmId(transaction.id); setNotice(""); }}><Trash2 size={15} /></IconButton>
               </div>
               {confirmId === transaction.id && <ConfirmStrip
@@ -212,7 +213,7 @@ export function TransactionsScreen({ accounts, onRecordsChanged, onAddStatement 
             </li>;
           })}
         </ul>
-        {pageCount > 1 && <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#eeeae3] pt-4">
+        {pageCount > 1 && <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#e5e4de] pt-4">
           <SecondaryButton onClick={() => setPage((current) => Math.max(0, current - 1))} disabled={page === 0 || loading}><ChevronLeft size={15} /> Newer</SecondaryButton>
           <SecondaryButton onClick={() => setPage((current) => Math.min(pageCount - 1, current + 1))} disabled={page >= pageCount - 1 || loading}>Older <ChevronRight size={15} /></SecondaryButton>
         </div>}
@@ -232,7 +233,7 @@ function AddTransactionForm({ accounts, onCancel, onSaved, onAddStatement }: { a
   const [error, setError] = useState("");
 
   if (accounts.length === 0) {
-    return <Panel className="mb-4 p-5"><h2 className="font-semibold">Add an account first</h2><p className="mt-1 text-sm text-[#766e65]">Every transaction belongs to an account. Create an account label when you add your first statement.</p><button type="button" onClick={onAddStatement} className="prototype-inline-link mt-2 text-sm font-medium">Add an account</button></Panel>;
+    return <Panel className="mb-4 p-5"><h2 className="font-semibold">Add an account first</h2><p className="mt-1 text-sm text-[#575953]">Every transaction belongs to an account. Create an account label when you add your first statement.</p><button type="button" onClick={onAddStatement} className="prototype-inline-link mt-2 text-sm font-medium">Add an account</button></Panel>;
   }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -256,9 +257,9 @@ function AddTransactionForm({ accounts, onCancel, onSaved, onAddStatement }: { a
     }
   }
 
-  return <form onSubmit={submit} className="mb-4 rounded-xl border border-[#e8e4dc] bg-white p-5">
+  return <form onSubmit={submit} className="mb-4 rounded-xl border border-[#e5e4de] bg-white p-5">
     <h2 className="font-semibold">Add a transaction</h2>
-    <p className="mt-1 text-xs leading-5 text-[#837970]">For spending or income that isn’t on a statement, like cash. It doesn’t change the account’s balance.</p>
+    <p className="mt-1 text-xs leading-5 text-[#62645d]">For spending or income that isn’t on a statement, like cash. It doesn’t change the account’s balance.</p>
     <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.1fr_0.8fr_1.6fr_0.8fr_0.8fr]">
       <Field label="Account"><select required value={accountId} onChange={(event) => setAccountId(event.target.value)} className={inputClass}>{accounts.map((account) => <option key={account.id} value={account.id}>{account.institution_name} · {account.account_number_masked}</option>)}</select></Field>
       <Field label="Date"><input type="date" required max={todayIso()} value={date} onChange={(event) => setDate(event.target.value)} className={inputClass} /></Field>

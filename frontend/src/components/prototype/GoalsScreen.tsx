@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Pause, Pencil, Play, Plus, RotateCw, Trash2 } from "lucide-react";
+import { Check, Pause, Pencil, Play, Plus, Trash2 } from "lucide-react";
 import { createGoal, deleteGoal, fetchGoals, updateGoal } from "@/lib/api";
 import { GoalResponse, GoalStatus, GoalUpdate } from "@/types/goal";
+import { CollectionLoadingSkeleton } from "./PrototypeSkeletons";
 import {
   ConfirmStrip,
+  DataLoadNotice,
   EmptyPanel,
   ErrorNote,
   Field,
@@ -63,14 +65,14 @@ export function GoalsScreen() {
     <PageTitle
       title="Goals"
       description="Save towards something specific. Finora estimates when you’ll get there from what you’ve saved and what you add each month."
-      action={<PrimaryButton onClick={() => setShowCreate((open) => !open)} aria-expanded={showCreate}><Plus size={16} /> New goal</PrimaryButton>}
+      action={<PrimaryButton onClick={() => setShowCreate((open) => !open)} aria-expanded={showCreate} disabled={loading || Boolean(error)}><Plus size={16} /> New goal</PrimaryButton>}
     />
     {showCreate && <Panel className="mb-4 p-5"><GoalForm onCancel={() => setShowCreate(false)} onSaved={(goal) => { setGoals((current) => [goal, ...current]); setShowCreate(false); }} /></Panel>}
-    {loading ? <Panel className="p-8 text-sm text-[#766e65]"><span role="status">Loading your goals…</span></Panel>
-      : error ? <Panel className="p-6"><p role="alert" className="text-sm text-[#9f2f2d]">{error}</p><SecondaryButton className="mt-4" onClick={() => setReloadKey((key) => key + 1)}><RotateCw size={15} /> Try again</SecondaryButton></Panel>
+    {loading && goals.length === 0 ? <CollectionLoadingSkeleton label="Loading your goals" />
+      : error ? <DataLoadNotice subject="Goals" onRetry={() => setReloadKey((key) => key + 1)} />
       : ordered.length === 0 ? (!showCreate && <EmptyPanel title="No goals yet" body="Add a goal like an emergency fund or a trip. Enter what you’ve saved and what you can add each month, and Finora estimates your finish date." onAdd={() => setShowCreate(true)} actionLabel="Create your first goal" />)
       : <div className="grid gap-4 lg:grid-cols-2">{ordered.map((goal) => <GoalCard key={goal.id} goal={goal} onUpdated={replace} onDeleted={(id) => setGoals((current) => current.filter((item) => item.id !== id))} />)}</div>}
-    {!loading && ordered.length > 0 && <p className="mt-4 text-xs text-[#837970]">Finish dates are estimates that assume your monthly amount and expected return stay the same. They are not investment advice.</p>}
+    {ordered.length > 0 && <p className="mt-4 text-xs text-[#62645d]">Finish dates are estimates that assume your monthly amount and expected return stay the same. They are not investment advice.</p>}
   </>;
 }
 
@@ -119,19 +121,19 @@ function GoalCard({ goal, onUpdated, onDeleted }: { goal: GoalResponse; onUpdate
     <div className="flex items-start gap-2">
       <div className="min-w-0 flex-1">
         <h2 className="truncate font-semibold">{goal.title}</h2>
-        <p className="mt-1 text-xs text-[#837970]">{goalTypeLabel(goal.goal_type)} · target date {formatDate(goal.target_date)}</p>
+        <p className="mt-1 text-xs text-[#62645d]">{goalTypeLabel(goal.goal_type)} · target date {formatDate(goal.target_date)}</p>
       </div>
       <span className="prototype-tag" data-status={goal.status}>{statusLabels[goal.status] ?? goal.status}</span>
       <IconButton label={`Edit ${goal.title}`} onClick={() => setMode("edit")}><Pencil size={15} /></IconButton>
       <IconButton label={`Delete ${goal.title}`} onClick={() => setMode("confirm")}><Trash2 size={15} /></IconButton>
     </div>
     <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2">
-      <p className="tabular-nums"><span className="prototype-figure">{money(saved)}</span> <span className="text-sm text-[#837970]">of {money(target)}</span></p>
-      <p className="text-sm font-medium tabular-nums text-[#5f554c]">{Math.min(100, Math.round(percent))}%</p>
+      <p className="tabular-nums"><span className="prototype-figure">{money(saved)}</span> <span className="text-sm text-[#62645d]">of {money(target)}</span></p>
+      <p className="text-sm font-medium tabular-nums text-[#414340]">{Math.min(100, Math.round(percent))}%</p>
     </div>
     <div className="mt-3"><ProgressBar value={percent} tone={completed || percent >= 100 ? "done" : "steady"} label={`${goal.title}: ${Math.round(percent)}% saved`} /></div>
-    <p className={`mt-3 text-xs leading-5 ${projection.warn ? "text-[#8b4a1d]" : "text-[#766e65]"}`}>{projection.text}</p>
-    <p className="mt-1 text-xs text-[#8b7d71]">Adding {money(goal.monthly_contribution)} a month · expected return {toNumber(goal.expected_annual_return_pct)}% a year</p>
+    <p className={`mt-3 text-xs leading-5 ${projection.warn ? "text-[#755727]" : "text-[#575953]"}`}>{projection.text}</p>
+    <p className="mt-1 text-xs text-[#62645d]">Adding {money(goal.monthly_contribution)} a month · expected return {toNumber(goal.expected_annual_return_pct)}% a year</p>
 
     {mode === "saved"
       ? <form className="mt-4 flex flex-wrap items-end gap-2" onSubmit={(event) => { event.preventDefault(); if (savedInput !== "" && toNumber(savedInput) >= 0) void patch({ current_saved: Math.round(toNumber(savedInput) * 100) / 100 }); }}>
@@ -139,12 +141,12 @@ function GoalCard({ goal, onUpdated, onDeleted }: { goal: GoalResponse; onUpdate
           <PrimaryButton type="submit" disabled={working}>{working ? "Saving…" : "Save"}</PrimaryButton>
           <SecondaryButton onClick={() => setMode("view")} disabled={working}>Cancel</SecondaryButton>
         </form>
-      : !completed && <div className="mt-4 flex flex-wrap gap-2 border-t border-[#eeeae3] pt-4">
+      : !completed && <div className="mt-4 flex flex-wrap gap-2 border-t border-[#e5e4de] pt-4">
           <SecondaryButton onClick={() => { setSavedInput(String(saved)); setMode("saved"); }}>Update savings</SecondaryButton>
           <SecondaryButton onClick={() => patch({ status: (paused ? "IN_PROGRESS" : "PAUSED") as GoalStatus })} disabled={working}>{paused ? <><Play size={14} /> Resume</> : <><Pause size={14} /> Pause</>}</SecondaryButton>
           <SecondaryButton onClick={() => patch({ status: "COMPLETED" })} disabled={working}><Check size={14} /> Mark as reached</SecondaryButton>
         </div>}
-    {completed && <div className="mt-4 border-t border-[#eeeae3] pt-4"><SecondaryButton onClick={() => patch({ status: "IN_PROGRESS" })} disabled={working}>Reopen goal</SecondaryButton></div>}
+    {completed && <div className="mt-4 border-t border-[#e5e4de] pt-4"><SecondaryButton onClick={() => patch({ status: "IN_PROGRESS" })} disabled={working}>Reopen goal</SecondaryButton></div>}
 
     {mode === "confirm" && <ConfirmStrip message={<>Delete the goal <strong>{goal.title}</strong>? This can’t be undone.</>} confirmLabel="Delete goal" working={working} onConfirm={remove} onCancel={() => setMode("view")} />}
     {error && <ErrorNote message={error} />}

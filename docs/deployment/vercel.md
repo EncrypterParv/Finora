@@ -77,9 +77,10 @@ URL Configuration**:
 3. If Vercel gives the project a different domain, use that exact domain. Add
    each preview domain explicitly before testing Auth on a preview deployment.
 
-The callback route is `/auth/callback`. Email confirmation and password reset
-both use this route. Production email delivery and the deployed confirmation
-flow still need an end-to-end check.
+The callback route is `/auth/callback` for password recovery. Email
+confirmation is off in the hosted Supabase project for the current demo, so a
+new signup should establish a session directly. Password reset still depends
+on working email delivery.
 
 ## Verify the judge deployment
 
