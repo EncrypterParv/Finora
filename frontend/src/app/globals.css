@@ -1,6 +1,22 @@
 @import "tailwindcss";
 
 @font-face {
+  font-family: Newsreader;
+  src: url("/fonts/newsreader-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Newsreader;
+  src: url("/fonts/newsreader-latin-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400 600;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "DM Sans";
   src: url("/fonts/dm-sans-regular.ttf") format("truetype");
   font-style: normal;
@@ -33,64 +49,67 @@
   --font-sans: "DM Sans", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "DM Sans", "Helvetica Neue", Arial, sans-serif;
 
-  /* Legacy indigo-* utilities resolve to the Burnt Orange → Chocolate ramp. */
-  --color-indigo-50: #fdf3ea;
-  --color-indigo-100: #fbe3cf;
-  --color-indigo-200: #f6c39d;
-  --color-indigo-300: #ec9a5f;
-  --color-indigo-400: #dd7428;
-  --color-indigo-500: #cc5500;
-  --color-indigo-600: #a84600;
-  --color-indigo-700: #863800;
-  --color-indigo-800: #642b0c;
-  --color-indigo-900: #4e342e;
-  --color-indigo-950: #3a2622;
+  /* Legacy indigo utilities use Finora’s brass and graphite scale. */
+  --color-indigo-50: #faf7ef;
+  --color-indigo-100: #f0e9da;
+  --color-indigo-200: #e1d2b4;
+  --color-indigo-300: #cfb587;
+  --color-indigo-400: #ae8b52;
+  --color-indigo-500: #886731;
+  --color-indigo-600: #755727;
+  --color-indigo-700: #624a25;
+  --color-indigo-800: #4a3921;
+  --color-indigo-900: #262724;
+  --color-indigo-950: #20211f;
 }
 
-/* Palette: Chocolate Brown #4E342E, Cream #F8F4E7, Burnt Orange #CC5500. */
 :root {
-  --finora-chocolate: #4e342e;
-  --finora-cream: #f8f4e7;
-  --finora-orange: #cc5500;
-  --finora-accent: #cc5500;
-  --finora-accent-strong: #a84600;
-  --finora-accent-soft: #fbe3cf;
-  --finora-canvas: #f8f4e7;
+  --finora-display: "Newsreader", Georgia, serif;
+  --finora-dark: #20211f;
+  --finora-on-dark: #f5f4f0;
+  --finora-gold-light: #d7ba82;
+  --finora-chocolate: #262724;
+  --finora-cream: #f5f4f0;
+  --finora-orange: #886731;
+  --finora-accent: #886731;
+  --finora-accent-strong: #755727;
+  --finora-accent-soft: #f0e9da;
+  --finora-canvas: #f5f4f0;
   --finora-surface: #ffffff;
-  --finora-surface-muted: #f7f3e5;
-  --finora-ink: #271c19;
-  --finora-ink-soft: #6c5c55;
-  --finora-ink-muted: #76645c;
-  --finora-border: #e7e3dc;
-  --finora-border-strong: #d8d1c5;
-  --finora-brand: #4e342e;
-  --finora-brand-dark: #3a2622;
-  --finora-brand-soft: #fdf5f0;
+  --finora-surface-muted: #f5f4f0;
+  --finora-ink: #20211f;
+  --finora-ink-soft: #575953;
+  --finora-ink-muted: #575953;
+  --finora-border: #e5e4de;
+  --finora-border-strong: #d5d4cc;
+  --finora-brand: #262724;
+  --finora-brand-dark: #20211f;
+  --finora-brand-soft: #f0e9da;
   --finora-positive: #2f6b45;
   --finora-positive-soft: #edf4ed;
   --finora-warning: #8a641e;
   --finora-warning-soft: #fbf4df;
   --finora-negative: #a04646;
   --finora-negative-soft: #faeeee;
-  --background: 45 58% 94%;
-  --foreground: 13 22% 13%;
+  --background: 48 20% 95%;
+  --foreground: 90 3% 13%;
   --card: 0 0% 100%;
   --card-foreground: 13 22% 13%;
   --popover: 0 0% 100%;
   --popover-foreground: 13 22% 13%;
-  --primary: 11 26% 24%;
-  --primary-foreground: 45 58% 94%;
-  --secondary: 47 55% 93%;
-  --secondary-foreground: 13 22% 13%;
-  --muted: 47 55% 93%;
-  --muted-foreground: 18 12% 38%;
-  --accent: 27 85% 90%;
-  --accent-foreground: 25 100% 33%;
+  --primary: 80 4% 15%;
+  --primary-foreground: 48 20% 95%;
+  --secondary: 50 15% 92%;
+  --secondary-foreground: 90 3% 13%;
+  --muted: 50 15% 92%;
+  --muted-foreground: 80 3% 34%;
+  --accent: 41 42% 90%;
+  --accent-foreground: 37 50% 31%;
   --destructive: 0 43% 46%;
   --destructive-foreground: 0 0% 100%;
   --border: 38 20% 88%;
   --input: 38 20% 88%;
-  --ring: 25 100% 40%;
+  --ring: 37 50% 31%;
   --radius: 0.625rem;
 }
 
@@ -128,8 +147,12 @@ button:disabled {
   cursor: not-allowed;
 }
 
+.finora-mark-word {
+  color: var(--finora-mark-ink, var(--finora-ink));
+}
+
 ::selection {
-  background: #fbede3;
+  background: #f0e9da;
   color: var(--finora-ink);
 }
 
@@ -236,4 +259,4 @@ pre,
 }
 
 /* Muted application labels retain AA contrast on paper surfaces. */
-.finora-shell [class*="text-[#917c73]" i] { color: #76645c; }
+.finora-shell [class*="text-[#917c73]" i] { color: #575953; }

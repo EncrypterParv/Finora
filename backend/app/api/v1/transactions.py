@@ -17,8 +17,11 @@ from app.domain.statement_import.deduplicator import compute_dedup_hash
 from app.domain.statement_import.normalizer import resolve_merchant_and_category
 from app.schemas.canonical_transaction import (
     CanonicalTransactionResponse,
+    CurrencyCashFlow,
+    DailyCashFlow,
     ManualTransactionCreate,
     TransactionDetailResponse,
+    TransactionSummaryResponse,
     TransactionType,
 )
 
@@ -178,6 +181,51 @@ async def delete_transaction(
     tx = await _get_owned_transaction(db, transaction_id, current_user.id)
     await db.delete(tx)
     await db.commit()
+
+
+@router.get("/summary", response_model=TransactionSummaryResponse)
+async def summarize_transactions(
+    month: date = Query(..., description="First day of the requested UTC month"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Return compact cash flow and account spending totals per currency."""
+    if month.day != 1 or month == date.max.replace(day=1):
+        raise HTTPException(status_code=422, detail="month must be the first day of a supported month")
+    start = datetime.combine(month, time.min, tzinfo=timezone.utc)
+    end = (start + timedelta(days=31)).replace(day=1)
+    timestamp = Transaction.occurred_at
+    if db.get_bind().dialect.name == "postgresql":
+        timestamp = func.timezone("UTC", timestamp)
+    day = func.date(timestamp)
+    rows = await db.execute(
+        select(day, Transaction.currency, Transaction.account_id, Transaction.transaction_type,
+               func.sum(Transaction.amount), func.count())
+        .where(Transaction.user_id == current_user.id,
+               Transaction.occurred_at >= start, Transaction.occurred_at < end)
+        .group_by(day, Transaction.currency, Transaction.account_id, Transaction.transaction_type)
+    )
+
+    currencies: dict[str, CurrencyCashFlow] = {}
+    days: dict[str, dict[date, DailyCashFlow]] = {}
+    for raw_day, currency, account_id, transaction_type, amount, count in rows:
+        currency = currency.upper()
+        cash_flow = currencies.setdefault(currency, CurrencyCashFlow(currency=currency))
+        cash_flow.transaction_count += count
+        if transaction_type == TransactionType.TRANSFER:
+            continue
+        record_date = date.fromisoformat(raw_day) if isinstance(raw_day, str) else raw_day
+        daily = days.setdefault(currency, {}).setdefault(record_date, DailyCashFlow(day=record_date))
+        if transaction_type == TransactionType.CREDIT:
+            daily.inflow += amount
+        elif transaction_type == TransactionType.DEBIT:
+            daily.spending += amount
+            by_account = cash_flow.spending_by_account
+            by_account[account_id] = by_account.get(account_id, Decimal("0")) + amount
+
+    for currency, cash_flow in currencies.items():
+        cash_flow.days = sorted(days.get(currency, {}).values(), key=lambda record: record.day)
+    return TransactionSummaryResponse(month=month, currencies=[currencies[code] for code in sorted(currencies)])
 
 
 @router.get("/{transaction_id}", response_model=TransactionDetailResponse)

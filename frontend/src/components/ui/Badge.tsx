@@ -20,8 +20,8 @@ export const Badge: React.FC<BadgeProps> = ({
     positive: "bg-[#edf4ed] text-[#2f6b45] border-[#cfe0d0]",
     negative: "bg-[#faeeee] text-[#a04646] border-[#edcece]",
     warning: "bg-[#fbf4df] text-[#8a641e] border-[#ebddb5]",
-    neutral: "bg-[#f7f3e5] text-[#6c5c55] border-[#e7e3dc]",
-    brand: "bg-[#fdf5f0] text-[#4e342e] border-[#fae8dc]",
+    neutral: "bg-[#f5f4f0] text-[#575953] border-[#e5e4de]",
+    brand: "bg-[#f0e9da] text-[#262724] border-[#f0e9da]",
   };
 
   const sizeStyles = {

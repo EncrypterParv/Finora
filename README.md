@@ -32,7 +32,7 @@ The system is built as a **Modular Monolith**:
 - **Frontend**: Next.js 16.4.6 (App Router), TypeScript, Tailwind CSS, TanStack Query, Framer Motion, Recharts.
 - **Backend API**: Python FastAPI, Pydantic v2 schemas, SQLAlchemy 2.0 async ORM.
 - **Persistence**: Local development defaults to SQLite; Supabase Postgres is configured for hosted data. The initial schema migration is applied to the configured project.
-- **Authentication**: Supabase Auth email/password, confirmation callback, password reset, and dashboard protection are implemented. Live signup and email delivery still need end-to-end verification.
+- **Authentication**: Supabase Auth email/password signup, sign-in, PKCE password-recovery callback, and dashboard protection are implemented. Email confirmation is off for the current demo, so users can enter an unverified email; this does not prove email ownership. Password recovery requires working email delivery; see [Supabase setup](docs/supabase/setup.md).
 - **Simulated Integrations**: Pluggable `BankAdapter` contracts (e.g. `HSBCDemoAdapter`) with zero storage of real credentials.
 
 Detailed system documentation is available in `docs/`:
@@ -104,6 +104,10 @@ npm run build
 Client interface available at: `http://localhost:3000`
 For Supabase sign-in and database setup, complete [the Supabase setup guide](docs/supabase/setup.md) first. Without project keys, the login page displays a configuration prompt.
 
+Keep the FastAPI and Next.js development servers running in separate terminals.
+An `ECONNREFUSED 127.0.0.1:8000` error in the Next.js log means the backend
+is unreachable. With both servers up, `http://127.0.0.1:8000/health` should respond.
+
 ### 3. Quality Checks
 
 Run these checks before opening a pull request:
@@ -153,7 +157,14 @@ recommendation.
   from FastAPI. New users see an empty state and can create an account label,
   preview a statement, edit extracted rows, and explicitly confirm an import.
   The source file is not retained. Only confirmed canonical transactions are
-  persisted.
+  persisted. Successful API reads stay in bounded browser memory for the tab
+  session, scoped to the signed-in user; relevant writes invalidate only the
+  affected data groups, and same-browser tabs receive invalidations. Sign-out
+  clears the cache. Entries are LRU-evicted at 60 responses or 5 MB and are
+  never stored persistently. Layout-matched loading skeletons cover route,
+  workspace, section, and initial data loading. The Overview fetches five recent
+  rows with the API's total count and a separate monthly summary. The summary
+  uses the same scoped cache and loads only for workspaces with records.
 - CSV import requires recognizable date and description columns plus separate
   debit/credit columns or an explicit transaction type; amount-only CSVs are
   rejected because direction cannot be inferred safely. PDF and image OCR require the optional local dependencies in
@@ -166,22 +177,32 @@ recommendation.
 
 Open `/login` to create a Supabase Auth account or sign in, then enter
 `/dashboard`. With no imported records, the workspace explains how to add a
-statement. See
+statement. With records, Overview opens on the latest recorded month and shows
+money in, money out, net cash flow, and transaction count. Change the month or
+currency to explore recorded activity. The weekly chart and spending-by-account
+breakdown use confirmed records. Transfers appear in the count and recent activity.
+See
 [`docs/supabase/setup.md`](docs/supabase/setup.md) for project setup, local
 environment values, and applying the Postgres migration. Statement import saves
 reviewed records to the user's account; bank sync remains simulated and does
 not connect to real financial institutions.
 
-Email confirmation is required. Sign-up keeps the user on the entry page while
-they enter a six-digit code; verification then opens the empty workspace. The
-Supabase Confirm signup email template must send `{{ .Token }}`, and hosted
-delivery requires configured SMTP. See the Supabase setup guide for the steps.
+Use **Log out** in the workspace header to end the session in this browser.
+Finora clears its session cookies before returning to sign-in.
 
-The entry pages use self-hosted Instrument Serif (SIL OFL; license in
-`frontend/public/fonts/OFL.txt`) and an adapted [Anatomy](https://github.com/wheresryan22/anatomy)
-SVG kit (MIT; license in `frontend/src/lib/anatomy/LICENSE`).
+For the current demo, Supabase Auth email confirmation is intended to be off.
+When disabled, signup should create an active session and open the empty
+workspace without sending a verification email. This accepts unverified email
+addresses and does not prove ownership. The hosted project setting is now off;
+password recovery continues to require email delivery. See the
+Supabase setup guide for the exact setup and limitations.
 
-The hero includes a pausable instrument tour and direct assembly selection. It
-stops offscreen and respects reduced motion. The entry pages use a full-width
-desktop layout, sticky login navigation, and self-hosted Instrument Serif with
-DM Sans (license: `frontend/public/fonts/DM-Sans-OFL.txt`).
+Finora uses a stone, graphite, and brass palette with self-hosted Newsreader
+and DM Sans. See [DESIGN.md](DESIGN.md) for the visual system and image
+provenance. The landing page opens with a photograph of statement review and uses transparent PNG
+photography that accompanies the statement, calendar, and savings examples.
+The pausable cash flow instrument opens below the statement walkthrough. It
+uses the adapted [Anatomy](https://github.com/wheresryan22/anatomy) SVG kit
+(MIT, see `frontend/src/lib/anatomy/LICENSE`).
+The desktop walkthrough uses scroll motion and keeps a vertical reading layout
+on phones and with reduced motion. See the [landing motion plan](docs/agents/landing-motion.md).

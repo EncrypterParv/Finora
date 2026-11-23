@@ -7,13 +7,13 @@ Web application: Next.js App Router frontend with an existing FastAPI backend.
 Finora organizes transactions into a financial calendar, tracks budgets and savings goals, and uses statistical analysis to explain spending and project future spending. Bank integrations are simulated. Trained machine learning models are a future direction, not a current claim.
 
 ## Current scope
-A public explanatory landing page, separate demo login, and an existing financial dashboard that can run with synthetic local data. Demo access is admin / admin, is browser-only, and is not production authentication. No backend changes.
+A public landing page with illustrative examples, Supabase Auth, and a signed-in workspace that starts empty until the user adds records.
 
 ## Audience
 Young professionals and students managing everyday money, spending, and savings.
 
 ## Brand commitments
-User requested Minimalist UI, Impeccable, and Anatomy: warm monochrome, editorial typography, restrained pastel accents, detailed interactive isometric machinery, and scroll-based explanation. User confirmed the current colors; keep them. No terminal fonts, decorative pulses, or circular UI motifs. Preserve the existing application outside the new entry flow.
+Use cool stone, graphite, and muted brass with Newsreader headlines and DM Sans body text. The opening photograph shows someone reviewing a statement at home. Isolated photographs of statements, a calendar, and coins support related sections. Keep product examples explicit and make review before import visible. Use the same palette for authentication and the workspace.
 
 ## Success
-A visitor understands the path from statement to organized transactions to spending patterns to forecasts and actions; can sign into the demo and see financial positions without running the backend.
+A visitor understands how a reviewed statement becomes a view of spending, budgets, and goals, then can sign in and start with their own records.

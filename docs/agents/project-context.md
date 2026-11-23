@@ -1,10 +1,10 @@
 # Finora Project Context
 
 Last reviewed: 2026-11-23
-Current milestone: Calendar, Insights, Budgets and Goals are connected in the signed-in workspace; transaction filters, manual entry, deletion, real budget spend, and calendar date handling are implemented; email-code signup is implemented in the app, while hosted SMTP and production environment setup remain pending.
+Current milestone: The Overview uses monthly figures, animated weekly cash flow, spending by account, and recent transactions in Finora’s graphite and brass palette. Calendar, Insights, Budgets and Goals are connected. The demo’s Supabase Auth signup expects an immediate session. Lighthouse measurement is pending.
 
 This is the short continuity brief for coding agents. Read it before planning
-substantial work, then read [`history.md`](history.md) for dated decisions and
+substantial work, then read the [context hub](context/README.md) and [history](history.md) for dated decisions and
 milestones. It summarizes the project; the source tree and tests remain the
 implementation truth.
 
@@ -42,10 +42,10 @@ calculated.
 | Area | Current status | What that means |
 |---|---|---|
 | Vercel deployment | Frontend and FastAPI deployed; `/health` returns 200 | Root vercel.json routes Next.js and FastAPI under one Vercel Services deployment. Hosted Supabase auth, database persistence, and statement import still need end-to-end checks. Services are beta; the Python runtime is generally available. |
-| Landing page | Implemented prototype | Public product explanation and interactive sample walkthrough. A proposed three-tier plans section now lives here. |
-| Authenticated workspace | Real account/transaction loading; statement review/import implemented | New users see empty states, add an account label, preview a statement, edit candidate transactions, and explicitly confirm persistence. Browser visual QA remains pending because the app server was not started. |
+| Landing page | Public product explanation | A stone, graphite, and brass visual system with a statement review photograph, transparent finance photography, and an illustrated footer. The sample instrument and calculator remain interactive, and the three plan tiers are concepts. Authentication and workspace screens share the same palette and fonts. |
+| Authenticated workspace | Real account/transaction loading; statement review/import implemented | New users see empty states, add an account label, preview a statement, edit candidate transactions, and explicitly confirm persistence. Hosted end-to-end persistence and import verification are tracked separately from local checks. |
 | Plans | Illustrative only | Prices and feature tiers are concepts. No subscription, checkout, or server-side entitlement enforcement exists. |
-| Login and RBAC | Supabase Auth signup OTP, login, and recovery UI implemented; hosted SMTP and end-to-end verification pending; RBAC remains mock-only | Signup requires the six-digit email code before entering the workspace; the login flow can resend a code for an unconfirmed account. Auth diagnostics expose only safe provider codes/status. Supabase Confirm email must stay on and the Confirm signup template must send `{{ .Token }}`. Hosted SMTP and full signup/recovery smoke checks remain pending. The role editor is not authorization. |
+| Login and RBAC | Supabase Auth signup, login, password recovery, and dashboard protection are implemented; RBAC remains mock-only | Supabase Auth remains the identity and password store. Email confirmation was turned off in the hosted dashboard on 2026-11-23, so new signups should create a session without email delivery. Existing unverified accounts may remain unverified. Auth diagnostics expose safe operation/code/status only. The role editor is not authorization. |
 | Database | Initial Supabase schema applied and verified | The checked-in migration mirrors current SQLAlchemy entities, creates a profile from `auth.users`, and enables owner-scoped RLS on all ten expected tables. A read-only connection and migration-history check passed. |
 | Statement import | CSV implemented; optional OCR path unverified | Preview is non-persistent; edited, confirmed rows save as canonical transactions. CSV parsing rejects ambiguous amount-only layouts. Uploads are capped at 4 MB for Vercel Hobby. PDF/PNG/JPG use optional PaddleX OCR, not installed or benchmarked in this workspace; scanned extraction is unavailable on the default Vercel deployment. XLSX is unsupported. |
 | Calendar | Connected in the workspace | The Calendar screen loads `GET /calendar/view` for month, week and day views. The endpoint accepts an optional `date` (yyyy-mm-dd): week = Monday-Sunday containing it, day = that date, month uses `year`/`month` falling back to it. Omitting `date` keeps the old today-based behavior. |
@@ -54,6 +54,8 @@ calculated.
 | Bank accounts | User-scoped CRUD and statement onboarding use `/accounts` | Account labels accept optional last four digits, never a full number. The statement flow marks them `STATEMENT_IMPORT`. Deleting an account with transactions returns 409 unless `?delete_transactions=true`. |
 | Transactions, budgets, goals | Connected in the workspace | The dashboard lists imported transactions. `GET /transactions` filters by date range, type, account, amount range, and case-insensitive description search (`q`, wildcards escaped), and returns the pre-pagination match count in `X-Total-Count` (exposed via CORS). `POST /transactions` records manual (e.g. cash) DEBIT/CREDIT entries with `source=MANUAL` and does not change account balances; `DELETE /transactions/{id}` removes one. Category filtering is not available because categories are not stored as rows yet (reviewed names live in transaction metadata), and the detail endpoint's budget/forecast context fields are still placeholders. The Budgets screen uses `/budgets` (real debit totals and linear burn projections; no per-category limits yet) and the Goals screen uses `/goals`. |
 | Frontend tests | Not present | There is no frontend unit or end-to-end test suite yet. |
+| Overview | Connected in the workspace | The Overview defaults to the latest recorded UTC month. `GET /transactions/summary?month=YYYY-MM-01` returns the current user's daily credits and debits, transaction counts, and debit totals by account, separately for each currency. Transfers count as activity. Weekly cash flow and account spending exclude them. The API uses existing canonical transaction rows and requires no migration. |
+| Frontend performance and accessibility | Focused improvements implemented; measurement pending | Successful authenticated API GET responses stay in bounded browser memory for the tab session, scoped by Supabase user ID. Mutations invalidate only dependent data groups and broadcast invalidations to other same-browser tabs. Sign-out clears the cache. Entries are LRU-evicted at 60 records or 5 MB and are never written to storage. Identical concurrent reads are deduplicated. The Overview fetches five recent rows and the API's total count, then requests the cached monthly aggregate for workspaces with records. Feature screens and Overview charts are split into on-demand chunks. Loading skeletons match their layout. The workspace has a skip link, a keyboard-accessible mobile menu, a weekly figures table, and reduced-motion chart behavior. The cache reduces repeated reads from the app. API rate limits and Lighthouse measurement are separate. |
 
 ## Technical shape and boundaries
 
@@ -66,8 +68,8 @@ calculated.
   environment variables, production-domain Supabase redirects, and hosted
   smoke checks are not configured by the repository file. The backend
   pyproject.toml declares its runtime packages so Vercel installs FastAPI.
-- The combined backend suite has 98 passing tests. There is no frontend unit or
-  end-to-end test suite yet.
+- Backend coverage includes monthly summary isolation and currency separation.
+  There is no checked-in frontend unit or end-to-end test suite yet.
 - Canonical transactions are the normalization boundary for imported or
   simulated transaction data. Keep analytics and calendar work based on that
   domain shape.
@@ -85,6 +87,13 @@ calculated.
   FastAPI validates bearer tokens through Supabase Auth, then sets transaction-
   local identity and switches to the restricted `finora_app` role so Postgres
   RLS applies. The browser uses only the project URL and publishable key.
+- Workspace logout uses a same-origin POST to `/auth/sign-out`. It expires this
+  browser's session cookies and attempts to revoke that session with Supabase.
+  Open workspace tabs follow the logout when BroadcastChannel is available.
+- The public landing uses GSAP for the hero and desktop story, Lenis for
+  desktop scroll, and Anime.js for the illustrated footer. Mobile and reduced
+  motion keep the walkthrough vertical. See [landing-motion.md](landing-motion.md)
+  for motion boundaries and review steps.
 - `frontend/.env.local` and `backend/.env` are ignored local files. Their
   committed templates contain placeholders only; never commit database
   passwords or Supabase secret/service-role keys.
@@ -124,11 +133,12 @@ recheck them before implementation because code may have changed since then.
    prototype but adds network latency; evaluate cached JWKS verification before
    scaling API traffic.
 8. Vercel Services are beta. `/health` is live, but Auth and database flows
-   still need hosted smoke checks. Supabase Confirm email stays enabled; hosted
-   sign-up requires a Confirm signup template containing `{{ .Token }}` and
-   custom SMTP. Uploads are limited to 4 MB under the default function-body
-   limit; larger files need direct storage, and scanned OCR is not included in
-   the default Vercel runtime.
+   still need hosted smoke checks. Supabase Confirm email was turned off for
+   the current demo. Signup needs no SMTP, but accepts unverified email
+   addresses. Password recovery still needs email delivery. Existing
+   unverified accounts may need separate handling. Uploads are limited to 4 MB under the default
+   function-body limit; larger files need direct storage, and scanned OCR is
+   not included in the default Vercel runtime.
 
 ## Product decisions and working preferences
 

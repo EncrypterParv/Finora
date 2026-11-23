@@ -346,6 +346,29 @@ assumptions from old plans.
   that has since been superseded; use this entry and current setup instructions
   as the source of truth.
 
+## 2026-11-23 — Auth email delivery diagnosis and verification recovery
+
+- Reviewed the hosted Supabase Auth dashboard through the browser. Confirm
+  sign-up is enabled; custom SMTP is not configured; an account is still
+  waiting for email verification. The hosted signup UI showed a rate-limit
+  message, so no more signup/resend requests were sent during diagnosis.
+- The implementation already had a six-digit OTP form and a PKCE callback
+  that exchanges Supabase's confirmation code server-side. The code form only
+  appears after Supabase accepts signup/resend or sign-in reports an
+  unconfirmed address; a throttled request leaves the original form visible.
+- Added a dedicated **Need a verification email?** path so an existing
+  unconfirmed account can request a code without first attempting password
+  sign-in. Rate-limit copy now distinguishes email-send throttling from
+  broader auth request throttling, and safe operation/code/status details open
+  by default with errors.
+- Updated setup docs to recommend Resend SMTP, document its SMTP fields and
+  verified-domain requirement, and explain that Supabase's built-in sender is
+  not a production sender. Nodemailer is not needed for Supabase Auth.
+- Still pending: the user must set up Resend with a domain they control, enter
+  SMTP credentials in Supabase, confirm the hosted email template/link route,
+  wait for the current rate limit to clear, then run one signup/verification
+  and one recovery smoke test with an inbox they control.
+
 ## Mistakes and corrections to carry forward
 
 - **Do not trust the roadmap as a feature inventory.** Some architecture and
@@ -361,6 +384,149 @@ assumptions from old plans.
   untracked and was deliberately excluded from feature commits.
 - **Do not call the prototype's local role changes RBAC.** They are visual
   mock interactions only; authorization must be enforced server-side.
+
+## 2026-11-23 — Remove signup verification flow for current demo
+
+- The user chose to keep Supabase Auth but disable email confirmation for the
+  current demo. Supabase Auth continues to own user identities and passwords;
+  the application does not query `auth.users` to check whether an email exists.
+- Removed the six-digit signup OTP, resend, and confirmation-email UI. Signup
+  now expects Supabase to return a session and takes the user to the empty
+  workspace. If no session is returned, the UI explains that confirmation may
+  still be enabled or the account may already exist, and exposes safe
+  operation/status diagnostics.
+- Kept the server-side PKCE callback for password recovery only. Removed the
+  local confirmation email template and configured local Supabase Auth to
+  allow immediate signup sessions.
+- Signup without email confirmation accepts unverified addresses and is not an
+  appropriate public-production policy. SMTP is unnecessary for signup in
+  this mode, but password recovery still needs email delivery. Before a public
+  launch, re-enable confirmation and verify the full signup/recovery flow.
+- The hosted Supabase Confirm email setting has not been changed yet. It needs
+  explicit approval at the time of the hosted security-setting change. An
+  existing unverified account may remain unverified after the toggle changes;
+  do not claim this update confirms it or delete it without the user's request.
+
+## 2026-11-23 — Hosted signup confirmation disabled
+
+- After the user explicitly confirmed the change, switched off **Confirm
+  email** in the Finora Supabase project's **Authentication → Sign In / Providers**
+  settings. The dashboard confirmed the save succeeded and the setting shows
+  off; **Allow new users to sign up** and the Email provider remain enabled.
+- This applies to new signups and does not necessarily confirm accounts created
+  while confirmation was enabled. Custom SMTP remains unconfigured; signup no
+  longer depends on it, while password recovery does.
+
+## 2026-11-23 — Workspace performance and keyboard navigation
+
+- [357efaf](https://github.com/TarunyaProgrammer/FinSOL2/commit/357efaf)
+  implemented the API cache, deferred dashboard chunks, lighter Overview request,
+  and keyboard navigation improvements.
+- Added a 30-second in-memory cache for successful authenticated API GET
+  responses. Cache entries are partitioned by Supabase user ID, capped at 50,
+  invalidated before that user's writes, and cleared at sign-out. The cache
+  improves repeat visits to screens without storing financial data persistently.
+- The Overview now fetches only its five displayed recent transactions and
+  reads the full total from `X-Total-Count`, instead of downloading up to 200
+  records for that screen. Dashboard feature screens are split into on-demand
+  chunks, and the workspace has a keyboard skip link and 44px mobile section
+  navigation targets.
+- Frontend lint, typecheck, and production build are the required validation
+  gates. No browser-based Lighthouse score or visual audit has been recorded;
+  the app server was not started for this change.
+
+## 2026-11-23 — Signup confirmation toast
+
+- [7fd9213](https://github.com/TarunyaProgrammer/FinSOL2/commit/7fd9213)
+  replaces the in-flow account-created banner with the notification behavior
+  below.
+- Replaced the in-flow account-created banner with a fixed, dismissible toast
+  that slides in from the right, announces itself to assistive technology, and
+  dismisses after 5.5 seconds. It respects reduced-motion settings and removes
+  the one-time `welcome=account-created` query parameter so refresh does not
+  replay the notification.
+- The toast does not take focus or change page layout. Browser visual QA remains
+  pending because the app server was not started.
+
+## 2026-11-23 — Targeted session cache and loading skeletons
+
+- [b95cb1a](https://github.com/TarunyaProgrammer/FinSOL2/commit/b95cb1a)
+  implemented this milestone.
+- Replaced the 30-second cache with a bounded, user-scoped in-memory cache for
+  the current browser tab. Relevant successful mutations invalidate dependent
+  data groups; same-browser tabs receive those invalidations. Identical reads
+  are deduplicated, and least-recently-used entries are evicted at 60 responses
+  or 5 MB. Sign-out clears the cache; reload also starts with an empty cache.
+- Added layout-matched skeletons for route loading, the signed-in workspace,
+  dynamically imported sections, and initial transaction, calendar, insights,
+  budget, and goal reads. Existing data stays visible during refreshes.
+- GraphQL was not introduced: the current FastAPI REST endpoints already support
+  paginated transactions, and GraphQL alone would not reduce request latency.
+  This client strategy reduces repeat calls from Finora but does not enforce
+  server-side API rate limits. Lighthouse and live visual measurements remain
+  pending because the app server was not started.
+
+## 2026-11-23 — Reassuring empty states and shorter signup toast
+
+- [c567b1d](https://github.com/TarunyaProgrammer/FinSOL2/commit/c567b1d)
+  implemented this follow-up.
+- The account-ready toast now starts its exit animation after five seconds.
+- Budgets and goals use their explicit empty states only after a successful
+  empty-list response (`No budgets yet` / `No goals yet`). Request failures stay
+  distinct from empty data, use calm recovery wording, and disable creation
+  until the list can be checked so a temporary read failure cannot prompt a
+  duplicate record.
+
+## 2026-11-23 — Stone, graphite, and brass redesign
+
+- Replaced the warm entry palette with a shared stone, graphite, and brass
+  identity across the public site, authentication, and the signed-in workspace.
+  Newsreader is the display face and DM Sans covers controls and body copy.
+- The landing page opens with original marble artwork. Transparent PNG
+  photography illustrates statements, calendars, and savings. The pausable
+  cash flow instrument opens further down the page on request.
+- Kept financial examples clearly illustrative. The redesign stays local for
+  review before any deployment.
+
+## 2026-11-23 — Full screen hero and workspace logout
+
+- [6c5e90e](https://github.com/TarunyaProgrammer/FinSOL2/commit/6c5e90e)
+  introduced this revision and was pushed to the fork’s main branch.
+- Placed the landing navigation over the viewport sized hero. The bottom fades
+  into the next section, and the navigation uses a solid background on scroll.
+- Replaced the workspace's browser redirect after an unchecked sign-out call
+  with a server response that expires the browser session. The workspace shows
+  progress and a retry message when the request fails. A successful response
+  clears the local data cache and returns to sign-in with confirmation.
+- In a Chromium test with a synthetic account, a failed request allowed retry,
+  sign-out removed the cookies even while the auth provider returned an error,
+  both open tabs signed out, and revisiting the workspace led to sign-in.
+
+## 2026-11-23 — Landing motion and illustrated footer
+
+- [392c9ef](https://github.com/TarunyaProgrammer/FinSOL2/commit/392c9ef)
+  shipped the new photograph, illustrated footer, and scroll sequence.
+- Reviewed the live GSAP homepage. Added a desktop hero zoom and one pinned
+  four-step walkthrough, with vertical mobile and reduced motion layouts.
+- Added a footer with original transparent art, the workspace link, and
+  direct links to public sections. Anime.js animates the art on entry only.
+- Documented the rollout decisions and performance targets in
+  [landing-motion.md](landing-motion.md).
+- Replaced the marble scene with an original photograph of someone reviewing
+  a statement at home. Kept the full screen composition and bottom fade.
+
+## 2026-11-23 — Dashboard Overview redesign
+
+- Adapted the chart-first layout from [Capitalio](https://ui.watermelon.sh/dashboard/capitalio-dashboard)
+  to Finora's graphite and brass. Added four monthly metrics, an animated
+  weekly cash-flow chart, spending by account, and a recent transactions table.
+- Added an authenticated monthly aggregate to the canonical transaction API
+  with UTC dates and currency separation. The Overview starts at the latest
+  recorded month. Transfers are included in transaction counts and excluded
+  from cash-flow and spending figures.
+- Added grouped desktop navigation, a mobile section menu, and a tabular
+  alternative to the charts. The summary uses the existing transaction cache.
+  The frontend and backend need to deploy together for the new summary route.
 
 ## Updating this history
 

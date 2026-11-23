@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Arrow, Wordmark } from "@/components/landing/LandingPage";
+import { Arrow, Wordmark } from "@/components/landing/LandingBrand";
+import { clearApiResponseCache } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
 import "@/components/landing/landing.css";
 import "@/components/landing/refinement.css";
+import "@/components/landing/identity.css";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -50,6 +52,7 @@ export default function ResetPasswordPage() {
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) throw updateError;
       await supabase.auth.signOut();
+      clearApiResponseCache();
       setNotice("Your password has been changed. Sign in with your new password.");
       window.setTimeout(() => router.replace("/login"), 900);
     } catch {
@@ -63,11 +66,10 @@ export default function ResetPasswordPage() {
     <main className="finora-login">
       <section className="login-story">
         <Link href="/" aria-label="Finora home"><Wordmark /></Link>
-        <div>
+        <div className="login-story-copy">
           <h2>A little perspective.<br /><em>A better next step.</em></h2>
           <p>Keep your account secure and your next step clear.</p>
         </div>
-        <small>Clarity starts with understanding.</small>
       </section>
       <section className="login-form-panel">
         <Link href="/login" className="login-back"><Arrow /> Back to sign in</Link>
@@ -79,7 +81,7 @@ export default function ResetPasswordPage() {
             <Link className="landing-button" href="/login?mode=recover">Request another link <Arrow /></Link>
           </div>
         ) : (
-          <form onSubmit={submit}>
+          <form method="post" onSubmit={submit}>
             <label htmlFor="password">New password</label>
             <input id="password" name="password" type="password" autoComplete="new-password" minLength={8} required aria-describedby="reset-error" />
             <label htmlFor="confirm_password">Confirm new password</label>

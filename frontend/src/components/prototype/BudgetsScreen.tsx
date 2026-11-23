@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Pencil, Plus, RotateCw, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { createBudget, deleteBudget, fetchBudgets, updateBudget } from "@/lib/api";
 import { BudgetResponse } from "@/types/budget";
+import { CollectionLoadingSkeleton } from "./PrototypeSkeletons";
 import {
   ConfirmStrip,
+  DataLoadNotice,
   EmptyPanel,
   ErrorNote,
   Field,
@@ -49,16 +51,16 @@ export function BudgetsScreen() {
     <PageTitle
       title="Budgets"
       description="Set a spending limit for a period. Finora adds up the spending you’ve recorded in those dates and shows where your pace is heading."
-      action={<PrimaryButton onClick={() => setShowCreate((open) => !open)} aria-expanded={showCreate}><Plus size={16} /> New budget</PrimaryButton>}
+      action={<PrimaryButton onClick={() => setShowCreate((open) => !open)} aria-expanded={showCreate} disabled={loading || Boolean(error)}><Plus size={16} /> New budget</PrimaryButton>}
     />
     {showCreate && <Panel className="mb-4 p-5"><BudgetForm onCancel={() => setShowCreate(false)} onSaved={(budget) => { setBudgets((current) => [budget, ...current]); setShowCreate(false); }} /></Panel>}
-    {loading ? <Panel className="p-8 text-sm text-[#766e65]"><span role="status">Loading your budgets…</span></Panel>
-      : error ? <Panel className="p-6"><p role="alert" className="text-sm text-[#9f2f2d]">{error}</p><SecondaryButton className="mt-4" onClick={() => setReloadKey((key) => key + 1)}><RotateCw size={15} /> Try again</SecondaryButton></Panel>
+    {loading && budgets.length === 0 ? <CollectionLoadingSkeleton label="Loading your budgets" />
+      : error ? <DataLoadNotice subject="Budgets" onRetry={() => setReloadKey((key) => key + 1)} />
       : ordered.length === 0 ? (!showCreate && <EmptyPanel title="No budgets yet" body="A budget is a spending limit for a period, like ₹20,000 for this month. Every spending transaction in those dates counts toward it, across all your accounts." onAdd={() => setShowCreate(true)} actionLabel="Create your first budget" />)
       : <div className="grid gap-4 lg:grid-cols-2">{ordered.map((budget) => <BudgetCard key={budget.id} budget={budget} today={today}
           onUpdated={(updated) => setBudgets((current) => current.map((item) => item.id === updated.id ? updated : item))}
           onDeleted={(id) => setBudgets((current) => current.filter((item) => item.id !== id))} />)}</div>}
-    {!loading && ordered.length > 0 && <p className="mt-4 text-xs text-[#837970]">Budgets count all spending across your accounts in their dates. Per-category limits are coming later.</p>}
+    {ordered.length > 0 && <p className="mt-4 text-xs text-[#62645d]">Budgets count all spending across your accounts in their dates. Per-category limits are coming later.</p>}
   </>;
 }
 
@@ -102,17 +104,17 @@ function BudgetCard({ budget, today, onUpdated, onDeleted }: { budget: BudgetRes
     <div className="flex items-start gap-2">
       <div className="min-w-0 flex-1">
         <h2 className="truncate font-semibold">{budget.name}</h2>
-        <p className="mt-1 text-xs text-[#837970]">{formatDate(budget.start_date, { day: "numeric", month: "short" })} – {formatDate(budget.end_date)}{upcoming ? " · Upcoming" : ended ? " · Finished" : ""}</p>
+        <p className="mt-1 text-xs text-[#62645d]">{formatDate(budget.start_date, { day: "numeric", month: "short" })} – {formatDate(budget.end_date)}{upcoming ? " · Upcoming" : ended ? " · Finished" : ""}</p>
       </div>
       <IconButton label={`Edit ${budget.name}`} onClick={() => setMode("edit")}><Pencil size={15} /></IconButton>
       <IconButton label={`Delete ${budget.name}`} onClick={() => setMode("confirm")}><Trash2 size={15} /></IconButton>
     </div>
     <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2">
-      <p className="tabular-nums"><span className="prototype-figure">{money(spent)}</span> <span className="text-sm text-[#837970]">of {money(limit)}</span></p>
-      <p className={`text-sm font-medium tabular-nums ${over ? "text-[#9f2f2d]" : "text-[#5f554c]"}`}>{over ? `${money(spent - limit)} over` : `${money(limit - spent)} left`}</p>
+      <p className="tabular-nums"><span className="prototype-figure">{money(spent)}</span> <span className="text-sm text-[#62645d]">of {money(limit)}</span></p>
+      <p className={`text-sm font-medium tabular-nums ${over ? "text-[#9f2f2d]" : "text-[#414340]"}`}>{over ? `${money(spent - limit)} over` : `${money(limit - spent)} left`}</p>
     </div>
     <div className="mt-3"><ProgressBar value={percent} tone={tone} label={`${budget.name}: ${Math.round(percent)}% of the limit spent`} /></div>
-    <p className={`mt-3 text-xs leading-5 ${status.warn ? "text-[#8b4a1d]" : "text-[#766e65]"}`}>{status.text}</p>
+    <p className={`mt-3 text-xs leading-5 ${status.warn ? "text-[#755727]" : "text-[#575953]"}`}>{status.text}</p>
     {mode === "confirm" && <ConfirmStrip message={<>Delete the budget <strong>{budget.name}</strong>? Your transactions stay as they are.</>} confirmLabel="Delete budget" working={working} onConfirm={remove} onCancel={() => setMode("view")} />}
     {error && <ErrorNote message={error} />}
   </Panel>;
