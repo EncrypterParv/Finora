@@ -419,6 +419,9 @@ assumptions from old plans.
 
 ## 2026-11-23 — Workspace performance and keyboard navigation
 
+- [357efaf](https://github.com/TarunyaProgrammer/FinSOL2/commit/357efaf)
+  implemented the API cache, deferred dashboard chunks, lighter Overview request,
+  and keyboard navigation improvements.
 - Added a 30-second in-memory cache for successful authenticated API GET
   responses. Cache entries are partitioned by Supabase user ID, capped at 50,
   invalidated before that user's writes, and cleared at sign-out. The cache
