@@ -6,6 +6,8 @@ import {
   ArrowRight,
   CalendarDays,
   Check,
+  ChevronLeft,
+  ChevronRight,
   FileUp,
   LayoutDashboard,
   Lightbulb,
@@ -56,6 +58,7 @@ const navigation: { id: Section; label: string; icon: typeof LayoutDashboard }[]
 ];
 
 const MAX_STATEMENT_UPLOAD_BYTES = 4 * 1024 * 1024;
+const STATEMENT_REVIEW_PAGE_SIZE = 20;
 
 export function PrototypeDashboard({
   userEmail,
@@ -286,6 +289,7 @@ function StatementImportFlow({ accounts, onAccountCreated, onComplete }: { accou
   const [previewUrl, setPreviewUrl] = useState("");
   const [preview, setPreview] = useState<StatementPreview | null>(null);
   const [rows, setRows] = useState<StatementDraftTransaction[]>([]);
+  const [reviewPage, setReviewPage] = useState(1);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -328,6 +332,7 @@ function StatementImportFlow({ accounts, onAccountCreated, onComplete }: { accou
       const result = await previewStatement(file);
       setPreview(result);
       setRows(result.transactions);
+      setReviewPage(1);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "We could not read this statement.");
     } finally {
@@ -353,6 +358,7 @@ function StatementImportFlow({ accounts, onAccountCreated, onComplete }: { accou
       setPreviewUrl("");
       setPreview(null);
       setRows([]);
+      setReviewPage(1);
       await onComplete();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not save these transactions.");
@@ -368,6 +374,7 @@ function StatementImportFlow({ accounts, onAccountCreated, onComplete }: { accou
       setFile(null);
       setPreview(null);
       setRows([]);
+      setReviewPage(1);
       setError("This file is larger than 4 MB. Choose a smaller statement to upload it here.");
       setNotice("");
       return;
@@ -376,6 +383,7 @@ function StatementImportFlow({ accounts, onAccountCreated, onComplete }: { accou
     setFile(nextFile);
     setPreview(null);
     setRows([]);
+    setReviewPage(1);
     setError("");
     setNotice("");
   }
@@ -390,6 +398,9 @@ function StatementImportFlow({ accounts, onAccountCreated, onComplete }: { accou
     return !row.raw_description.trim() || !row.category_name.trim() || !Number.isFinite(amount) || amount <= 0 || Number.isNaN(date.getTime());
   }), [rows]);
   const hasInvalidRows = rowErrors.some(Boolean);
+  const reviewPageCount = Math.max(1, Math.ceil(rows.length / STATEMENT_REVIEW_PAGE_SIZE));
+  const firstVisibleRow = (reviewPage - 1) * STATEMENT_REVIEW_PAGE_SIZE;
+  const visibleRows = rows.slice(firstVisibleRow, firstVisibleRow + STATEMENT_REVIEW_PAGE_SIZE);
 
   return <>
     <PageTitle title="Add a bank statement" description="Import a statement, review the extracted records, then choose what to save." />
@@ -430,15 +441,40 @@ function StatementImportFlow({ accounts, onAccountCreated, onComplete }: { accou
       {rows.length === 0 ? <div className="mt-5 rounded-lg bg-[#faf8f4] p-5"><p className="text-sm font-medium">Nothing has been imported.</p><p className="mt-1 text-xs leading-5 text-[#766e65]">We could not find transaction rows in this statement. Try another file or a clearer scan. Your account label remains saved, but this statement added no transactions.</p><button type="button" onClick={() => { setPreview(null); setFile(null); if (previewUrl) URL.revokeObjectURL(previewUrl); setPreviewUrl(""); }} className="prototype-inline-link mt-3 text-sm font-medium">Choose another statement</button></div> : <>
         <div className="statement-review-grid mt-5 grid gap-4 xl:grid-cols-[minmax(220px,0.8fr)_minmax(0,1.4fr)]">
           <StatementSourcePreview file={file} previewUrl={previewUrl} />
-          <div className="overflow-x-auto rounded-lg border border-[#e8e4dc]"><table className="w-full min-w-[760px] text-left text-xs"><thead className="bg-[#faf9f6] text-[#777067]"><tr>{["Date", "Description", "Type", "Amount", "Category"].map((label) => <th key={label} className="px-3 py-2.5 font-medium">{label}</th>)}</tr></thead><tbody className="divide-y divide-[#f0ede7]">{rows.map((row, index) => <tr key={`${row.reference_id}-${index}`} className={rowErrors[index] ? "bg-[#fff0ee]" : ""}>
-            <td className="px-2 py-2"><input aria-label={`Date for row ${index + 1}`} type="date" required value={row.occurred_at.slice(0, 10)} onChange={(event) => updateRow(index, { occurred_at: `${event.target.value}T00:00:00.000Z` })} className="min-h-9 w-[142px] rounded border border-[#ddd6cb] px-2" /></td>
-            <td className="px-2 py-2"><input aria-label={`Description for row ${index + 1}`} required maxLength={500} value={row.raw_description} onChange={(event) => updateRow(index, { raw_description: event.target.value })} className="min-h-9 w-[210px] rounded border border-[#ddd6cb] px-2" /></td>
-            <td className="px-2 py-2"><select aria-label={`Transaction type for row ${index + 1}`} value={row.transaction_type} onChange={(event) => updateRow(index, { transaction_type: event.target.value as StatementDraftTransaction["transaction_type"] })} className="min-h-9 rounded border border-[#ddd6cb] bg-white px-2"><option value="DEBIT">Debit</option><option value="CREDIT">Credit</option><option value="TRANSFER">Transfer</option></select></td>
-            <td className="px-2 py-2"><input aria-label={`Amount for row ${index + 1}`} type="number" required min="0.01" step="0.01" value={row.amount} onChange={(event) => updateRow(index, { amount: Number(event.target.value) })} className="min-h-9 w-28 rounded border border-[#ddd6cb] px-2 text-right" /></td>
-            <td className="px-2 py-2"><input aria-label={`Category for row ${index + 1}`} required maxLength={100} value={row.category_name} onChange={(event) => updateRow(index, { category_name: event.target.value })} className="min-h-9 w-32 rounded border border-[#ddd6cb] px-2" /></td>
-          </tr>)}</tbody></table></div>
+          <div className="min-w-0">
+            <div className="overflow-x-auto rounded-lg border border-[#e8e4dc]">
+              <table id="statement-review-table" className="w-full min-w-[760px] text-left text-xs">
+                <thead className="bg-[#faf9f6] text-[#777067]"><tr>{["Date", "Description", "Type", "Amount", "Category"].map((label) => <th key={label} className="px-3 py-2.5 font-medium">{label}</th>)}</tr></thead>
+                <tbody className="divide-y divide-[#f0ede7]">
+                  {visibleRows.map((row, pageIndex) => {
+                    const index = firstVisibleRow + pageIndex;
+                    return <tr key={`${row.reference_id}-${index}`} className={rowErrors[index] ? "bg-[#fff0ee]" : ""}>
+                      <td className="px-2 py-2"><input aria-label={`Date for row ${index + 1}`} type="date" required value={row.occurred_at.slice(0, 10)} onChange={(event) => updateRow(index, { occurred_at: `${event.target.value}T00:00:00.000Z` })} className="min-h-9 w-[142px] rounded border border-[#ddd6cb] px-2" /></td>
+                      <td className="px-2 py-2"><input aria-label={`Description for row ${index + 1}`} required maxLength={500} value={row.raw_description} onChange={(event) => updateRow(index, { raw_description: event.target.value })} className="min-h-9 w-[210px] rounded border border-[#ddd6cb] px-2" /></td>
+                      <td className="px-2 py-2"><select aria-label={`Transaction type for row ${index + 1}`} value={row.transaction_type} onChange={(event) => updateRow(index, { transaction_type: event.target.value as StatementDraftTransaction["transaction_type"] })} className="min-h-9 rounded border border-[#ddd6cb] bg-white px-2"><option value="DEBIT">Debit</option><option value="CREDIT">Credit</option><option value="TRANSFER">Transfer</option></select></td>
+                      <td className="px-2 py-2"><input aria-label={`Amount for row ${index + 1}`} type="number" required min="0.01" step="0.01" value={row.amount} onChange={(event) => updateRow(index, { amount: Number(event.target.value) })} className="min-h-9 w-28 rounded border border-[#ddd6cb] px-2 text-right" /></td>
+                      <td className="px-2 py-2"><input aria-label={`Category for row ${index + 1}`} required maxLength={100} value={row.category_name} onChange={(event) => updateRow(index, { category_name: event.target.value })} className="min-h-9 w-32 rounded border border-[#ddd6cb] px-2" /></td>
+                    </tr>;
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {rows.length > STATEMENT_REVIEW_PAGE_SIZE && <nav aria-label="Statement review pagination" className="mt-3 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs text-[#766e65]" aria-live="polite">
+                Showing {firstVisibleRow + 1}–{Math.min(firstVisibleRow + STATEMENT_REVIEW_PAGE_SIZE, rows.length)} of {rows.length} records · Page {reviewPage} of {reviewPageCount}
+              </p>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => setReviewPage((page) => Math.max(1, page - 1))} disabled={reviewPage === 1} aria-label="Previous transaction page" className="inline-flex min-h-10 items-center gap-1 rounded-md border border-[#ddd6cb] px-3 text-xs font-medium text-[#433b35] disabled:opacity-45">
+                  <ChevronLeft size={15} aria-hidden="true" />Previous
+                </button>
+                <button type="button" onClick={() => setReviewPage((page) => Math.min(reviewPageCount, page + 1))} disabled={reviewPage === reviewPageCount} aria-label="Next transaction page" className="inline-flex min-h-10 items-center gap-1 rounded-md border border-[#ddd6cb] px-3 text-xs font-medium text-[#433b35] disabled:opacity-45">
+                  Next<ChevronRight size={15} aria-hidden="true" />
+                </button>
+              </div>
+            </nav>}
+          </div>
         </div>
-        {hasInvalidRows && <p className="mt-3 text-xs text-[#9f2f2d]" role="alert">Fix highlighted dates, descriptions, categories, or amounts before saving.</p>}
+        {hasInvalidRows && <p className="mt-3 text-xs text-[#9f2f2d]" role="alert">Fix highlighted fields on every page before saving.</p>}
         <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-[#eeeae3] pt-4"><button type="button" disabled={working || hasInvalidRows} onClick={saveTransactions} className="prototype-primary-action inline-flex min-h-11 items-center gap-2 rounded-md bg-[#352720] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50">{working ? "Saving…" : `Confirm and save ${rows.length} record${rows.length === 1 ? "" : "s"}`}<Check size={15} /></button><button type="button" disabled={working} onClick={() => { setPreview(null); setRows([]); }} className="min-h-11 rounded-md border border-[#ddd6cb] px-4 py-2.5 text-sm">Back</button><p className="text-xs text-[#837970]">Only these reviewed rows will be saved.</p></div>
       </>}
     </section>}
