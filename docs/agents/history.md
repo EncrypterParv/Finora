@@ -281,6 +281,36 @@ assumptions from old plans.
   transactions, frontend use of these endpoints, and real values for the
   detail endpoint's budget/forecast context, which are still placeholders.
 
+## 2026-11-23 — Insights screen and 3-month demo statement
+
+- Added `sample-statement-3-months.csv` at the repository root for the project
+  presentation: 146 synthetic rows (DEMO-0001 to DEMO-0146), 2026-09-01 to
+  2026-11-23, in the `sample-passbook.csv` column format, with correct running
+  balances. It models monthly salary, rent, subscriptions, frequent food
+  delivery/coffee/ride/shopping UPI payments, heavier weekend spending, higher
+  food spending in October and November, and one ₹6,480 food order on
+  2026-11-14. It was checked with the same `read_statement` CSV path used by
+  `POST /statements/preview` (146 rows). Run through the analytics detectors on
+  2026-11-23, it produced Food & Dining, overall spending-pace and Shopping
+  increases, a Transportation decrease, and that order as the only outlier.
+  The shift detector compares the 30 days before *today* with the 60 days before
+  that, so the same file will show weaker or no shifts as time passes.
+- Added the Insights screen to the signed-in workspace (sidebar item after
+  Calendar, plus a "See insights" link on the Overview). It uses
+  `fetchIntelligenceOverview()` and converts every decimal string with
+  `toNumber()`. It shows the monthly forecast as a straight range bar, spending
+  habits, what changed, suggestions, and unusual transactions. It states that
+  results come from statistics and rules, not a trained AI model. When data
+  sufficiency is `INSUFFICIENT` it shows only an empty state linking to
+  statement import.
+- Intentionally not displayed: placeholder or misleading analytics fields
+  (`liquid_balance`, `runway_days`, profile strengths/vulnerabilities, forecast
+  budget risk/exhaustion/status summary, recommendation impact and confidence,
+  and anomaly `reason` text). Fixing those in the backend remains open.
+- Frontend lint, typecheck and production build passed after `npm ci` restored
+  the locked `@vercel/analytics` dependency locally. Browser visual QA at
+  390 px was not performed because the dev server was not started.
+
 ## Mistakes and corrections to carry forward
 
 - **Do not trust the roadmap as a feature inventory.** Some architecture and
