@@ -2,11 +2,13 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Arrow, Wordmark } from "@/components/landing/LandingPage";
+import { Arrow, Wordmark } from "@/components/landing/LandingBrand";
 import { getSupabaseConfig } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/client";
 import "@/components/landing/landing.css";
 import "@/components/landing/refinement.css";
+import "@/components/landing/identity.css";
+import Image from "next/image";
 
 type AuthOperation = "sign_up" | "sign_in" | "password_reset";
 
@@ -71,16 +73,23 @@ export default function LoginPage() {
   const [visible, setVisible] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [signedOut, setSignedOut] = useState(false);
   const [diagnostic, setDiagnostic] = useState("");
   const [mode, setMode] = useState<"sign-in" | "sign-up" | "recover">("sign-in");
   const [pending, setPending] = useState(false);
 
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("mode") === "recover") {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("mode") === "recover") {
       setMode("recover");
     }
-    if (new URLSearchParams(window.location.search).get("error") === "callback") {
+    if (url.searchParams.get("error") === "callback") {
       setError("That password-reset link could not be completed. Request a new reset link and try again.");
+    }
+    if (url.searchParams.get("signed-out") === "1") {
+      setSignedOut(true);
+      url.searchParams.delete("signed-out");
+      window.history.replaceState(null, "", url);
     }
   }, []);
 
@@ -89,6 +98,7 @@ export default function LoginPage() {
     const values = new FormData(event.currentTarget);
     setError("");
     setNotice("");
+    setSignedOut(false);
     setDiagnostic("");
     if (!getSupabaseConfig()) {
       setError("Supabase is not configured yet. Add the project URL and publishable key to frontend/.env.local.");
@@ -158,7 +168,7 @@ export default function LoginPage() {
         <Link href="/" aria-label="Finora home">
           <Wordmark />
         </Link>
-        <div>
+        <div className="login-story-copy">
           <h2>
             A little perspective.
             <br />
@@ -174,7 +184,7 @@ export default function LoginPage() {
             <small>Finora never asks for your bank password or full account number.</small>
           </div>
         </div>
-        <small>Clarity starts with understanding.</small>
+        <Image className="login-still-life" src="/images/savings-still-life.png" width={720} height={360} alt="" sizes="(max-width: 760px) 1px, 42vw" />
       </section>
       <section className="login-form-panel">
         <Link href="/" className="login-back">
@@ -182,6 +192,7 @@ export default function LoginPage() {
           Back to Finora
         </Link>
         <h1>{mode === "sign-in" ? "Come on in." : mode === "recover" ? "Reset your password." : "Create your account."}</h1>
+        {signedOut && <div className="login-sign-out-notice" role="status">You’re signed out of Finora.</div>}
         <p>
           {mode === "recover"
             ? "Enter the email address you used for Finora. We’ll send a reset link if an account can be found."
@@ -265,7 +276,7 @@ export default function LoginPage() {
           <span>{mode === "sign-up" ? "Already registered?" : mode === "recover" ? "Back to sign in?" : "New to Finora?"}</span>
           <button
             type="button"
-            className="font-semibold text-[#4e342e] underline underline-offset-2"
+            className="font-semibold text-[#262724] underline underline-offset-2"
             onClick={() => { setMode(mode === "sign-up" || mode === "recover" ? "sign-in" : "sign-up"); setError(""); setNotice(""); setDiagnostic(""); }}
           >
             {mode === "sign-up" || mode === "recover" ? "Sign in" : "Create an account"}

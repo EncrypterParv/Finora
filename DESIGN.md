@@ -1,166 +1,104 @@
 ---
-name: Finora entry experience
-description: Warm editorial financial field guide for the public landing and demo login.
+name: Finora
+description: Stone, graphite, and brass for a personal finance workspace.
 colors:
-  chocolate: "#4e342e"
-  cream: "#f8f4e7"
-  burnt-orange: "#cc5500"
-  ink: "#2e211e"
-  muted: "#6d5d56"
-  canvas: "#f8f4e7"
+  stone: "#f5f4f0"
   paper: "#ffffff"
-  instrument-paper: "#fdfaf6"
-  line: "#f6f0de"
-  accent: "#cc5500"
-  accent-strong: "#a84600"
-  accent-wash: "#faf0e5"
-  story-paper: "#f8ecdf"
-  target: "#857168"
-  error: "#9f2f2d"
-  error-wash: "#fdebec"
+  graphite: "#20211f"
+  muted: "#575953"
+  rule: "#d5d4cc"
+  brass: "#755727"
+  brass-light: "#d7ba82"
 typography:
   display:
-    fontFamily: "Instrument Serif, Georgia, serif"
-    fontSize: "clamp(64px, 6.6vw, 96px)"
+    fontFamily: "Newsreader, Georgia, serif"
+    fontSize: "clamp(4rem, 7.5vw, 8.5rem)"
     fontWeight: 400
-    lineHeight: 1.01
-    letterSpacing: "-0.035em"
-  headline:
-    fontFamily: "Instrument Serif, Georgia, serif"
-    fontSize: "clamp(44px, 4.5vw, 66px)"
-    fontWeight: 400
-    lineHeight: 1.08
-    letterSpacing: "-0.025em"
+    lineHeight: 0.93
+    letterSpacing: "-0.038em"
   body:
-    fontFamily: "Helvetica Neue, Arial, sans-serif"
-    fontSize: "16px"
-    lineHeight: 1.8
-  label:
-    fontFamily: "Helvetica Neue, Arial, sans-serif"
-    fontSize: "12px"
+    fontFamily: "DM Sans, Arial, sans-serif"
+    fontSize: "1rem"
+    lineHeight: 1.6
 rounded:
   control: "4px"
-  button: "5px"
-  surface: "8px"
-spacing:
-  compact: "12px"
-  control: "22px"
-  panel: "32px"
+  panel: "12px"
 components:
   button-primary:
-    backgroundColor: "{colors.ink}"
+    backgroundColor: "{colors.graphite}"
     textColor: "{colors.paper}"
-    rounded: "{rounded.button}"
-    padding: "15px 22px"
-  field:
-    backgroundColor: "{colors.instrument-paper}"
-    textColor: "{colors.ink}"
     rounded: "{rounded.control}"
-    padding: "13px"
-  surface:
-    backgroundColor: "{colors.paper}"
-    rounded: "{rounded.surface}"
 ---
 
-# Design System: Finora entry experience
+# Finora visual system
 
-## Overview
+Finora is a personal finance workspace for reviewing statements, spotting spending
+patterns, and planning budgets and goals. The visual direction uses cool stone,
+graphite, and brushed brass. The typography pairs Newsreader for display and DM
+Sans for controls, tables, and long text. Both are served locally.
 
-**Creative North Star: "The Financial Field Guide"**
+## Palette and hierarchy
 
-The built entry experience combines the user-pinned Minimalist UI identity with an Anatomy-inspired cash-flow instrument. Cream paper, editorial serif headings, burnt orange accents, and precise rules explain everyday money to young professionals and students. This is a code-led implementation; no raster composition was approved as visual authority.
+| Role | Color |
+| --- | --- |
+| Stone canvas | `#f5f4f0` |
+| Paper surface | `#ffffff` |
+| Graphite ink and dark surfaces | `#20211f` |
+| Secondary text | `#575953` |
+| Strong rule | `#d5d4cc` |
+| Brass on stone | `#755727` |
+| Brass on graphite | `#d7ba82` |
 
-This document is scoped to `frontend/src/components/landing`, `/login`, and the new browser demo entry flow. Preserve the existing dashboard visual system as a distinct application surface; the shared angular Finora mark and favicon provide continuity. These entry tokens are not authorization to restyle dashboard screens.
+Keep green for positive indicators and red for errors and destructive actions.
+Use numerals and words to communicate those states as well. The F mark uses a
+graphite face on stone and a stone face on graphite with the same brass facets.
 
-**Key Characteristics:**
-- Warm paper and flat, restrained pastel surfaces.
-- Editorial serif headings with proportional sans-serif controls and numerical readouts.
-- One hero instrument, followed by distinct explanatory graphics and a wealth timeline.
-- Explicit sample labels and browser-only demo access.
+## Public site
 
-## Colors
+Set the opening headline in light Newsreader with a second line in brass italic.
+Place the navigation, headline, explanation, and workspace link over the same
+viewport sized marble background. Darken the image behind the text and fade its
+bottom into the stone canvas. The sticky navigation gets a solid graphite
+surface when the page scrolls. Mobile uses a portrait WebP crop.
 
-The palette is Chocolate Brown (#4E342E), Cream (#F8F4E7) and Burnt Orange (#CC5500). Chocolate carries ink and primary actions, cream is the canvas, and burnt orange supports emphasis and financial scenarios. Use Accent Strong (#A84600) for burnt-orange text below 18px; pure #CC5500 on cream is 3.9:1 and suits large text, lines and controls only.
+The statement, calendar, and savings photos are decorative alpha PNGs beside the
+corresponding explanations and usable product examples. The statement example,
+calendar, savings track, and wealth calculator use clearly labeled illustrative
+values. Keep plan concepts and the FAQ in HTML. The existing cash flow instrument
+opens on request further down the page. Keep its keyboard controls and reduced
+motion support.
 
-### Primary
-- **Ink / Chocolate Brown:** Headlines, primary buttons, and key figures.
-- **Burnt Orange:** Italic emphasis, scenario controls, focus rings, and projected wealth lines.
+## Authentication and workspace
 
-### Secondary
-- **Target Brown:** The dashed independence-target line, differentiated from the burnt orange growth curve.
+Use a graphite story panel on login and reset, with a light form panel. Place the
+back link in the form's normal flow so headings and errors can grow. On small
+screens stack the panels and keep task controls near the top.
 
-### Neutral
-- **Warm Canvas:** Public page and login background.
-- **Paper:** Feature panels, workbench, and wealth explorer.
-- **Instrument Paper:** Machine backing and login fields.
-- **Story Paper:** Closing invitation and login story panel.
-- **Muted Ink:** Supporting copy and labels.
-- **Structural Rule:** Thin panel borders and dividers.
+The workspace uses a graphite desktop sidebar and a plain stone canvas. Use
+white surfaces and clear rules for transactions, budgets, goals, imports, and
+calendar. The statement cutout accompanies first use. Keep decorative artwork
+out of record lists and charts so the data remains the focal point. Preserve
+loading, empty, retry, validation, and success states.
 
-Error ink and error wash identify login recovery messages. Accent wash indicates selected stage controls and calendar cells. Keep synthetic figures visibly identified as examples.
+## Image provenance
 
-## Typography
+These assets were generated for Finora with the built-in ImageGen tool on
+2026-11-23. The three photo cutouts have an alpha channel and depict no actual
+financial records. The marble has two optimized WebP sizes. Source prompts
+follow.
 
-Instrument Serif is hosted locally in regular and italic styles. Helvetica Neue with Arial and sans-serif fallbacks supplies controls, body copy, chart labels, and compact metadata. Do not introduce terminal or monospace typography, including for credentials and statement samples.
+#### marble-flow.webp and marble-flow-small.webp
 
-The frontmatter display and headline roles describe desktop entry headings. The hero becomes a responsive (62–84px) heading on mobile; section headings become (44px). Workbench titles use (31px), feature headings (32px), and supporting prose generally (11–14px). Small instrument metadata is subordinate to the explanation. Financial controls and scenario totals use tabular numerals where implemented; wealth totals retain the editorial serif.
+Create original photographic 3D still life artwork ONLY, a wide editorial masthead asset for Finora personal finance. Panoramic landscape. Heroic view of a single massive folded ribbon of honed Calacatta marble suspended across the scene, forming two asymmetric open arches; one edge carries a narrow continuous brushed champagne-gold inlay that follows the fold like a contour line. Fine dramatic grey crystalline veins, grounded architectural texture, crisp side daylight and soft falloff. Background deep charcoal concrete, oversized sculpture filling frame, strongest shape in middle and right, cropped confidently at left and bottom. Rich blacks, luminous cool white stone, restrained gold, high-end architectural photography, tactile and believable. Totally original geometry. No text, no logo, no interface, no people, no lettering, no letters, no diagrams. Width-to-height about 2:1.
 
-## Layout
+#### statement-still-life.png
 
-The header and hero use a centered maximum width (1440px) with side padding (5%). The desktop hero pairs copy and a single instrument in two columns (1:1.08). Its body copy has a maximum width (365px). The process, features, and wealth sections use a maximum width (1300px), side padding (40px), and generous section separation, commonly (130px).
+An overhead three-quarter product photograph of two slightly overlapping matte ivory bank statement slips and a polished charcoal metal paper clip, one paper gently curled, with a few very pale gray horizontal printed rules and tiny abstract dark rectangles only. No readable glyphs, no figures, no actual account information, no brands. The arrangement is approximately square, whole object inside the frame, elegant asymmetry, soft light from upper left. Single standalone isolated cutout for Finora's stone charcoal and muted gold finance website. Actual fully transparent PNG background with alpha, no floor, no background panel, no backdrop, no halo and no baked checkerboard. All parts within the central 80 percent with clear margin all around. Tangible premium studio product photography, not vector or illustration.
 
-The four-stage process has a sticky workbench beside the story. IntersectionObserver selects the active stage; explicit stage buttons offer the same progression. At (760px) and below, the desktop sticky panel disappears and each story includes its own relevant workbench graphic. The hero, feature cards, wealth explorer, and login become single-column layouts with percentage gutters. The header hides secondary navigation while retaining demo access. Intermediate adjustments occur at (1100px); the hero expands above (1500px).
+#### calendar-still-life.png
 
-## Elevation & Depth
+A realistic editorial still life of a small blackened-steel perpetual desk calendar frame with an ivory card showing a simple grid of subtle punched dots, beside three brushed silver coins resting against its lower edge. No printed numbers, lettering or brand. Slight three-quarter view with confident geometry and tactile surfaces. Whole object inside the frame, soft light from upper left, restrained modern financial editorial. Single standalone isolated cutout for Finora's stone charcoal and muted gold finance website. Actual fully transparent PNG background with alpha, no floor, no background panel, no backdrop, no halo and no baked checkerboard. All parts within the central 80 percent with clear margin all around. Tangible premium studio product photography, not vector or illustration.
 
-Surfaces are flat. Thin borders, white against warm paper, and restrained tonal changes establish separation without gradients or heavy shadows. Depth belongs to the authored isometric instrument, whose lid and internal assemblies translate independently. Avoid exporting that illustration's dimensional language into ordinary cards or form fields.
+#### savings-still-life.png
 
-## Shapes
-
-Panels use modest corners (8px); primary buttons (5px), fields and small controls (4px). The common mark is an angular F built from chocolate planes with burnt orange facets; the favicon follows the same form. Decorative badges remain squared. Range controls have linear tracks and small rectangular thumbs. Do not introduce circular decorative motifs or pulses; mechanical geometry inside the authored illustration serves its explanation.
-
-## Components
-
-### Buttons and navigation
-
-Primary actions use ink on white lettering, a bordered modest corner, and comfortable vertical padding. Hover changes the background; press scales subtly. Secondary links use understated arrows or underlining. The header has the shared mark, section anchors, and login link; a skip link becomes visible on focus. Retain the global visible focus treatment.
-
-### Instrument
-
-Render the detailed isometric instrument only in the hero. Its lid can be opened or closed, three assembly controls select machine stages, and a daily-spending slider updates a linear readout and a month-end arithmetic projection. It is an explanatory sample, not a bank connection or trained prediction. Later sections use distinct graphics rather than repeating this machine.
-
-### Financial workbench
-
-The four stages use a normalized transaction record, seven-day spending bars, an adjustable month-end spending calculation, and a sample action receipt. Desktop stage selection follows scrolling or explicit buttons. Mobile embeds the relevant graphic directly after each story. Sample transaction dates are October 2026. Preserve the distinction between canonical record normalization, statistical patterns, arithmetic scenarios, and user decisions.
-
-### Wealth explorer
-
-Four labeled range controls adjust monthly contribution, years, assumed annual return, and living expenses. The growing corpus curve is burnt orange with a pale fill; the target is a dashed brown horizontal line. Text outputs state total corpus, contributions, assumed growth, and target timing. The model starts at zero, compounds monthly, and uses end-of-month contributions. The independence target is 25 times annual expenses. Keep the adjacent explanation of excluded inflation, fees, taxes, and volatility, and the explicit illustrative assumption; never present it as a guaranteed withdrawal rule.
-
-### Features and FAQ
-
-Calendar heat cells and a linear goal track illustrate everyday product capabilities. Flat bordered panels contain these graphics. FAQ uses native disclosure elements with a compact plus/minus cue. The closing invitation returns to the demo action.
-
-### Login
-
-The desktop layout pairs an editorial story panel with an operational form; mobile stacks them and removes the secondary sample-position block. Fields have persistent labels, password visibility, visible demo credentials, and inline alert recovery for wrong credentials or unavailable browser storage. `admin / admin` starts a browser-only demo session and routes to `/dashboard`; no backend authentication is performed. Loading text identifies the pending transition. Financial data is synthetic and the session is temporary.
-
-## Do's and Don'ts
-
-### Do:
-- **Do** keep to the chocolate, cream and burnt orange palette and the local serif/sans pairing.
-- **Do** keep the hero instrument unique and give later sections distinct financial graphics.
-- **Do** preserve keyboard-operable native controls, visible focus, and reduced-motion behavior.
-- **Do** keep the dashboard's existing visual system distinct beyond the shared mark.
-- **Do** label financial data and projections as illustrative and demo access as browser-only.
-
-### Don't:
-- **Don't** introduce terminal fonts, decorative pulses, or circular decorative badges.
-- **Don't** imply real bank connectivity, production authentication, trained models, or guaranteed financial outcomes.
-- **Don't** treat this entry specification as permission to redesign existing dashboard screens.
-
-## Entry refinements
-
-The hero instrument is unboxed and blends into the warm page canvas. It cycles through statement feeding, sorting, and forecasting, with pause/play, direct part selection, offscreen/tab-visibility pausing, and a static reduced-motion alternative. Desktop layouts span the available width with fluid gutters; the sticky header keeps Log in visible.
-
-Typography pairs self-hosted Instrument Serif with DM Sans for all UI, labels and numbers. No terminal fonts are rendered. Reading text is 16–18px, with responsive display sizes and 44px minimum primary controls. Small section and muted dashboard labels were darkened for AA contrast. Automated checks are a scoped validation, not a full accessibility certification.
+A realistic close-up studio product photograph of an arrangement of five small stacks of thin, finely milled brushed champagne-gold and cool silver coins, arranged along a shallow diagonal on a single slim rectangular piece of honed charcoal slate. Plain faces with concentric engraving and no denomination, symbols, lettering, or brand. The arrangement is centered, whole object inside the frame, soft light from upper left, elegant and restrained, no money bags and no stacks of bills. Single standalone isolated cutout for Finora's stone charcoal and muted gold finance website. Actual fully transparent PNG background with alpha, no floor, no background panel, no backdrop, no halo and no baked checkerboard. All parts within the central 80 percent with clear margin all around. Tangible premium studio product photography, not vector or illustration.

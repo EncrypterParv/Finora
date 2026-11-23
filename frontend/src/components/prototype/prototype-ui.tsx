@@ -6,43 +6,43 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 // Shared building blocks for the signed-in workspace screens, so every screen keeps the same look.
 
 export function PageTitle({ title, description, action }: { title: string; description: string; action?: ReactNode }) {
-  return <div className="prototype-page-title mb-7 flex flex-wrap items-end justify-between gap-4"><div><span className="prototype-eyebrow">Your finances, in context</span><h1 className="mt-2 text-3xl font-semibold tracking-tight">{title}</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-[#777067]">{description}</p></div>{action && <div className="flex flex-wrap gap-2">{action}</div>}</div>;
+  return <div className="prototype-page-title mb-7 flex flex-wrap items-end justify-between gap-4"><div><span className="prototype-eyebrow">Your finances, in context</span><h1 className="mt-2 text-3xl font-semibold tracking-tight">{title}</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-[#575953]">{description}</p></div>{action && <div className="flex flex-wrap gap-2">{action}</div>}</div>;
 }
 
 export function EmptyPanel({ title, body, onAdd, actionLabel = "Add a bank statement" }: { title: string; body: string; onAdd?: () => void; actionLabel?: string }) {
-  return <section className="rounded-xl border border-[#e8e4dc] bg-white px-6 py-9"><h2 className="text-lg font-semibold">{title}</h2><p className="mt-2 max-w-xl text-sm leading-6 text-[#766e65]">{body}</p>{onAdd && <button type="button" onClick={onAdd} className="prototype-inline-link mt-4 inline-flex items-center gap-1 text-sm font-medium">{actionLabel} <ArrowRight size={14} /></button>}</section>;
+  return <section className="rounded-xl border border-[#e5e4de] bg-white px-6 py-9"><h2 className="text-lg font-semibold">{title}</h2><p className="mt-2 max-w-xl text-sm leading-6 text-[#575953]">{body}</p>{onAdd && <button type="button" onClick={onAdd} className="prototype-inline-link mt-4 inline-flex items-center gap-1 text-sm font-medium">{actionLabel} <ArrowRight size={14} /></button>}</section>;
 }
 
 export function Panel({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <section className={`rounded-xl border border-[#e8e4dc] bg-white ${className}`}>{children}</section>;
+  return <section className={`rounded-xl border border-[#e5e4de] bg-white ${className}`}>{children}</section>;
 }
 
 export function DataLoadNotice({ subject, onRetry }: { subject: string; onRetry: () => void }) {
-  return <section role="alert" className="rounded-xl border border-[#e8e4dc] bg-white p-6" aria-labelledby="data-load-notice-title">
-    <h2 id="data-load-notice-title" className="font-semibold text-[#433b35]">{subject} aren’t available just now</h2>
-    <p className="mt-2 max-w-xl text-sm leading-6 text-[#766e65]">We couldn’t check your saved {subject.toLowerCase()} right now. This read did not change your financial records. Please try again.</p>
+  return <section role="alert" className="rounded-xl border border-[#e5e4de] bg-white p-6" aria-labelledby="data-load-notice-title">
+    <h2 id="data-load-notice-title" className="font-semibold text-[#414340]">{subject} aren’t available just now</h2>
+    <p className="mt-2 max-w-xl text-sm leading-6 text-[#575953]">We couldn’t check your saved {subject.toLowerCase()} right now. This read did not change your financial records. Please try again.</p>
     <SecondaryButton className="mt-4" onClick={onRetry}>Try again</SecondaryButton>
   </section>;
 }
 
 export function PrimaryButton({ className = "", ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
-  return <button type="button" {...props} className={`prototype-primary-action inline-flex items-center justify-center gap-2 rounded-md bg-[#4e342e] px-3.5 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 ${className}`} />;
+  return <button type="button" {...props} className={`prototype-primary-action inline-flex items-center justify-center gap-2 rounded-md bg-[#262724] px-3.5 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 ${className}`} />;
 }
 
 export function SecondaryButton({ className = "", ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
-  return <button type="button" {...props} className={`prototype-secondary-action inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-[#ddd6cb] bg-white px-3.5 py-2.5 text-sm text-[#433b35] disabled:cursor-not-allowed disabled:opacity-50 ${className}`} />;
+  return <button type="button" {...props} className={`prototype-secondary-action inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-[#d5d4cc] bg-white px-3.5 py-2.5 text-sm text-[#414340] disabled:cursor-not-allowed disabled:opacity-50 ${className}`} />;
 }
 
 // Small icon-only button for row actions such as edit or delete; `label` is read by screen readers.
 export function IconButton({ label, className = "", children, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { label: string }) {
-  return <button type="button" aria-label={label} title={label} {...props} className={`prototype-icon-action grid h-10 w-10 shrink-0 place-items-center rounded-md text-[#8a7a6d] disabled:opacity-40 ${className}`}>{children}</button>;
+  return <button type="button" aria-label={label} title={label} {...props} className={`prototype-icon-action grid h-10 w-10 shrink-0 place-items-center rounded-md text-[#62645d] disabled:opacity-40 ${className}`}>{children}</button>;
 }
 
 export function Field({ label, hint, children, className = "" }: { label: string; hint?: string; children: ReactNode; className?: string }) {
-  return <label className={`block text-xs font-medium text-[#655c54] ${className}`}>{label}{children}{hint && <span className="mt-1 block font-normal text-[#8b7d71]">{hint}</span>}</label>;
+  return <label className={`block text-xs font-medium text-[#414340] ${className}`}>{label}{children}{hint && <span className="mt-1 block font-normal text-[#62645d]">{hint}</span>}</label>;
 }
 
-export const inputClass = "prototype-field mt-1.5 block min-h-11 w-full rounded-md border border-[#ddd6cb] bg-white px-3 text-sm font-normal";
+export const inputClass = "prototype-field mt-1.5 block min-h-11 w-full rounded-md border border-[#d5d4cc] bg-white px-3 text-sm font-normal";
 
 export function ErrorNote({ message }: { message: string }) {
   return <p role="alert" className="mt-4 rounded-md bg-[#fdebec] p-3 text-sm text-[#9f2f2d]">{message}</p>;
@@ -58,7 +58,7 @@ export function ConfirmStrip({ message, confirmLabel, onConfirm, onCancel, worki
     <p className="leading-6 text-[#6d3a32]">{message}</p>
     <div className="mt-3 flex flex-wrap gap-2">
       <button type="button" onClick={onConfirm} disabled={working} className="prototype-danger-action inline-flex min-h-10 items-center rounded-md bg-[#9f2f2d] px-3.5 text-sm font-medium text-white disabled:opacity-60">{working ? "Deleting…" : confirmLabel}</button>
-      <button type="button" onClick={onCancel} disabled={working} className="inline-flex min-h-10 items-center rounded-md border border-[#ddd6cb] bg-white px-3.5 text-sm">Keep it</button>
+      <button type="button" onClick={onCancel} disabled={working} className="inline-flex min-h-10 items-center rounded-md border border-[#d5d4cc] bg-white px-3.5 text-sm">Keep it</button>
     </div>
   </div>;
 }

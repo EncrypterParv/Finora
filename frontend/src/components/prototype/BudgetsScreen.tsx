@@ -60,7 +60,7 @@ export function BudgetsScreen() {
       : <div className="grid gap-4 lg:grid-cols-2">{ordered.map((budget) => <BudgetCard key={budget.id} budget={budget} today={today}
           onUpdated={(updated) => setBudgets((current) => current.map((item) => item.id === updated.id ? updated : item))}
           onDeleted={(id) => setBudgets((current) => current.filter((item) => item.id !== id))} />)}</div>}
-    {ordered.length > 0 && <p className="mt-4 text-xs text-[#837970]">Budgets count all spending across your accounts in their dates. Per-category limits are coming later.</p>}
+    {ordered.length > 0 && <p className="mt-4 text-xs text-[#62645d]">Budgets count all spending across your accounts in their dates. Per-category limits are coming later.</p>}
   </>;
 }
 
@@ -104,17 +104,17 @@ function BudgetCard({ budget, today, onUpdated, onDeleted }: { budget: BudgetRes
     <div className="flex items-start gap-2">
       <div className="min-w-0 flex-1">
         <h2 className="truncate font-semibold">{budget.name}</h2>
-        <p className="mt-1 text-xs text-[#837970]">{formatDate(budget.start_date, { day: "numeric", month: "short" })} – {formatDate(budget.end_date)}{upcoming ? " · Upcoming" : ended ? " · Finished" : ""}</p>
+        <p className="mt-1 text-xs text-[#62645d]">{formatDate(budget.start_date, { day: "numeric", month: "short" })} – {formatDate(budget.end_date)}{upcoming ? " · Upcoming" : ended ? " · Finished" : ""}</p>
       </div>
       <IconButton label={`Edit ${budget.name}`} onClick={() => setMode("edit")}><Pencil size={15} /></IconButton>
       <IconButton label={`Delete ${budget.name}`} onClick={() => setMode("confirm")}><Trash2 size={15} /></IconButton>
     </div>
     <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2">
-      <p className="tabular-nums"><span className="prototype-figure">{money(spent)}</span> <span className="text-sm text-[#837970]">of {money(limit)}</span></p>
-      <p className={`text-sm font-medium tabular-nums ${over ? "text-[#9f2f2d]" : "text-[#5f554c]"}`}>{over ? `${money(spent - limit)} over` : `${money(limit - spent)} left`}</p>
+      <p className="tabular-nums"><span className="prototype-figure">{money(spent)}</span> <span className="text-sm text-[#62645d]">of {money(limit)}</span></p>
+      <p className={`text-sm font-medium tabular-nums ${over ? "text-[#9f2f2d]" : "text-[#414340]"}`}>{over ? `${money(spent - limit)} over` : `${money(limit - spent)} left`}</p>
     </div>
     <div className="mt-3"><ProgressBar value={percent} tone={tone} label={`${budget.name}: ${Math.round(percent)}% of the limit spent`} /></div>
-    <p className={`mt-3 text-xs leading-5 ${status.warn ? "text-[#8b4a1d]" : "text-[#766e65]"}`}>{status.text}</p>
+    <p className={`mt-3 text-xs leading-5 ${status.warn ? "text-[#755727]" : "text-[#575953]"}`}>{status.text}</p>
     {mode === "confirm" && <ConfirmStrip message={<>Delete the budget <strong>{budget.name}</strong>? Your transactions stay as they are.</>} confirmLabel="Delete budget" working={working} onConfirm={remove} onCancel={() => setMode("view")} />}
     {error && <ErrorNote message={error} />}
   </Panel>;

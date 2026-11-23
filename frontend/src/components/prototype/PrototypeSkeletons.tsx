@@ -13,10 +13,10 @@ function LoadingStatus({ children }: { children: ReactNode }) {
 }
 
 export function WorkspaceLoadingSkeleton({ insideShell = false }: { insideShell?: boolean } = {}) {
-  return <div className={insideShell ? "min-h-[55vh]" : "finora-prototype min-h-screen bg-[#f3eee5] p-4 md:pl-[268px] md:pr-8 md:pt-8"} aria-busy="true">
+  return <div className={insideShell ? "min-h-[55vh]" : "finora-prototype min-h-screen bg-[#f5f4f0] p-4 md:pl-[268px] md:pr-8 md:pt-8"} aria-busy="true">
     <LoadingStatus>Loading your workspace</LoadingStatus>
     {!insideShell && <>
-      <aside aria-hidden="true" className="prototype-skeleton-panel fixed inset-y-0 left-0 hidden w-[244px] flex-col gap-7 rounded-none border-y-0 border-l-0 p-6 md:flex">
+      <aside aria-hidden="true" className="prototype-skeleton-sidebar fixed inset-y-0 left-0 hidden w-[244px] flex-col gap-7 p-6 md:flex">
         <Block className="h-8 w-32" />
         <div className="space-y-4">{[0, 1, 2, 3, 4, 5, 6].map((item) => <Block key={item} className="h-10 w-full" />)}</div>
         <Block className="mt-auto h-10 w-full" />
@@ -27,7 +27,7 @@ export function WorkspaceLoadingSkeleton({ insideShell = false }: { insideShell?
     <div className="grid gap-4 sm:grid-cols-2" aria-hidden="true">
       {[0, 1].map((item) => <div key={item} className="prototype-skeleton-panel p-5"><Block className="h-3 w-28" /><Block className="mt-4 h-8 w-36" /><Block className="mt-3 h-3 w-40" /></div>)}
     </div>
-    <div className="prototype-skeleton-panel mt-6 p-5 md:p-6" aria-hidden="true"><div className="flex items-center justify-between"><Block className="h-5 w-44" /><Block className="h-4 w-24" /></div><div className="mt-5 divide-y divide-[#eeeae3]">{[0, 1, 2, 3, 4].map((item) => <div key={item} className="flex items-center justify-between gap-4 py-4"><div className="min-w-0 flex-1"><Block className="h-4 w-3/5" /><Block className="mt-2 h-3 w-2/5" /></div><Block className="h-4 w-20" /></div>)}</div></div>
+    <div className="prototype-skeleton-panel mt-6 p-5 md:p-6" aria-hidden="true"><div className="flex items-center justify-between"><Block className="h-5 w-44" /><Block className="h-4 w-24" /></div><div className="mt-5 divide-y divide-[#e5e4de]">{[0, 1, 2, 3, 4].map((item) => <div key={item} className="flex items-center justify-between gap-4 py-4"><div className="min-w-0 flex-1"><Block className="h-4 w-3/5" /><Block className="mt-2 h-3 w-2/5" /></div><Block className="h-4 w-20" /></div>)}</div></div>
   </div>;
 }
 
@@ -40,7 +40,7 @@ export function CollectionLoadingSkeleton({ label }: { label: string }) {
 }
 
 export function TransactionsLoadingSkeleton() {
-  return <div className="prototype-skeleton-panel p-5" aria-busy="true"><LoadingStatus>Loading transactions</LoadingStatus><div aria-hidden="true" className="divide-y divide-[#eeeae3]">{[0, 1, 2, 3, 4, 5].map((item) => <div key={item} className="flex items-center gap-3 py-4"><Block className="hidden h-4 w-16 sm:block" /><div className="min-w-0 flex-1"><Block className="h-4 w-3/5" /><Block className="mt-2 h-3 w-2/5" /></div><Block className="h-4 w-20" /><Block className="h-9 w-9 rounded-md" /></div>)}</div></div>;
+  return <div className="prototype-skeleton-panel p-5" aria-busy="true"><LoadingStatus>Loading transactions</LoadingStatus><div aria-hidden="true" className="divide-y divide-[#e5e4de]">{[0, 1, 2, 3, 4, 5].map((item) => <div key={item} className="flex items-center gap-3 py-4"><Block className="hidden h-4 w-16 sm:block" /><div className="min-w-0 flex-1"><Block className="h-4 w-3/5" /><Block className="mt-2 h-3 w-2/5" /></div><Block className="h-4 w-20" /><Block className="h-9 w-9 rounded-md" /></div>)}</div></div>;
 }
 
 export function CalendarLoadingSkeleton() {
