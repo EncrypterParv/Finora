@@ -466,6 +466,15 @@ assumptions from old plans.
   server-side API rate limits. Lighthouse and live visual measurements remain
   pending because the app server was not started.
 
+## 2026-11-23 — Reassuring empty states and shorter signup toast
+
+- The account-ready toast now starts its exit animation after five seconds.
+- Budgets and goals use their explicit empty states only after a successful
+  empty-list response (`No budgets yet` / `No goals yet`). Request failures stay
+  distinct from empty data, use calm recovery wording, and disable creation
+  until the list can be checked so a temporary read failure cannot prompt a
+  duplicate record.
+
 ## Updating this history
 
 Append a dated entry after a meaningful feature or architecture milestone. Add

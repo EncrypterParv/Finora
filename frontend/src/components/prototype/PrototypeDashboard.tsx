@@ -93,7 +93,7 @@ export function PrototypeDashboard({
 
   useEffect(() => {
     if (!accountCreated || welcomeToastState !== "visible") return;
-    const timer = window.setTimeout(() => setWelcomeToastState("leaving"), 5_500);
+    const timer = window.setTimeout(() => setWelcomeToastState("leaving"), 5_000);
     return () => window.clearTimeout(timer);
   }, [accountCreated, welcomeToastState]);
 
