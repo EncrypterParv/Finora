@@ -346,6 +346,29 @@ assumptions from old plans.
   that has since been superseded; use this entry and current setup instructions
   as the source of truth.
 
+## 2026-11-23 — Auth email delivery diagnosis and verification recovery
+
+- Reviewed the hosted Supabase Auth dashboard through the browser. Confirm
+  sign-up is enabled; custom SMTP is not configured; an account is still
+  waiting for email verification. The hosted signup UI showed a rate-limit
+  message, so no more signup/resend requests were sent during diagnosis.
+- The implementation already had a six-digit OTP form and a PKCE callback
+  that exchanges Supabase's confirmation code server-side. The code form only
+  appears after Supabase accepts signup/resend or sign-in reports an
+  unconfirmed address; a throttled request leaves the original form visible.
+- Added a dedicated **Need a verification email?** path so an existing
+  unconfirmed account can request a code without first attempting password
+  sign-in. Rate-limit copy now distinguishes email-send throttling from
+  broader auth request throttling, and safe operation/code/status details open
+  by default with errors.
+- Updated setup docs to recommend Resend SMTP, document its SMTP fields and
+  verified-domain requirement, and explain that Supabase's built-in sender is
+  not a production sender. Nodemailer is not needed for Supabase Auth.
+- Still pending: the user must set up Resend with a domain they control, enter
+  SMTP credentials in Supabase, confirm the hosted email template/link route,
+  wait for the current rate limit to clear, then run one signup/verification
+  and one recovery smoke test with an inbox they control.
+
 ## Mistakes and corrections to carry forward
 
 - **Do not trust the roadmap as a feature inventory.** Some architecture and

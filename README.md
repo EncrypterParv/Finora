@@ -32,7 +32,7 @@ The system is built as a **Modular Monolith**:
 - **Frontend**: Next.js 16.4.6 (App Router), TypeScript, Tailwind CSS, TanStack Query, Framer Motion, Recharts.
 - **Backend API**: Python FastAPI, Pydantic v2 schemas, SQLAlchemy 2.0 async ORM.
 - **Persistence**: Local development defaults to SQLite; Supabase Postgres is configured for hosted data. The initial schema migration is applied to the configured project.
-- **Authentication**: Supabase Auth email/password, confirmation callback, password reset, and dashboard protection are implemented. Live signup and email delivery still need end-to-end verification.
+- **Authentication**: Supabase Auth email/password, six-digit verification, PKCE confirmation callback, password reset, and dashboard protection are implemented. The login page can request a verification email for an existing unconfirmed account and shows safe provider diagnostics. Hosted SMTP is still unconfigured, so live email signup/recovery is not ready; see [Supabase setup](docs/supabase/setup.md).
 - **Simulated Integrations**: Pluggable `BankAdapter` contracts (e.g. `HSBCDemoAdapter`) with zero storage of real credentials.
 
 Detailed system documentation is available in `docs/`:
