@@ -74,8 +74,15 @@ Use a graphite story panel on login and reset, with a light form panel. Place th
 back link in the form's normal flow so headings and errors can grow. On small
 screens stack the panels and keep task controls near the top.
 
-The workspace uses a graphite desktop sidebar and a plain stone canvas. Use
-white surfaces and clear rules for transactions, budgets, goals, imports, and
+The workspace uses a graphite desktop sidebar with grouped navigation. On small
+screens, use a keyboard-accessible workspace menu. The Overview pairs a graphite
+canvas with slightly lighter cards, brass for credits and primary actions, and
+muted sage for the dashed spending series. Use compact tabular figures, a wide
+weekly chart, a spending ring with labeled amounts, and a readable recent
+transactions table. The chart entry animation runs when the period or currency
+changes. Provide a weekly figures table and honor reduced motion.
+
+Use stone and white surfaces for transactions, budgets, goals, imports, and
 calendar. The statement cutout accompanies first use. Keep decorative artwork
 out of record lists and charts so the data remains the focal point. Preserve
 loading, empty, retry, validation, and success states.

@@ -81,7 +81,7 @@ export default function ResetPasswordPage() {
             <Link className="landing-button" href="/login?mode=recover">Request another link <Arrow /></Link>
           </div>
         ) : (
-          <form onSubmit={submit}>
+          <form method="post" onSubmit={submit}>
             <label htmlFor="password">New password</label>
             <input id="password" name="password" type="password" autoComplete="new-password" minLength={8} required aria-describedby="reset-error" />
             <label htmlFor="confirm_password">Confirm new password</label>

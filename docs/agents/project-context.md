@@ -1,10 +1,10 @@
 # Finora Project Context
 
 Last reviewed: 2026-11-23
-Current milestone: Calendar, Insights, Budgets and Goals are connected in the signed-in workspace; transaction filters, manual entry, deletion, real budget spend, calendar date handling, statement-review pagination, targeted session caching, and loading skeletons are implemented. Supabase Auth signup expects an immediate session with email confirmation off for the current demo. No Lighthouse measurement has been taken yet.
+Current milestone: The Overview uses monthly figures, animated weekly cash flow, spending by account, and recent transactions in Finora’s graphite and brass palette. Calendar, Insights, Budgets and Goals are connected. The demo’s Supabase Auth signup expects an immediate session. Lighthouse measurement is pending.
 
 This is the short continuity brief for coding agents. Read it before planning
-substantial work, then read [`history.md`](history.md) for dated decisions and
+substantial work, then read the [context hub](context/README.md) and [history](history.md) for dated decisions and
 milestones. It summarizes the project; the source tree and tests remain the
 implementation truth.
 
@@ -43,7 +43,7 @@ calculated.
 |---|---|---|
 | Vercel deployment | Frontend and FastAPI deployed; `/health` returns 200 | Root vercel.json routes Next.js and FastAPI under one Vercel Services deployment. Hosted Supabase auth, database persistence, and statement import still need end-to-end checks. Services are beta; the Python runtime is generally available. |
 | Landing page | Public product explanation | A stone, graphite, and brass visual system with a statement review photograph, transparent finance photography, and an illustrated footer. The sample instrument and calculator remain interactive, and the three plan tiers are concepts. Authentication and workspace screens share the same palette and fonts. |
-| Authenticated workspace | Real account/transaction loading; statement review/import implemented | New users see empty states, add an account label, preview a statement, edit candidate transactions, and explicitly confirm persistence. Browser visual QA remains pending because the app server was not started. |
+| Authenticated workspace | Real account/transaction loading; statement review/import implemented | New users see empty states, add an account label, preview a statement, edit candidate transactions, and explicitly confirm persistence. Hosted end-to-end persistence and import verification are tracked separately from local checks. |
 | Plans | Illustrative only | Prices and feature tiers are concepts. No subscription, checkout, or server-side entitlement enforcement exists. |
 | Login and RBAC | Supabase Auth signup, login, password recovery, and dashboard protection are implemented; RBAC remains mock-only | Supabase Auth remains the identity and password store. Email confirmation was turned off in the hosted dashboard on 2026-11-23, so new signups should create a session without email delivery. Existing unverified accounts may remain unverified. Auth diagnostics expose safe operation/code/status only. The role editor is not authorization. |
 | Database | Initial Supabase schema applied and verified | The checked-in migration mirrors current SQLAlchemy entities, creates a profile from `auth.users`, and enables owner-scoped RLS on all ten expected tables. A read-only connection and migration-history check passed. |
@@ -54,7 +54,8 @@ calculated.
 | Bank accounts | User-scoped CRUD and statement onboarding use `/accounts` | Account labels accept optional last four digits, never a full number. The statement flow marks them `STATEMENT_IMPORT`. Deleting an account with transactions returns 409 unless `?delete_transactions=true`. |
 | Transactions, budgets, goals | Connected in the workspace | The dashboard lists imported transactions. `GET /transactions` filters by date range, type, account, amount range, and case-insensitive description search (`q`, wildcards escaped), and returns the pre-pagination match count in `X-Total-Count` (exposed via CORS). `POST /transactions` records manual (e.g. cash) DEBIT/CREDIT entries with `source=MANUAL` and does not change account balances; `DELETE /transactions/{id}` removes one. Category filtering is not available because categories are not stored as rows yet (reviewed names live in transaction metadata), and the detail endpoint's budget/forecast context fields are still placeholders. The Budgets screen uses `/budgets` (real debit totals and linear burn projections; no per-category limits yet) and the Goals screen uses `/goals`. |
 | Frontend tests | Not present | There is no frontend unit or end-to-end test suite yet. |
-| Frontend performance and accessibility | Focused improvements implemented; measurement pending | Successful authenticated API GET responses stay in bounded browser memory for the tab session, scoped by Supabase user ID. Mutations invalidate only dependent data groups and broadcast invalidations to other same-browser tabs; sign-out clears the cache. Entries are LRU-evicted at 60 records or 5 MB and are never written to storage. Identical concurrent reads are deduplicated. The Overview fetches five recent transactions plus the server-reported total instead of downloading 200. Dashboard feature screens are split into on-demand chunks and route/data loading has layout-matched skeletons. Workspace navigation has a skip link and 44px mobile targets; signup confirmation uses a dismissible, reduced-motion-aware toast. This client cache reduces repeat requests from the app but does not rate-limit direct callers at the API. Lighthouse and browser-based accessibility measurements remain pending. |
+| Overview | Connected in the workspace | The Overview defaults to the latest recorded UTC month. `GET /transactions/summary?month=YYYY-MM-01` returns the current user's daily credits and debits, transaction counts, and debit totals by account, separately for each currency. Transfers count as activity. Weekly cash flow and account spending exclude them. The API uses existing canonical transaction rows and requires no migration. |
+| Frontend performance and accessibility | Focused improvements implemented; measurement pending | Successful authenticated API GET responses stay in bounded browser memory for the tab session, scoped by Supabase user ID. Mutations invalidate only dependent data groups and broadcast invalidations to other same-browser tabs. Sign-out clears the cache. Entries are LRU-evicted at 60 records or 5 MB and are never written to storage. Identical concurrent reads are deduplicated. The Overview fetches five recent rows and the API's total count, then requests the cached monthly aggregate for workspaces with records. Feature screens and Overview charts are split into on-demand chunks. Loading skeletons match their layout. The workspace has a skip link, a keyboard-accessible mobile menu, a weekly figures table, and reduced-motion chart behavior. The cache reduces repeated reads from the app. API rate limits and Lighthouse measurement are separate. |
 
 ## Technical shape and boundaries
 
@@ -67,8 +68,8 @@ calculated.
   environment variables, production-domain Supabase redirects, and hosted
   smoke checks are not configured by the repository file. The backend
   pyproject.toml declares its runtime packages so Vercel installs FastAPI.
-- The combined backend suite has 98 passing tests. There is no frontend unit or
-  end-to-end test suite yet.
+- Backend coverage includes monthly summary isolation and currency separation.
+  There is no checked-in frontend unit or end-to-end test suite yet.
 - Canonical transactions are the normalization boundary for imported or
   simulated transaction data. Keep analytics and calendar work based on that
   domain shape.
