@@ -504,6 +504,8 @@ assumptions from old plans.
 
 ## 2026-11-23 — Landing motion and illustrated footer
 
+- [392c9ef](https://github.com/TarunyaProgrammer/FinSOL2/commit/392c9ef)
+  shipped the new photograph, illustrated footer, and scroll sequence.
 - Reviewed the live GSAP homepage. Added a desktop hero zoom and one pinned
   four-step walkthrough, with vertical mobile and reduced motion layouts.
 - Added a footer with original transparent art, the workspace link, and
