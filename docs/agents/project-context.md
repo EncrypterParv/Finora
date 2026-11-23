@@ -1,7 +1,7 @@
 # Finora Project Context
 
-Last reviewed: 2026-11-22
-Current milestone: The Vercel frontend and FastAPI health route are live; first-user statement import is wired, and hosted Supabase Auth/database workflows remain under verification
+Last reviewed: 2026-11-23
+Current milestone: Calendar, Insights, Budgets and Goals are connected in the signed-in workspace; transaction filters, manual entry, deletion, real budget spend, and calendar date handling are implemented; email-code signup is implemented in the app, while hosted SMTP and production environment setup remain pending.
 
 This is the short continuity brief for coding agents. Read it before planning
 substantial work, then read [`history.md`](history.md) for dated decisions and
@@ -48,11 +48,11 @@ calculated.
 | Login and RBAC | Supabase Auth signup OTP, login, and recovery UI implemented; hosted SMTP and end-to-end verification pending; RBAC remains mock-only | Signup requires the six-digit email code before entering the workspace; the login flow can resend a code for an unconfirmed account. Auth diagnostics expose only safe provider codes/status. Supabase Confirm email must stay on and the Confirm signup template must send `{{ .Token }}`. Hosted SMTP and full signup/recovery smoke checks remain pending. The role editor is not authorization. |
 | Database | Initial Supabase schema applied and verified | The checked-in migration mirrors current SQLAlchemy entities, creates a profile from `auth.users`, and enables owner-scoped RLS on all ten expected tables. A read-only connection and migration-history check passed. |
 | Statement import | CSV implemented; optional OCR path unverified | Preview is non-persistent; edited, confirmed rows save as canonical transactions. CSV parsing rejects ambiguous amount-only layouts. Uploads are capped at 4 MB for Vercel Hobby. PDF/PNG/JPG use optional PaddleX OCR, not installed or benchmarked in this workspace; scanned extraction is unavailable on the default Vercel deployment. XLSX is unsupported. |
-| Calendar | Backend date handling fixed + mock prototype | `GET /calendar/view` accepts an optional `date` (yyyy-mm-dd): week = Monday-Sunday containing it, day = that date, month uses `year`/`month` falling back to it. Omitting `date` keeps the old today-based behavior. The prototype calendar still uses local sample data. |
-| Insights | Statistical foundation + mock screen | Backend features, forecasts, shifts, anomaly heuristics, and recommendations exist. This is not a trained ML product; several recommendation impacts are fixed illustrative estimates. |
+| Calendar | Connected in the workspace | The Calendar screen loads `GET /calendar/view` for month, week and day views. The endpoint accepts an optional `date` (yyyy-mm-dd): week = Monday-Sunday containing it, day = that date, month uses `year`/`month` falling back to it. Omitting `date` keeps the old today-based behavior. |
+| Insights | Connected in the workspace; statistics and rules, not a trained model | The Insights screen loads `GET /analytics/overview` and shows: month-to-date spend with the month-end forecast and its 80% range; the rule-based behaviour score, archetype, weekend/discretionary shares, savings rate and top discretionary categories; 30-day vs prior-60-day shifts; recommendation title/evidence/action; and statistical outliers. It requires at least 5 transactions across 7 days. It deliberately hides fields that are placeholders or misleading: `liquid_balance`, `runway_days`, strengths/vulnerabilities, budget risk level/exhaustion date/status summary (these sum all budgets), recommendation `financial_impact_monthly`/`confidence_score`, and the anomaly `reason` text (wording bug). The backend category rules do not recognise ZEPTO or BLINKIT, which fall into General. |
 | User profile | Mock UI / partial backend read | User fields and `/auth/me` exist, but the prototype changes are local and there is no profile update flow. |
 | Bank accounts | User-scoped CRUD and statement onboarding use `/accounts` | Account labels accept optional last four digits, never a full number. The statement flow marks them `STATEMENT_IMPORT`. Deleting an account with transactions returns 409 unless `?delete_transactions=true`. |
-| Transactions, budgets, goals | Transactions are data-backed; budgets/goals remain outside the current workspace | The dashboard lists imported transactions. Budget responses use real debit totals and linear burn projections, but budget/category UI is not connected; earlier budget and goal APIs/components remain separate. |
+| Transactions, budgets, goals | Connected in the workspace | The dashboard lists imported transactions. `GET /transactions` filters by date range, type, account, amount range, and case-insensitive description search (`q`, wildcards escaped), and returns the pre-pagination match count in `X-Total-Count` (exposed via CORS). `POST /transactions` records manual (e.g. cash) DEBIT/CREDIT entries with `source=MANUAL` and does not change account balances; `DELETE /transactions/{id}` removes one. Category filtering is not available because categories are not stored as rows yet (reviewed names live in transaction metadata), and the detail endpoint's budget/forecast context fields are still placeholders. The Budgets screen uses `/budgets` (real debit totals and linear burn projections; no per-category limits yet) and the Goals screen uses `/goals`. |
 | Frontend tests | Not present | There is no frontend unit or end-to-end test suite yet. |
 
 ## Technical shape and boundaries
@@ -66,7 +66,7 @@ calculated.
   environment variables, production-domain Supabase redirects, and hosted
   smoke checks are not configured by the repository file. The backend
   pyproject.toml declares its runtime packages so Vercel installs FastAPI.
-- The combined backend suite has 58 passing tests. There is no frontend unit or
+- The combined backend suite has 98 passing tests. There is no frontend unit or
   end-to-end test suite yet.
 - Canonical transactions are the normalization boundary for imported or
   simulated transaction data. Keep analytics and calendar work based on that
@@ -99,7 +99,7 @@ recheck them before implementation because code may have changed since then.
    without a valid token. Do not use local auth mode in a hosted environment.
    The frontend API helper sends the Supabase bearer token when it calls
    FastAPI. Accounts and transactions in the authenticated workspace use these
-   APIs; calendar and analytics remain unconnected there.
+   APIs; Calendar and Insights screens also load their data from the backend.
 2. OCR dependencies are optional and absent from the default runtime. Install
    `requirements-ocr.txt` with Python 3.13 and benchmark PDF/PNG/JPG extraction
    on synthetic layouts before enabling scanned imports for real users.

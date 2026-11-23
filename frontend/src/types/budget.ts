@@ -27,3 +27,5 @@ export interface BudgetCreate {
   start_date: string;
   end_date: string;
 }
+
+export type BudgetUpdate = Partial<BudgetCreate>;
