@@ -13,7 +13,7 @@ A public landing page with illustrative examples, Supabase Auth, and a signed-in
 Young professionals and students managing everyday money, spending, and savings.
 
 ## Brand commitments
-Use cool stone, graphite, and muted brass with Newsreader headlines and DM Sans body text. Original marble artwork leads the landing page, and isolated photographs of statements, a calendar, and coins support related sections. Keep product examples explicit and make review before import visible. Use the same palette for authentication and the workspace.
+Use cool stone, graphite, and muted brass with Newsreader headlines and DM Sans body text. The opening photograph shows someone reviewing a statement at home. Isolated photographs of statements, a calendar, and coins support related sections. Keep product examples explicit and make review before import visible. Use the same palette for authentication and the workspace.
 
 ## Success
 A visitor understands how a reviewed statement becomes a view of spending, budgets, and goals, then can sign in and start with their own records.

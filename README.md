@@ -190,8 +190,10 @@ Supabase setup guide for the exact setup and limitations.
 
 Finora uses a stone, graphite, and brass palette with self-hosted Newsreader
 and DM Sans. See [DESIGN.md](DESIGN.md) for the visual system and image
-provenance. The landing page includes a marble hero and transparent PNG
+provenance. The landing page opens with a photograph of statement review and uses transparent PNG
 photography that accompanies the statement, calendar, and savings examples.
 The pausable cash flow instrument opens below the statement walkthrough. It
 uses the adapted [Anatomy](https://github.com/wheresryan22/anatomy) SVG kit
 (MIT, see `frontend/src/lib/anatomy/LICENSE`).
+The desktop walkthrough uses scroll motion and keeps a vertical reading layout
+on phones and with reduced motion. See the [landing motion plan](docs/agents/landing-motion.md).

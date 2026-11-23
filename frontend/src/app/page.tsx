@@ -1,4 +1,5 @@
 import { LandingPage } from "@/components/landing/LandingPage";
+import "lenis/dist/lenis.css";
 import "@/components/landing/anatomy.css";
 import "@/components/landing/landing.css";
 import "@/components/landing/refinement.css";

@@ -490,12 +490,28 @@ assumptions from old plans.
 
 ## 2026-11-23 — Full screen hero and workspace logout
 
+- [6c5e90e](https://github.com/TarunyaProgrammer/FinSOL2/commit/6c5e90e)
+  introduced this revision and was pushed to the fork’s main branch.
 - Placed the landing navigation over the viewport sized hero. The bottom fades
   into the next section, and the navigation uses a solid background on scroll.
 - Replaced the workspace's browser redirect after an unchecked sign-out call
   with a server response that expires the browser session. The workspace shows
   progress and a retry message when the request fails. A successful response
   clears the local data cache and returns to sign-in with confirmation.
+- In a Chromium test with a synthetic account, a failed request allowed retry,
+  sign-out removed the cookies even while the auth provider returned an error,
+  both open tabs signed out, and revisiting the workspace led to sign-in.
+
+## 2026-11-23 — Landing motion and illustrated footer
+
+- Reviewed the live GSAP homepage. Added a desktop hero zoom and one pinned
+  four-step walkthrough, with vertical mobile and reduced motion layouts.
+- Added a footer with original transparent art, the workspace link, and
+  direct links to public sections. Anime.js animates the art on entry only.
+- Documented the rollout decisions and performance targets in
+  [landing-motion.md](landing-motion.md).
+- Replaced the marble scene with an original photograph of someone reviewing
+  a statement at home. Kept the full screen composition and bottom fade.
 
 ## Updating this history
 
