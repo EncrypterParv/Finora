@@ -162,8 +162,7 @@ recommendation.
 - `sample-statement-3-months.csv` (repo root) is a synthetic demo statement, Sep 1 to Nov 23 2026, 146 rows in the `sample-passbook.csv` column format; it contains no real names, accounts or financial data.
 - Calendar, insights, budgets and goals are part of the authenticated workspace.
   Roles/RBAC management, profile editing, billing, and real bank connections
-  are not. Bank
-  adapters remain simulated; the role editor is not authorization.
+  are not. Bank adapters remain simulated; the role editor is not authorization.
 
 Open `/login` to create a Supabase Auth account or sign in, then enter
 `/dashboard`. With no imported records, the workspace explains how to add a
@@ -172,6 +171,11 @@ statement. See
 environment values, and applying the Postgres migration. Statement import saves
 reviewed records to the user's account; bank sync remains simulated and does
 not connect to real financial institutions.
+
+Email confirmation is required. Sign-up keeps the user on the entry page while
+they enter a six-digit code; verification then opens the empty workspace. The
+Supabase Confirm signup email template must send `{{ .Token }}`, and hosted
+delivery requires configured SMTP. See the Supabase setup guide for the steps.
 
 The entry pages use self-hosted Instrument Serif (SIL OFL; license in
 `frontend/public/fonts/OFL.txt`) and an adapted [Anatomy](https://github.com/wheresryan22/anatomy)

@@ -4,7 +4,11 @@ import { PrototypeDashboard } from "@/components/prototype/PrototypeDashboard";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseConfig } from "@/lib/supabase/config";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ welcome?: string }>;
+}) {
   await cookies(); // Keep auth protection request-time, including before env setup.
   if (!getSupabaseConfig()) redirect("/login?setup=supabase");
 
@@ -21,11 +25,13 @@ export default async function DashboardPage() {
     typeof metadata.full_name === "string"
       ? metadata.full_name
       : "";
+  const { welcome } = await searchParams;
 
   return (
     <PrototypeDashboard
       userEmail={String(data.claims.email ?? "")}
       userName={userName}
+      accountCreated={welcome === "account-created"}
     />
   );
 }
