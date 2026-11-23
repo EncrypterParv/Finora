@@ -241,7 +241,7 @@ export function PrototypeDashboard({
 }
 
 function LoadingWorkspace() {
-  return <WorkspaceLoadingSkeleton />;
+  return <WorkspaceLoadingSkeleton insideShell />;
 }
 
 function LoadError({ message, onRetry }: { message: string; onRetry: () => void }) {
