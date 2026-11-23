@@ -1,4 +1,4 @@
-/* Editorial typography and full-width composition. Colors remain unchanged. */
+/* Responsive layout and interaction refinements for the public and auth pages. */
 .finora-landing,
 .finora-login {
   --page-gutter: clamp(24px, 4vw, 96px);
@@ -20,8 +20,8 @@
   min-height: var(--header-height);
   height: auto;
   padding: 18px var(--page-gutter);
-  background: #f8f4e7;
-  border-bottom: 1px solid #f1d8be;
+  background: #f5f4f0;
+  border-bottom: 1px solid #ded0b5;
   gap: 24px;
 }
 .landing-header nav {
@@ -35,8 +35,8 @@
 }
 .landing-header .landing-login {
   min-height: 46px;
-  border: 1px solid #2e211e;
-  background: #2e211e;
+  border: 1px solid #20211f;
+  background: #20211f;
   color: #fff;
   padding: 9px 20px;
   gap: 25px;
@@ -46,7 +46,7 @@
   white-space: nowrap;
 }
 .landing-header .landing-login:hover {
-  background: #513933;
+  background: #414340;
 }
 .landing-wordmark {
   font-size: 34px;
@@ -59,37 +59,12 @@
 }
 .finora-landing :focus-visible,
 .finora-login :focus-visible {
-  outline: 3px solid #913a00;
+  outline: 3px solid #755727;
   outline-offset: 4px;
   scroll-margin-block: 110px 35px;
 }
 .finora-landing [id] {
   scroll-margin-top: calc(var(--header-height) + 28px);
-}
-.landing-hero {
-  max-width: none;
-  width: 100%;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-  padding: clamp(44px, 5vw, 96px) var(--page-gutter) 0;
-  gap: 40px clamp(40px, 5vw, 110px);
-}
-.hero-copy h1 {
-  font-size: clamp(80px, 6.8vw, 144px);
-  line-height: 1.015;
-  letter-spacing: -0.025em;
-  margin-bottom: 30px;
-}
-.hero-copy > p {
-  font-size: clamp(18px, 1.3vw, 22px);
-  line-height: 1.7;
-  max-width: 38ch;
-  margin-bottom: 30px;
-}
-.hero-note {
-  font-size: 14px;
-  line-height: 1.7;
-  max-width: 40ch;
-  margin-top: 26px;
 }
 .landing-button {
   font-size: 15px;
@@ -100,21 +75,6 @@
 .landing-text-link {
   min-height: 44px;
   font-size: 15px;
-}
-.hero-actions {
-  gap: 10px;
-}
-.hero-baseline {
-  margin-top: 16px;
-  padding: 28px 0;
-}
-.hero-baseline > span {
-  font-size: 12px;
-  letter-spacing: 0.1em;
-}
-.hero-baseline p {
-  font-size: 14px;
-  line-height: 1.7;
 }
 .landing-intro {
   max-width: none;
@@ -430,7 +390,7 @@
 .login-form-panel input {
   font-size: 17px;
   min-height: 52px;
-  border-color: #958179;
+  border-color: #85867b;
 }
 .login-form-panel > p {
   font-size: 16px;
@@ -481,24 +441,24 @@
 }
 .finora-landing input[type="range"]::-webkit-slider-runnable-track {
   height: 4px;
-  background: #98847c;
+  background: #85867b;
   border-radius: 0;
 }
 .finora-landing input[type="range"]::-webkit-slider-thumb {
   margin-top: -9px;
   width: 15px;
   height: 22px;
-  background: #a84600;
-  border-color: #f8f4e7;
+  background: #755727;
+  border-color: #f5f4f0;
 }
 .finora-landing input[type="range"]::-moz-range-track {
   height: 4px;
-  background: #98847c;
+  background: #85867b;
 }
 .finora-landing input[type="range"]::-moz-range-thumb {
   width: 12px;
   height: 19px;
-  background: #a84600;
+  background: #755727;
 }
 .financial-workbench input[type="range"] {
   margin: 12px 0;
@@ -536,10 +496,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  border-color: #e7bea0;
+  border-color: #ded0b5;
 }
 .instrument-parts button[aria-pressed="true"] {
-  border-color: #cc5500;
+  border-color: #886731;
 }
 .assembly-index {
   font-size: 12px;
@@ -553,7 +513,7 @@
   min-height: 44px;
   min-width: 105px;
   padding: 9px 13px;
-  border-color: #958179;
+  border-color: #85867b;
 }
 .instrument-toolbar .instrument-tour {
   gap: 14px;
@@ -573,7 +533,7 @@
   cursor: pointer;
 }
 .finora-machine [data-assembly]:hover .iso-edge {
-  stroke: #913a00;
+  stroke: #755727;
 }
 .money-instrument[data-open="false"] .machine-input,
 .money-instrument[data-open="false"] .machine-pattern,
@@ -663,9 +623,6 @@
   }
 }
 @media (min-width: 1800px) {
-  .hero-figure {
-    align-self: center;
-  }
   .money-instrument .instrument-drawing {
     max-height: 680px;
   }
@@ -687,12 +644,6 @@
   .landing-header nav {
     gap: 24px;
     font-size: 14px;
-  }
-  .hero-copy h1 {
-    font-size: clamp(68px, 7.1vw, 84px);
-  }
-  .landing-hero {
-    gap: 35px;
   }
   .landing-intro {
     gap: 45px;
@@ -780,26 +731,6 @@
     padding: 8px 14px;
     gap: 13px;
   }
-  .landing-hero {
-    grid-template-columns: 1fr;
-    padding: 48px var(--page-gutter) 0;
-    gap: 35px;
-  }
-  .hero-copy h1 {
-    font-size: clamp(58px, 13vw, 92px);
-    line-height: 1.04;
-    margin-bottom: 24px;
-  }
-  .hero-copy > p {
-    font-size: 18px;
-    line-height: 1.7;
-    max-width: 33ch;
-    margin-bottom: 24px;
-  }
-  .hero-note {
-    font-size: 13px;
-    margin-top: 20px;
-  }
   .landing-button {
     font-size: 14px;
     min-height: 54px;
@@ -808,21 +739,6 @@
   }
   .landing-text-link {
     font-size: 14px;
-  }
-  .hero-baseline {
-    padding: 24px 0;
-    gap: 18px;
-  }
-  .hero-baseline > span {
-    font-size: 11px;
-    max-width: 130px;
-    letter-spacing: 0.05em;
-  }
-  .hero-baseline p {
-    font-size: 13px;
-  }
-  .hero-baseline > a {
-    display: none;
   }
   .landing-intro {
     display: block;
@@ -1146,9 +1062,6 @@
   .assembly-index {
     display: none;
   }
-  .hero-copy h1 {
-    font-size: 56px;
-  }
   .mini-calendar small,
   .week-comparison small {
     font-size: 9px;
@@ -1183,121 +1096,121 @@
   }
 }
 /* The hero instrument lives on the canvas, without window or card chrome. */
-.hero-figure .money-instrument {
+.instrument-preview .money-instrument {
   background: transparent;
   border: 0;
   border-radius: 0;
   overflow: visible;
-  --anatomy-paper: #f8f4e7 !important;
-  --anatomy-top: #fdf8f4 !important;
-  --anatomy-face: #f8f4e7 !important;
+  --anatomy-paper: #f5f4f0 !important;
+  --anatomy-top: #f5f4f0 !important;
+  --anatomy-face: #f5f4f0 !important;
 }
-.hero-figure .instrument-caption {
+.instrument-preview .instrument-caption {
   border: 0;
   padding: 0 8px;
-  color: #6d5d56;
+  color: #575953;
   letter-spacing: 0.03em;
 }
-.hero-figure .instrument-drawing {
+.instrument-preview .instrument-drawing {
   overflow: visible;
 }
-.hero-figure .instrument-parts {
+.instrument-preview .instrument-parts {
   gap: 16px;
   padding: 14px 0;
 }
-.hero-figure .instrument-parts button {
+.instrument-preview .instrument-parts button {
   border: 0;
   border-bottom: 1px solid transparent;
   border-radius: 0;
   background: transparent;
   padding: 9px 10px;
-  color: #6d5d56;
+  color: #575953;
 }
-.hero-figure .instrument-parts button[aria-pressed="true"] {
-  border-bottom-color: #cc5500;
-  color: #6d2c00;
+.instrument-preview .instrument-parts button[aria-pressed="true"] {
+  border-bottom-color: #886731;
+  color: #755727;
   background: transparent;
 }
-.hero-figure .instrument-parts button:hover {
-  background: #f8ebde;
+.instrument-preview .instrument-parts button:hover {
+  background: #eeede8;
 }
-.hero-figure .instrument-toolbar {
+.instrument-preview .instrument-toolbar {
   border: 0;
   padding: 8px 0;
   justify-content: center;
   gap: 24px;
 }
-.hero-figure .instrument-toolbar button {
+.instrument-preview .instrument-toolbar button {
   border: 0;
   border-radius: 0;
   background: transparent;
   min-height: 44px;
   font-size: 14px;
-  color: #8c3800;
+  color: #755727;
   padding: 8px 12px;
   min-width: 0;
 }
-.hero-figure .instrument-toolbar button:hover {
-  background: #f8ebde;
+.instrument-preview .instrument-toolbar button:hover {
+  background: #eeede8;
 }
-.hero-figure .instrument-footnote {
+.instrument-preview .instrument-footnote {
   border: 0;
   padding: 14px 8px;
-  color: #6d5d56;
+  color: #575953;
   justify-content: center;
   gap: 22px;
   font-size: 12px;
 }
-.hero-figure .instrument-footnote > span:last-child {
+.instrument-preview .instrument-footnote > span:last-child {
   display: none;
 }
-.hero-figure .instrument-annotation {
+.instrument-preview .instrument-annotation {
   left: 8px;
   right: 8px;
   font-size: clamp(21px, 2vw, 31px);
-  color: #a84600;
+  color: #755727;
   max-width: 92%;
 }
-.hero-figure .instrument-caption > span:first-child {
+.instrument-preview .instrument-caption > span:first-child {
   font-size: 13px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.hero-figure .finora-machine {
+.instrument-preview .finora-machine {
   margin-top: 0;
 }
 @media (max-width: 760px) {
-  .hero-figure .instrument-parts {
+  .instrument-preview .instrument-parts {
     gap: 10px;
   }
-  .hero-figure .instrument-parts button {
+  .instrument-preview .instrument-parts button {
     font-size: 13px;
     padding: 9px 6px;
   }
-  .hero-figure .instrument-annotation {
+  .instrument-preview .instrument-annotation {
     font-size: 21px;
     left: 0;
     right: 0;
   }
-  .hero-figure .instrument-caption {
+  .instrument-preview .instrument-caption {
     padding: 0;
     gap: 6px;
   }
-  .hero-figure .instrument-caption > span:first-child {
+  .instrument-preview .instrument-caption > span:first-child {
     font-size: 11px;
   }
-  .hero-figure .instrument-live {
+  .instrument-preview .instrument-live {
     font-size: 11px;
   }
-  .hero-figure .instrument-footnote > span:first-child {
+  .instrument-preview .instrument-footnote > span:first-child {
     max-width: none;
   }
-  .hero-figure .instrument-toolbar {
+  .instrument-preview .instrument-toolbar {
     gap: 20px;
   }
 }
 /* Small section labels need the same AA contrast as reading text. */
-.process-number{color:#b64900}
+.process-number{color:#755727}
 
 .plans-section {
   width: min(1320px, calc(100% - 2 * var(--page-gutter)));
@@ -1313,29 +1226,29 @@
 }
 .plans-heading h2 {
   margin: 0;
-  color: #2e211e;
-  font-family: "Instrument Serif", Georgia, serif;
+  color: #20211f;
+  font-family: var(--finora-display), Georgia, serif;
   font-size: clamp(42px, 4.6vw, 62px);
   font-weight: 400;
   line-height: 1.08;
   letter-spacing: -0.025em;
 }
 .plans-heading h2 em {
-  color: #a84600;
+  color: #755727;
   font-weight: 400;
 }
 .plans-heading > p {
   max-width: 52ch;
   margin: 0 0 5px;
-  color: #6d5d56;
+  color: #575953;
   font-size: 16px;
   line-height: 1.8;
 }
 .plans-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  border-top: 1px solid #d8d1c5;
-  border-bottom: 1px solid #d8d1c5;
+  border-top: 1px solid #d5d4cc;
+  border-bottom: 1px solid #d5d4cc;
 }
 .plan-column {
   display: flex;
@@ -1344,21 +1257,21 @@
   padding: 30px 28px 32px;
 }
 .plan-column + .plan-column {
-  border-left: 1px solid #e7e3dc;
+  border-left: 1px solid #e5e4de;
 }
 .plan-column-featured {
-  background: #fdfaf6;
+  background: #f5f4f0;
 }
 .plan-column h3 {
   margin: 0;
-  color: #2e211e;
+  color: #20211f;
   font-size: 21px;
   font-weight: 600;
 }
 .plan-description {
   min-height: 48px;
   margin: 10px 0 23px;
-  color: #6d5d56;
+  color: #575953;
   font-size: 14px;
   line-height: 1.65;
 }
@@ -1370,13 +1283,13 @@
   margin: 0 0 23px;
 }
 .plan-price strong {
-  color: #2e211e;
+  color: #20211f;
   font-size: 31px;
   font-weight: 600;
   letter-spacing: -0.025em;
 }
 .plan-price span {
-  color: #76645c;
+  color: #575953;
   font-size: 12px;
 }
 .plan-column ul {
@@ -1384,7 +1297,7 @@
   gap: 12px;
   margin: 0 0 28px;
   padding: 0;
-  color: #514740;
+  color: #414340;
   font-size: 13px;
   line-height: 1.55;
   list-style: none;
@@ -1396,7 +1309,7 @@
 .plan-column li::before {
   position: absolute;
   left: 0;
-  color: #a84600;
+  color: #755727;
   content: "—";
 }
 .plan-link {
@@ -1406,15 +1319,15 @@
   justify-content: space-between;
   gap: 12px;
   margin-top: auto;
-  border-bottom: 1px solid #b8a89a;
-  color: #4e342e;
+  border-bottom: 1px solid #bab9af;
+  color: #262724;
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
 }
 .plan-link:hover {
-  color: #a84600;
-  border-color: #a84600;
+  color: #755727;
+  border-color: #755727;
 }
 @media (max-width: 760px) {
   .plans-section {
@@ -1438,7 +1351,7 @@
     padding: 24px 8px 27px;
   }
   .plan-column + .plan-column {
-    border-top: 1px solid #e7e3dc;
+    border-top: 1px solid #e5e4de;
     border-left: 0;
   }
   .plan-description {

@@ -93,7 +93,7 @@ export function CalendarScreen({ onAddStatement }: { onAddStatement: () => void 
 
       <div className={`mt-4 ${loading ? "opacity-60" : ""}`} aria-busy={loading}>
         {error ? <div role="alert" className="rounded-lg bg-[#fdebec] p-4 text-sm text-[#9f2f2d]">{error}<SecondaryButton className="ml-3" onClick={() => setReloadKey((key) => key + 1)}><RotateCw size={14} /> Try again</SecondaryButton></div>
-          : !data ? <div role="status" className="py-16 text-center text-sm text-[#766e65]">Your calendar could not be loaded.</div>
+          : !data ? <div role="status" className="py-16 text-center text-sm text-[#575953]">Your calendar could not be loaded.</div>
           : mode === "month" ? <MonthGrid data={data} today={today} onOpenDay={openDay} />
           : mode === "week" ? <WeekColumns data={data} today={today} onOpenDay={openDay} />
           : <DayDetail day={data.days[0]} />}
@@ -135,7 +135,7 @@ function WeekColumns({ data, today, onOpenDay }: { data: CalendarViewResponse; t
         <span className="tabular-nums">{toNumber(day.total_debit) > 0 ? money(day.total_debit) : "—"}</span>
       </button>
       <div className="calendar-heat-rule" data-heat={heatLevel(day)} aria-hidden="true" />
-      {day.events.length === 0 ? <p className="px-1 py-3 text-xs text-[#a39788]">No transactions</p>
+      {day.events.length === 0 ? <p className="px-1 py-3 text-xs text-[#62645d]">No transactions</p>
         : <ul className="mt-1">{day.events.map((event) => <EventRow key={event.id} event={event} compactRow />)}</ul>}
     </section>)}
   </div>;
@@ -144,8 +144,8 @@ function WeekColumns({ data, today, onOpenDay }: { data: CalendarViewResponse; t
 // Day view: every transaction on one date, in time order.
 function DayDetail({ day }: { day?: CalendarDaySummary }) {
   const events = useMemo(() => day?.events ?? [], [day]);
-  if (!day || events.length === 0) return <p className="py-10 text-center text-sm text-[#766e65]">No transactions on this day.</p>;
-  return <ul className="divide-y divide-[#f0ede7]">{events.map((event) => <EventRow key={event.id} event={event} />)}</ul>;
+  if (!day || events.length === 0) return <p className="py-10 text-center text-sm text-[#575953]">No transactions on this day.</p>;
+  return <ul className="divide-y divide-[#e5e4de]">{events.map((event) => <EventRow key={event.id} event={event} />)}</ul>;
 }
 
 // One transaction line inside the calendar.
@@ -159,9 +159,9 @@ function EventRow({ event, compactRow = false }: { event: CalendarEventBlock; co
     </li>;
   }
   return <li className="flex items-center gap-3 py-3">
-    <span className="w-12 shrink-0 text-xs tabular-nums text-[#8a8279]">{time}</span>
+    <span className="w-12 shrink-0 text-xs tabular-nums text-[#62645d]">{time}</span>
     <span className="calendar-swatch" style={{ background: event.category_color }} aria-hidden="true" />
-    <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{event.merchant_name}</div><div className="mt-0.5 text-[11px] text-[#8a8279]">{event.category_name}</div></div>
-    <span className={`shrink-0 text-sm font-medium tabular-nums ${credit ? "text-[#477250]" : "text-[#433b35]"}`}>{credit ? "+" : "−"}{money(event.amount, event.currency, 2)}</span>
+    <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{event.merchant_name}</div><div className="mt-0.5 text-[11px] text-[#62645d]">{event.category_name}</div></div>
+    <span className={`shrink-0 text-sm font-medium tabular-nums ${credit ? "text-[#477250]" : "text-[#414340]"}`}>{credit ? "+" : "−"}{money(event.amount, event.currency, 2)}</span>
   </li>;
 }

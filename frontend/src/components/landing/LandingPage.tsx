@@ -1,41 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Instrument } from "./Instrument";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+import { ArrowDown } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { FinancialWorkbench } from "./FinancialWorkbench";
 import { WealthExplorer } from "./WealthExplorer";
 import { LandingPlans } from "./LandingPlans";
+import { Arrow, Wordmark } from "./LandingBrand";
 
-export function Wordmark() {
-  return (
-    <span className="landing-wordmark">
-      <svg viewBox="0 0 32 32" aria-hidden="true">
-        <path d="M4 4h24v6H11v6h12v6H11v6H4Z" fill="currentColor" />
-        <path d="m17 4 11 6V4ZM17 16l6 6v-6Z" fill="#d18047" />
-      </svg>
-      finora
-    </span>
-  );
-}
-export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d={diagonal ? "M6 18 18 6M6 6h12v12" : "M4 12h15m-6-6 6 6-6 6"}
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="square"
-      />
-    </svg>
-  );
-}
+const InstrumentPreview = dynamic(() => import("./InstrumentPreview"), {
+  loading: () => <p className="instrument-loading" role="status">Opening the walkthrough…</p>,
+});
+
 const steps = [
   {
     title: "Start with the everyday.",
@@ -71,9 +49,18 @@ const steps = [
   },
 ];
 
-export function LandingPage({ art }: { art: ReactNode }) {
+export function LandingPage() {
   const [stage, setStage] = useState(0);
+  const [showInstrument, setShowInstrument] = useState(false);
+  const [headerScrolled, setHeaderScrolled] = useState(false);
   const processRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const updateHeader = () => setHeaderScrolled(window.scrollY > 20);
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+    return () => window.removeEventListener("scroll", updateHeader);
+  }, []);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -93,7 +80,7 @@ export function LandingPage({ art }: { art: ReactNode }) {
       <a className="landing-skip" href="#main">
         Skip to content
       </a>
-      <header className="landing-header">
+      <header className="landing-header" data-scrolled={headerScrolled}>
         <Link href="/" aria-label="Finora home">
           <Wordmark />
         </Link>
@@ -108,44 +95,28 @@ export function LandingPage({ art }: { art: ReactNode }) {
         </Link>
       </header>
       <main id="main" tabIndex={-1}>
-        <section className="landing-hero">
-          <div className="hero-copy">
-            <h1>
-              Your money.
-              <br />
-              With a little
-              <br />
-              <em>more meaning.</em>
-            </h1>
-            <p>
-              You work hard for your money. See where it goes, what your habits
-              cost, and what it could become.
-            </p>
-            <div className="hero-actions">
-              <Link className="landing-button" href="/login">
-                Open your workspace <Arrow />
-              </Link>
-              <a className="landing-text-link" href="#how-it-works">
-                Take a closer look <span aria-hidden="true">↓</span>
-              </a>
-            </div>
-            <div className="hero-note">
-              Your transactions, patterns, and forecasts. One considered view.
+        <section className="landing-masthead" aria-labelledby="landing-title">
+          <div className="masthead-scene">
+            <picture className="masthead-art">
+              <source media="(max-width: 700px)" srcSet="/images/marble-flow-small.webp" />
+              <Image src="/images/marble-flow.webp" alt="" width={1774} height={887} unoptimized fetchPriority="high" loading="eager" />
+            </picture>
+            <div className="masthead-copy">
+              <h1 id="landing-title">See your money <em>take shape.</em></h1>
+              <div className="masthead-actions">
+                <p>
+                  Turn your bank statements into a clear view of what you spend,
+                  what you save, and what you can plan for.
+                </p>
+                <Link className="landing-button" href="/login">
+                  Open your workspace <Arrow />
+                </Link>
+              </div>
             </div>
           </div>
-          <div className="hero-figure">
-            <Instrument art={art} />
-          </div>
-          <div className="hero-baseline">
-            <span>PERSONAL FINANCE, PUT IN PERSPECTIVE.</span>
-            <p>
-              One place for your cash flow, your habits,
-              <br />
-              and the plans that come next.
-            </p>
-            <a href="#how-it-works" aria-label="Scroll to how Finora works">
-              <Arrow />
-            </a>
+          <div className="masthead-note">
+            <p>Import a statement. Review each record before you save. No bank login required.</p>
+            <a href="#how-it-works">How it works <ArrowDown size={16} aria-hidden="true" /></a>
           </div>
         </section>
         <section className="landing-intro" id="how-it-works">
@@ -154,11 +125,13 @@ export function LandingPage({ art }: { art: ReactNode }) {
             <br />
             <em>What it tells you is the point.</em>
           </h2>
-          <p>
-            The small expenses are easy to overlook. Their effect on your future
-            is harder to ignore. Finora connects what happened, what’s changing,
-            and what you can do next.
-          </p>
+          <div className="intro-still-life">
+            <Image src="/images/statement-still-life.png" alt="" width={610} height={610} sizes="220px" />
+            <p>
+              Finora connects what happened, what’s changing, and what you can do
+              next. Start with a statement that you review before saving.
+            </p>
+          </div>
         </section>
         <section
           className="process-section"
@@ -221,6 +194,10 @@ export function LandingPage({ art }: { art: ReactNode }) {
             ))}
           </div>
         </section>
+        <details className="instrument-preview" onToggle={(event) => setShowInstrument(event.currentTarget.open)}>
+          <summary>Explore the interactive cash flow walkthrough</summary>
+          {showInstrument && <InstrumentPreview />}
+        </details>
         <section className="money-section" id="your-money">
           <div className="section-heading">
             <h2>
@@ -237,6 +214,9 @@ export function LandingPage({ art }: { art: ReactNode }) {
             <article className="calendar-feature">
               <div className="feature-meta">
                 THE FINANCIAL CALENDAR <span>ILLUSTRATIVE WEEK</span>
+              </div>
+              <div className="feature-still-life">
+                <Image src="/images/calendar-still-life.png" alt="" width={720} height={480} sizes="(max-width: 760px) 70vw, 300px" />
               </div>
               <div className="mini-calendar">
                 {["M", "T", "W", "T", "F", "S", "S"].map((day, i) => (
@@ -266,7 +246,10 @@ export function LandingPage({ art }: { art: ReactNode }) {
               </p>
             </article>
             <article className="goal-feature">
-              <div className="feature-meta">GOALS WITH DIRECTION</div>
+              <div className="feature-meta">SAVINGS GOALS <span>ILLUSTRATIVE GOAL</span></div>
+              <div className="feature-still-life">
+                <Image src="/images/savings-still-life.png" alt="" width={720} height={360} sizes="(max-width: 760px) 70vw, 300px" />
+              </div>
               <div className="goal-track">
                 <span>Emergency fund</span>
                 <strong>

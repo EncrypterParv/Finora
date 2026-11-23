@@ -178,6 +178,9 @@ environment values, and applying the Postgres migration. Statement import saves
 reviewed records to the user's account; bank sync remains simulated and does
 not connect to real financial institutions.
 
+Use **Log out** in the workspace header to end the session in this browser.
+Finora clears its session cookies before returning to sign-in.
+
 For the current demo, Supabase Auth email confirmation is intended to be off.
 When disabled, signup should create an active session and open the empty
 workspace without sending a verification email. This accepts unverified email
@@ -185,11 +188,10 @@ addresses and does not prove ownership. The hosted project setting is now off;
 password recovery continues to require email delivery. See the
 Supabase setup guide for the exact setup and limitations.
 
-The entry pages use self-hosted Instrument Serif (SIL OFL; license in
-`frontend/public/fonts/OFL.txt`) and an adapted [Anatomy](https://github.com/wheresryan22/anatomy)
-SVG kit (MIT; license in `frontend/src/lib/anatomy/LICENSE`).
-
-The hero includes a pausable instrument tour and direct assembly selection. It
-stops offscreen and respects reduced motion. The entry pages use a full-width
-desktop layout, sticky login navigation, and self-hosted Instrument Serif with
-DM Sans (license: `frontend/public/fonts/DM-Sans-OFL.txt`).
+Finora uses a stone, graphite, and brass palette with self-hosted Newsreader
+and DM Sans. See [DESIGN.md](DESIGN.md) for the visual system and image
+provenance. The landing page includes a marble hero and transparent PNG
+photography that accompanies the statement, calendar, and savings examples.
+The pausable cash flow instrument opens below the statement walkthrough. It
+uses the adapted [Anatomy](https://github.com/wheresryan22/anatomy) SVG kit
+(MIT, see `frontend/src/lib/anatomy/LICENSE`).

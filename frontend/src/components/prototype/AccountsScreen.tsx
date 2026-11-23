@@ -72,17 +72,17 @@ function AccountCard({ account, onUpdated, onDeleted }: {
     }
   }
 
-  return <section className="rounded-xl border border-[#e8e4dc] bg-white p-5">
+  return <section className="rounded-xl border border-[#e5e4de] bg-white p-5">
     {mode === "edit"
       ? <EditAccountForm account={account} onCancel={() => setMode("view")} onSaved={(updated) => { onUpdated(updated); setMode("view"); }} />
       : <>
         <div className="flex items-start gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-[#f4eee7] text-[#694b3b]"><WalletCards size={18} /></span>
-          <div className="min-w-0 flex-1"><h2 className="truncate font-semibold">{account.institution_name}</h2><p className="mt-1 text-xs text-[#837970]">{accountTypeLabels[account.account_type] ?? account.account_type} · {account.account_number_masked}</p></div>
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-[#eeede8] text-[#414340]"><WalletCards size={18} /></span>
+          <div className="min-w-0 flex-1"><h2 className="truncate font-semibold">{account.institution_name}</h2><p className="mt-1 text-xs text-[#62645d]">{accountTypeLabels[account.account_type] ?? account.account_type} · {account.account_number_masked}</p></div>
           <IconButton label={`Edit ${account.institution_name}`} onClick={() => { setMode("edit"); setError(""); }}><Pencil size={15} /></IconButton>
           <IconButton label={`Delete ${account.institution_name}`} onClick={() => { setMode("confirm"); setError(""); }}><Trash2 size={15} /></IconButton>
         </div>
-        <p className="mt-4 text-xs text-[#837970]">{account.currency} · {account.adapter_type === "STATEMENT_IMPORT" ? "Statement imports" : "Simulated bank sync"}</p>
+        <p className="mt-4 text-xs text-[#62645d]">{account.currency} · {account.adapter_type === "STATEMENT_IMPORT" ? "Statement imports" : "Simulated bank sync"}</p>
         {mode === "confirm" && <ConfirmStrip message={<>Delete the account label <strong>{account.institution_name}</strong>?</>} confirmLabel="Delete account" working={working} onConfirm={() => remove(false)} onCancel={() => setMode("view")} />}
         {mode === "confirm-with-transactions" && <ConfirmStrip
           message={<>{transactionCountSentence(conflictMessage)} Deleting the account also permanently deletes them, and they stop counting toward your budgets.</>}

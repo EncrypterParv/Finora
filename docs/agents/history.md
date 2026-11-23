@@ -477,6 +477,26 @@ assumptions from old plans.
   until the list can be checked so a temporary read failure cannot prompt a
   duplicate record.
 
+## 2026-11-23 — Stone, graphite, and brass redesign
+
+- Replaced the warm entry palette with a shared stone, graphite, and brass
+  identity across the public site, authentication, and the signed-in workspace.
+  Newsreader is the display face and DM Sans covers controls and body copy.
+- The landing page opens with original marble artwork. Transparent PNG
+  photography illustrates statements, calendars, and savings. The pausable
+  cash flow instrument opens further down the page on request.
+- Kept financial examples clearly illustrative. The redesign stays local for
+  review before any deployment.
+
+## 2026-11-23 — Full screen hero and workspace logout
+
+- Placed the landing navigation over the viewport sized hero. The bottom fades
+  into the next section, and the navigation uses a solid background on scroll.
+- Replaced the workspace's browser redirect after an unchecked sign-out call
+  with a server response that expires the browser session. The workspace shows
+  progress and a retry message when the request fails. A successful response
+  clears the local data cache and returns to sign-in with confirmation.
+
 ## Updating this history
 
 Append a dated entry after a meaningful feature or architecture milestone. Add

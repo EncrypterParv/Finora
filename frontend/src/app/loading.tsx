@@ -1,15 +1,30 @@
 export default function Loading() {
-  return <main className="min-h-screen bg-[#f8f4e7] px-5 text-[#271c19] sm:px-10 lg:px-16" aria-busy="true">
-    <p role="status" className="sr-only">Loading Finora</p>
-    <header aria-hidden="true" className="mx-auto flex h-20 max-w-7xl items-center justify-between border-b border-[#e7e3dc]">
-      <span className="h-8 w-32 animate-pulse rounded-md bg-[#eee8de] motion-reduce:animate-none" />
-      <nav className="hidden items-center gap-8 md:flex">{[0, 1, 2, 3].map((item) => <span key={item} className="h-4 w-20 animate-pulse rounded bg-[#eee8de] motion-reduce:animate-none" />)}</nav>
-      <span className="h-10 w-24 animate-pulse rounded-md bg-[#eee8de] motion-reduce:animate-none" />
-    </header>
-    <section aria-hidden="true" className="mx-auto grid min-h-[68vh] max-w-7xl items-center gap-10 py-16 lg:grid-cols-[0.9fr_1.1fr]">
-      <div><span className="block h-4 w-36 animate-pulse rounded bg-[#eee8de] motion-reduce:animate-none" /><span className="mt-6 block h-16 max-w-xl animate-pulse rounded-lg bg-[#eee8de] motion-reduce:animate-none" /><span className="mt-3 block h-16 max-w-lg animate-pulse rounded-lg bg-[#eee8de] motion-reduce:animate-none" /><span className="mt-6 block h-5 max-w-md animate-pulse rounded bg-[#eee8de] motion-reduce:animate-none" /><span className="mt-3 block h-5 max-w-sm animate-pulse rounded bg-[#eee8de] motion-reduce:animate-none" /><span className="mt-8 block h-12 w-44 animate-pulse rounded-md bg-[#eee8de] motion-reduce:animate-none" /></div>
-      <div className="min-h-[22rem] animate-pulse rounded-2xl border border-[#e7e3dc] bg-[#f2ede4] motion-reduce:animate-none" />
-    </section>
-    <section aria-hidden="true" className="mx-auto grid max-w-7xl gap-4 border-t border-[#e7e3dc] py-12 sm:grid-cols-3">{[0, 1, 2].map((item) => <div key={item} className="rounded-xl border border-[#e7e3dc] bg-white p-5"><span className="block h-4 w-28 animate-pulse rounded bg-[#eee8de] motion-reduce:animate-none" /><span className="mt-4 block h-10 w-full animate-pulse rounded bg-[#eee8de] motion-reduce:animate-none" /><span className="mt-3 block h-3 w-4/5 animate-pulse rounded bg-[#eee8de] motion-reduce:animate-none" /></div>)}</section>
-  </main>;
+  const heroBlock = "block rounded bg-[#3e4038] animate-pulse motion-reduce:animate-none";
+  return (
+    <main className="min-h-screen bg-[#f5f4f0]" aria-busy="true">
+      <p className="sr-only" role="status">Loading Finora</p>
+      <div aria-hidden="true">
+        <div className="relative z-10 -mb-[76px] flex h-[76px] items-center justify-between px-[max(22px,4vw)] md:-mb-[88px] md:h-[88px]">
+          <span className={`${heroBlock} h-8 w-32`} />
+          <div className="hidden gap-6 md:flex">
+            {Array.from({ length: 4 }, (_, item) => <span key={item} className={`${heroBlock} h-4 w-16`} />)}
+          </div>
+          <span className={`${heroBlock} h-11 w-24`} />
+        </div>
+        <div className="grid min-h-svh items-start bg-[linear-gradient(to_bottom,#20211f_72%,#f5f4f0)] md:items-center">
+          <div className="mx-auto w-full max-w-[112rem] space-y-7 px-[max(22px,4vw)] pt-[124px] pb-[12rem] md:pt-[calc(88px+5vh)] md:pb-[29svh]">
+            <div className="space-y-3">
+              <span className={`${heroBlock} h-[clamp(2.5rem,7vw,7rem)] w-11/12 max-w-[45rem]`} />
+              <span className={`${heroBlock} h-[clamp(2.5rem,7vw,7rem)] w-3/5 max-w-[30rem]`} />
+            </div>
+            <div className="space-y-3">
+              <span className={`${heroBlock} h-4 w-full max-w-80`} />
+              <span className={`${heroBlock} h-4 w-3/4 max-w-64`} />
+              <span className={`${heroBlock} mt-5 h-14 w-52`} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
 }
