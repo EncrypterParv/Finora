@@ -450,6 +450,8 @@ assumptions from old plans.
 
 ## 2026-11-23 — Targeted session cache and loading skeletons
 
+- [b95cb1a](https://github.com/TarunyaProgrammer/FinSOL2/commit/b95cb1a)
+  implemented this milestone.
 - Replaced the 30-second cache with a bounded, user-scoped in-memory cache for
   the current browser tab. Relevant successful mutations invalidate dependent
   data groups; same-browser tabs receive those invalidations. Identical reads
