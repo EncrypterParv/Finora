@@ -32,7 +32,7 @@ The system is built as a **Modular Monolith**:
 - **Frontend**: Next.js 16.4.6 (App Router), TypeScript, Tailwind CSS, TanStack Query, Framer Motion, Recharts.
 - **Backend API**: Python FastAPI, Pydantic v2 schemas, SQLAlchemy 2.0 async ORM.
 - **Persistence**: Local development defaults to SQLite; Supabase Postgres is configured for hosted data. The initial schema migration is applied to the configured project.
-- **Authentication**: Supabase Auth email/password, six-digit verification, PKCE confirmation callback, password reset, and dashboard protection are implemented. The login page can request a verification email for an existing unconfirmed account and shows safe provider diagnostics. Hosted SMTP is still unconfigured, so live email signup/recovery is not ready; see [Supabase setup](docs/supabase/setup.md).
+- **Authentication**: Supabase Auth email/password signup, sign-in, PKCE password-recovery callback, and dashboard protection are implemented. Email confirmation is intended to be off for the current demo, so users can enter an unverified email; this does not prove email ownership. The hosted Supabase setting still needs to be changed. Password recovery requires working email delivery; see [Supabase setup](docs/supabase/setup.md).
 - **Simulated Integrations**: Pluggable `BankAdapter` contracts (e.g. `HSBCDemoAdapter`) with zero storage of real credentials.
 
 Detailed system documentation is available in `docs/`:
@@ -172,10 +172,12 @@ environment values, and applying the Postgres migration. Statement import saves
 reviewed records to the user's account; bank sync remains simulated and does
 not connect to real financial institutions.
 
-Email confirmation is required. Sign-up keeps the user on the entry page while
-they enter a six-digit code; verification then opens the empty workspace. The
-Supabase Confirm signup email template must send `{{ .Token }}`, and hosted
-delivery requires configured SMTP. See the Supabase setup guide for the steps.
+For the current demo, Supabase Auth email confirmation is intended to be off.
+When disabled, signup should create an active session and open the empty
+workspace without sending a verification email. This accepts unverified email
+addresses and does not prove ownership. The hosted project setting still needs
+to be changed; password recovery continues to require email delivery. See the
+Supabase setup guide for the exact setup and limitations.
 
 The entry pages use self-hosted Instrument Serif (SIL OFL; license in
 `frontend/public/fonts/OFL.txt`) and an adapted [Anatomy](https://github.com/wheresryan22/anatomy)

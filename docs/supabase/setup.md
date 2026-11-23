@@ -13,16 +13,19 @@ configured, the local frontend/backend env files contain the project settings,
 and the backend Session pooler connection is configured in ignored
 `backend/.env`. The initial migration has been applied with the Supabase CLI;
 the ten expected tables, their RLS flags, and the migration-history entry were
-verified. Email confirmation is required by the app. The checked-in local
-Supabase config enables confirmation and uses a six-digit OTP template; the
-hosted project still needs its Confirm signup template and custom SMTP
-configured, then a real sign-up and recovery flow checked.
+verified. Supabase Auth remains the identity and password provider. For the
+current demo, the app expects email confirmation to be disabled so signup
+returns a session immediately. The checked-in local Supabase config reflects
+that setting. The hosted project still has confirmation enabled as of the last
+dashboard review, so hosted signup will not complete until that setting is
+changed.
 
 The hosted Auth dashboard was reviewed on 2026-11-23: **Confirm sign up** is
 enabled, custom SMTP is not configured, and an existing user is still awaiting
-email verification. Do not create repeated test users or repeatedly request
-emails until the sender is configured and the current Auth rate limit has
-cleared.
+email verification. The user chose to disable confirmation for the current
+demo, but the hosted toggle has not yet been changed. Do not create repeated
+test users while the current Auth rate limit is active. Turning confirmation
+off does not necessarily verify accounts created earlier.
 
 The configured pooler hostname contains `ap-northeast-1` (Tokyo), while the
 product context currently describes India as the primary audience. Confirm the
@@ -59,38 +62,16 @@ and [Supabase's region-change guidance](https://supabase.com/kb/troubleshooting/
 3. Add these redirect URLs:
    - `http://localhost:3000/auth/callback`
    - `http://127.0.0.1:3000/auth/callback`
-4. In **Authentication → Providers → Email**, leave Email enabled and keep
-   **Confirm email** on. Users must prove they control the address before they
-   can sign in.
-5. Open **Authentication → Email Templates → Confirm signup**. Finora supports
-   both verification methods:
-
-   - **Code entry:** use an OTP body containing `{{ .Token }}` and keep the
-     signup screen's six-digit entry flow. A link-only template does not
-     provide a code for that form.
-   - **Confirmation link:** use `{{ .ConfirmationURL }}`. Supabase verifies
-     the link, redirects to Finora's `/auth/callback`, and the server exchanges
-     the returned PKCE `code` with Supabase before opening the workspace.
-
-   The local Supabase template uses the code-entry method. For that method, a
-   sample body is:
-
-   ```html
-   <h2>Confirm your Finora account</h2>
-   <p>Enter this one-time code in Finora to confirm your email address:</p>
-   <p style="font-size: 28px; font-weight: 700; letter-spacing: 8px;">{{ .Token }}</p>
-   <p>This code expires in one hour. If you did not request an account, ignore this email.</p>
-   <p>Finora will never ask you to share your bank password or this code.</p>
-   ```
-
-   The app accepts six digits.
-6. Set up a transactional email provider. **Resend** is the recommended
-   low-friction choice for this project; it provides SMTP credentials, so no
-   mail-sending code or Nodemailer server is needed. Create a Resend account,
-   add a domain you control, publish the SPF/DKIM DNS records Resend provides,
-   and wait for the domain to show as verified. A personal mailbox address is
-   not a substitute for verifying a sending domain.
-7. In Resend, create an API key for SMTP use. In Supabase, open **Auth → SMTP
+4. In **Authentication → Providers → Email**, keep Email enabled and switch
+   **Confirm email** off for this demo. This permits signup with an address the
+   user has not proved they own. Do not use this policy for a public production
+   launch. The hosted setting still needs to be changed by the project owner.
+5. No confirmation email template or SMTP provider is needed for signup while
+   confirmation is off. Password recovery still sends an email, so configure
+   SMTP only if you want that recovery flow to work. **Resend** is one option;
+   it requires a verified sending domain. Nodemailer is not required because
+   Supabase Auth sends the email.
+6. In Resend, create an API key for SMTP use. In Supabase, open **Auth → SMTP
    Settings** (or **Project Settings → Authentication → SMTP Settings**),
    enable custom SMTP, and enter:
 
@@ -106,16 +87,19 @@ and [Supabase's region-change guidance](https://supabase.com/kb/troubleshooting/
    Keep the Resend key in Supabase's SMTP password field only. Do not put it
    in `frontend/.env.local`, Vercel environment variables, chat, or Git. The
    Supabase built-in sender is restricted to project team addresses and has a
-   very low, changeable sending limit; it is not suitable for normal signup.
-8. Add the deployed site's exact `/auth/callback` URL to the redirect allowlist
-   before testing hosted confirmation or password recovery. Keep the two local
-   callback URLs above for local development.
-9. Test once with an inbox you control. The login screen has **Need a
-   verification email?** for an existing unconfirmed account; after requesting
-   a code, enter it on that screen. Alternatively, click the confirmation link
-   in the email and let Supabase complete the server callback. Do not retry
-   repeatedly if a rate-limit error appears; inspect the safe code/status shown
-   under **Technical details to share** and the Supabase Auth logs.
+   very low, changeable sending limit; it is not suitable for password
+   recovery to arbitrary users. Skip SMTP setup if password recovery is not
+   being used yet.
+7. Add the deployed site's exact `/auth/callback` URL to the redirect allowlist
+   if you use password recovery. Keep the two local callback URLs above for
+   local development. The callback exchanges Supabase's PKCE code server-side
+   before opening the reset-password page.
+8. After the hosted confirmation setting is off, test signup once. A successful
+   signup should open the workspace immediately. If Supabase returns no
+   session, check **Confirm email** and whether that address already has an
+   account; the form shows safe technical details. An account created earlier
+   while confirmation was enabled may remain unverified and need separate
+   handling. Do not repeat requests while rate-limited.
 
 ## Copy project values into local environment files
 
@@ -184,21 +168,21 @@ cd backend
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Visit `http://127.0.0.1:3000/login`, create an account, enter the emailed
-six-digit code, and confirm the app opens the workspace with an account-created
-message. The login screen offers a rate-limited resend action and a way to
-correct the email address. For local Supabase, run `supabase start`; Auth emails
-are captured by the local Mailpit UI printed by the CLI. In the hosted dashboard,
-verify the confirmed user under **Authentication → Users** and the matching
-profile under **Table Editor → users**. The workspace remains empty until the
+Visit `http://127.0.0.1:3000/login`, create an account, and confirm the app
+opens the workspace immediately. No verification code is collected. For local
+Supabase, run `supabase start`; email confirmation is disabled in the checked-in
+local config. In the hosted dashboard, inspect the user under
+**Authentication → Users** and the matching profile under **Table Editor →
+users**. The workspace remains empty until the
 user creates an account label and imports transactions. CSV preview performs no
 writes; only reviewed rows submitted through the confirm action are saved to
 that user's Postgres records.
 
-Email delivery is an external project setup item, not something the frontend
-can provide. Password recovery also depends on working SMTP. Do not mark signup
-end-to-end verified until both confirmation and recovery emails arrive and the
-full flows have been exercised.
+Email ownership is not checked while confirmation is disabled. Anyone can
+register using an address they do not control. Password recovery depends on
+working SMTP; without it, users who forget their password may be unable to
+recover their account. Before a public production launch, enable confirmation,
+configure reliable SMTP, and test confirmation and recovery end to end.
 
 PDF, PNG, and JPG extraction requires the optional, self-hosted PaddleX runtime.
 Use Python 3.13 and install it from the backend directory with:

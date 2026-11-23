@@ -385,6 +385,28 @@ assumptions from old plans.
 - **Do not call the prototype's local role changes RBAC.** They are visual
   mock interactions only; authorization must be enforced server-side.
 
+## 2026-11-23 — Remove signup verification flow for current demo
+
+- The user chose to keep Supabase Auth but disable email confirmation for the
+  current demo. Supabase Auth continues to own user identities and passwords;
+  the application does not query `auth.users` to check whether an email exists.
+- Removed the six-digit signup OTP, resend, and confirmation-email UI. Signup
+  now expects Supabase to return a session and takes the user to the empty
+  workspace. If no session is returned, the UI explains that confirmation may
+  still be enabled or the account may already exist, and exposes safe
+  operation/status diagnostics.
+- Kept the server-side PKCE callback for password recovery only. Removed the
+  local confirmation email template and configured local Supabase Auth to
+  allow immediate signup sessions.
+- Signup without email confirmation accepts unverified addresses and is not an
+  appropriate public-production policy. SMTP is unnecessary for signup in
+  this mode, but password recovery still needs email delivery. Before a public
+  launch, re-enable confirmation and verify the full signup/recovery flow.
+- The hosted Supabase Confirm email setting has not been changed yet. It needs
+  explicit approval at the time of the hosted security-setting change. An
+  existing unverified account may remain unverified after the toggle changes;
+  do not claim this update confirms it or delete it without the user's request.
+
 ## Updating this history
 
 Append a dated entry after a meaningful feature or architecture milestone. Add
