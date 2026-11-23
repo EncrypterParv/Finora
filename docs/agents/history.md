@@ -435,6 +435,16 @@ assumptions from old plans.
   gates. No browser-based Lighthouse score or visual audit has been recorded;
   the app server was not started for this change.
 
+## 2026-11-23 — Signup confirmation toast
+
+- Replaced the in-flow account-created banner with a fixed, dismissible toast
+  that slides in from the right, announces itself to assistive technology, and
+  dismisses after 5.5 seconds. It respects reduced-motion settings and removes
+  the one-time `welcome=account-created` query parameter so refresh does not
+  replay the notification.
+- The toast does not take focus or change page layout. Browser visual QA remains
+  pending because the app server was not started.
+
 ## Updating this history
 
 Append a dated entry after a meaningful feature or architecture milestone. Add

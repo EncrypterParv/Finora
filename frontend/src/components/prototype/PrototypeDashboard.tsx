@@ -9,6 +9,7 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  X,
   FileUp,
   LayoutDashboard,
   Lightbulb,
@@ -82,6 +83,24 @@ export function PrototypeDashboard({
   const [refreshError, setRefreshError] = useState("");
   const [retryKey, setRetryKey] = useState(0);
   const [signingOut, setSigningOut] = useState(false);
+  const [welcomeToastState, setWelcomeToastState] = useState<"visible" | "leaving" | "hidden">(accountCreated ? "visible" : "hidden");
+
+  useEffect(() => {
+    if (!accountCreated) return;
+    router.replace("/dashboard", { scroll: false });
+  }, [accountCreated, router]);
+
+  useEffect(() => {
+    if (!accountCreated || welcomeToastState !== "visible") return;
+    const timer = window.setTimeout(() => setWelcomeToastState("leaving"), 5_500);
+    return () => window.clearTimeout(timer);
+  }, [accountCreated, welcomeToastState]);
+
+  useEffect(() => {
+    if (welcomeToastState !== "leaving") return;
+    const timer = window.setTimeout(() => setWelcomeToastState("hidden"), 260);
+    return () => window.clearTimeout(timer);
+  }, [welcomeToastState]);
 
   useEffect(() => {
     endDemoSession();
@@ -187,10 +206,11 @@ export function PrototypeDashboard({
         </header>
 
         <main id="workspace-main" tabIndex={-1} className="prototype-content mx-auto max-w-[1280px] px-4 py-6 md:px-8 md:py-8" aria-busy={loading}>
-          {accountCreated && <section role="status" className="mb-5 flex items-start gap-3 rounded-xl border border-[#d7e5d1] bg-[#f4f8f0] p-4 text-[#334b32]">
-            <Check size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
-            <div><h2 className="font-semibold">Your account is ready.</h2><p className="mt-1 text-sm leading-6">You’re signed in to Finora. Your workspace starts empty; add a statement whenever you’re ready.</p></div>
-          </section>}
+          {welcomeToastState !== "hidden" && <aside className="prototype-toast" data-state={welcomeToastState} role="status" aria-live="polite" aria-atomic="true">
+            <Check size={19} className="mt-0.5 shrink-0" aria-hidden="true" />
+            <div className="min-w-0 flex-1"><p className="font-semibold">Your account is ready.</p><p className="mt-1 text-sm leading-5">You’re signed in to Finora. Your workspace starts empty; add a statement whenever you’re ready.</p></div>
+            <button type="button" className="prototype-toast-dismiss" onClick={() => setWelcomeToastState("leaving")} aria-label="Dismiss account created notification"><X size={17} aria-hidden="true" /></button>
+          </aside>}
           {refreshError && <p role="alert" className="mb-4 rounded-md border border-[#ead7d2] bg-white p-3 text-sm text-[#9f2f2d]">{refreshError}</p>}
           {loading ? <LoadingWorkspace /> : loadError ? <LoadError message={loadError} onRetry={() => setRetryKey((key) => key + 1)} /> : (
             <>
