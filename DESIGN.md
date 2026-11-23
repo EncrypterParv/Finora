@@ -57,7 +57,7 @@ graphite face on stone and a stone face on graphite with the same brass facets.
 
 Set the opening headline in light Newsreader with a second line in brass italic.
 Place the navigation, headline, explanation, and workspace link over the same
-viewport sized marble background. Darken the image behind the text and fade its
+viewport sized photograph of someone reviewing a bank statement. Darken the image behind the text and fade its
 bottom into the stone canvas. The sticky navigation gets a solid graphite
 surface when the page scrolls. Mobile uses a portrait WebP crop.
 
@@ -80,16 +80,29 @@ calendar. The statement cutout accompanies first use. Keep decorative artwork
 out of record lists and charts so the data remains the focal point. Preserve
 loading, empty, retry, validation, and success states.
 
+## Motion and closing illustration
+
+The hero zoom and the desktop story rail follow scroll position. The two
+columns stay together while the right-hand story moves between steps. Use the
+vertical layout at small widths, in short windows, or with reduced motion.
+The closing panel puts links and the workspace action above an original
+transparent illustration. Its rounded graphite surface opens onto a stone
+footer with a native link back to the top.
+
 ## Image provenance
 
 These assets were generated for Finora with the built-in ImageGen tool on
 2026-11-23. The three photo cutouts have an alpha channel and depict no actual
-financial records. The marble has two optimized WebP sizes. Source prompts
+financial records. The hero has two optimized WebP sizes. Source prompts
 follow.
 
-#### marble-flow.webp and marble-flow-small.webp
+#### finora-footer-people.png
 
-Create original photographic 3D still life artwork ONLY, a wide editorial masthead asset for Finora personal finance. Panoramic landscape. Heroic view of a single massive folded ribbon of honed Calacatta marble suspended across the scene, forming two asymmetric open arches; one edge carries a narrow continuous brushed champagne-gold inlay that follows the fold like a contour line. Fine dramatic grey crystalline veins, grounded architectural texture, crisp side daylight and soft falloff. Background deep charcoal concrete, oversized sculpture filling frame, strongest shape in middle and right, cropped confidently at left and bottom. Rich blacks, luminous cool white stone, restrained gold, high-end architectural photography, tactile and believable. Totally original geometry. No text, no logo, no interface, no people, no lettering, no letters, no diagrams. Width-to-height about 2:1.
+Create an ORIGINAL, premium editorial footer illustration for Finora, an Indian personal finance app. VERY WIDE horizontal composition about 3:1. Actual transparent PNG with alpha, no setting or backdrop, no solid rectangle or checkerboard. A group of seven distinctly designed Indian people of diverse ages and regional backgrounds, arranged naturally shoulder-to-shoulder in a gently rising and falling row, mid torso up, their clothing and silhouettes overlapping in a unified scene. In left-to-right loose groups: a young woman in a collared shirt with short wavy hair and a compact notebook; a middle-aged dad in a knit polo; a grandmother in a draped sari with silver hair; a young adult man with plain dark turban and understated shirt; a woman in work blazer talking cheerfully with an older man in a shawl who holds reading spectacles; a young man in a loose jacket with a phone lowered at his side. Candid gazes turned slightly toward each other, composed and natural, individual faces. Sophisticated hand drawn lithographic print with thin warm ivory and champagne brass lines, graphite ink shadows and fine cross hatching, soft parchment skin colors, small muted gold detailing on clothing. Designed to look luminous on a #20211f charcoal page. Full heads inside frame, straight aligned bottom edge suitable to sit at a footer baseline. NOT cartoon caricature or stock 3D, no text, letters, logos, money symbols, border, purple, background, floor, stand, shadows outside the cutout. Entire group visible with slight air at the left and right edges.
+
+#### statement-review-hero.webp and statement-review-hero-mobile.webp
+
+Photorealistic cinematic editorial photograph for the full-bleed 16:9 homepage hero of Finora, a personal finance website for young adults in India. An everyday real moment reviewing spending at home. Shot at a low, slightly elevated three-quarter angle over a dark matte charcoal-walnut writing desk. On the RIGHT half only, two natural medium-brown adult hands, one lightly holding a simple cream printed bank statement with understated rows and columns of abstract unreadable, defocused marks, the other using a pencil to review one row. In the same cluster behind the paper, an open matte graphite laptop at a three-quarter angle, soft focus screen with simple credible ledger-like lines and a small restrained graph, no readable text, no brand, no glowing neon; an understated notebook beside it. Keep the bank statement and illuminated hands central in this right-hand picture area and between 52% and 85% horizontally so a portrait crop retains the meaningful image. Left 48% is quiet continuous dark graphite background with very subdued soft material detail and no objects for real HTML copy; upper edge dark to support white navigation. Directional warm late afternoon light from the upper right grazes the sheet and hands; crisp highlights on the cream paper, natural shadows and hands, soft restrained dark grey, near-black, warm ivory and muted amber palette. Premium candid magazine photography, honest lived-in feel. No marble, stone, floor, tiles, architecture, desk showroom, charts floating above the desk, glamour styling, stacks of cash, legible financial data, logos, letters, typography overlays, generated UI needles, or people posing. Full bleed landscape, realistic contact shadows, no graphic border.
 
 #### statement-still-life.png
 

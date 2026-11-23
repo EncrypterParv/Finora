@@ -8,8 +8,10 @@
 .finora-landing .landing-header {
   --finora-mark-ink: var(--finora-on-dark);
   --finora-mark-accent: var(--finora-gold-light);
+  position: fixed;
+  inset: 0 0 auto;
   height: var(--header-height);
-  margin-bottom: calc(-1 * var(--header-height));
+  margin: 0;
   border: 0;
   background: linear-gradient(to bottom, rgb(19 20 18 / 72%), transparent);
   color: var(--finora-on-dark);
@@ -153,6 +155,35 @@
   min-height: clamp(24rem, 39vw, 34rem);
 }
 
+.process-section.motion-enhanced {
+  align-items: center;
+  min-height: calc(100svh - var(--header-height));
+  padding-block: 2rem;
+}
+
+.motion-enhanced .process-visual {
+  position: static;
+  min-width: 0;
+}
+
+.motion-enhanced .process-stories {
+  min-width: 0;
+  overflow: clip;
+}
+
+.motion-enhanced .process-track {
+  display: flex;
+  align-items: center;
+}
+
+.motion-enhanced .process-stories .process-story {
+  flex: 0 0 100%;
+  min-width: 0;
+  min-height: auto;
+  padding-block: 2rem;
+  border: 0;
+}
+
 .instrument-preview {
   max-width: 48rem;
   margin: clamp(1.5rem, 4vw, 4rem) auto 0;
@@ -185,29 +216,107 @@
   object-fit: contain;
 }
 
-.finora-landing .landing-final {
-  background: var(--finora-dark);
-  border-color: var(--finora-dark);
-  color: var(--finora-on-dark);
-}
-
-.finora-landing .landing-final :is(h2 em, p, small) {
-  color: var(--finora-gold-light);
-}
-
-.finora-landing :is(.masthead-scene, .landing-final) .landing-button {
+.finora-landing :is(.masthead-scene, .closing-panel) .landing-button {
   background: var(--finora-on-dark) !important;
   color: var(--finora-dark) !important;
   border-color: var(--finora-on-dark);
 }
 
-.finora-landing :is(.masthead-scene, .landing-final) .landing-button:hover {
+.finora-landing :is(.masthead-scene, .closing-panel) .landing-button:hover {
   background: var(--finora-gold-light) !important;
 }
 
-.finora-landing :is(.landing-header, .masthead-scene, .landing-final) :focus-visible,
+.finora-landing :is(.landing-header, .masthead-scene, .closing-panel) :focus-visible,
 .finora-login .login-story :focus-visible {
   outline-color: var(--finora-gold-light);
+}
+
+.closing-panel {
+  background: var(--finora-dark);
+  color: var(--finora-on-dark);
+  border-radius: 0 0 clamp(2.25rem, 7vw, 7rem) clamp(2.25rem, 7vw, 7rem);
+  overflow: hidden;
+}
+
+.closing-main,
+.closing-bottom {
+  max-width: 112rem;
+  margin: 0 auto;
+  padding-inline: var(--page-gutter);
+}
+
+.closing-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(11rem, 1fr);
+  align-items: end;
+  gap: clamp(2rem, 9vw, 10rem);
+  padding-block: clamp(3.75rem, 8vw, 8.5rem) clamp(2.5rem, 5vw, 5.25rem);
+}
+
+.closing-message h2 {
+  margin: 0;
+}
+
+.closing-message h2 em {
+  display: block;
+  color: var(--finora-gold-light);
+}
+
+.closing-message p {
+  max-width: 41ch;
+  margin: 1.2rem 0 1.6rem;
+  color: #d5d3c9;
+}
+
+.closing-links {
+  display: grid;
+  align-content: start;
+  width: min(100%, 18rem);
+  justify-self: end;
+}
+
+.closing-links a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  border-top: 1px solid #58584d;
+  padding-block: 0.35rem;
+}
+
+.closing-links a:last-child {
+  border-bottom: 1px solid #58584d;
+}
+
+.closing-links a:hover,
+.closing-bottom > a:last-child:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.closing-illustration {
+  display: block;
+  width: min(92%, 72rem);
+  height: auto;
+  margin: 0 auto;
+}
+
+.closing-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  min-height: 5.75rem;
+  padding-block: 0.75rem;
+  color: var(--finora-ink-soft);
+}
+
+.closing-bottom a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  gap: 0.5rem;
+  font-size: 0.875rem;
 }
 
 .finora-login .login-story {
@@ -281,7 +390,25 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .masthead-art img {
+    transform: none !important;
+  }
+}
+
 @media (max-width: 760px) {
+  .process-stories .process-story {
+    min-height: 0;
+  }
+  .closing-main {
+    grid-template-columns: 1fr;
+  }
+  .closing-links {
+    justify-self: start;
+  }
+  .closing-illustration {
+    width: 96%;
+  }
   .masthead-scene {
     align-items: start;
   }

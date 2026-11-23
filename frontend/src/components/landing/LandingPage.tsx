@@ -9,6 +9,7 @@ import { FinancialWorkbench } from "./FinancialWorkbench";
 import { WealthExplorer } from "./WealthExplorer";
 import { LandingPlans } from "./LandingPlans";
 import { Arrow, Wordmark } from "./LandingBrand";
+import { LandingFooter } from "./LandingFooter";
 
 const InstrumentPreview = dynamic(() => import("./InstrumentPreview"), {
   loading: () => <p className="instrument-loading" role="status">Opening the walkthrough…</p>,
@@ -53,7 +54,9 @@ export function LandingPage() {
   const [stage, setStage] = useState(0);
   const [showInstrument, setShowInstrument] = useState(false);
   const [headerScrolled, setHeaderScrolled] = useState(false);
+  const landingRef = useRef<HTMLDivElement>(null);
   const processRef = useRef<HTMLDivElement>(null);
+  const jumpRef = useRef<((index: number) => void) | null>(null);
   useEffect(() => {
     const updateHeader = () => setHeaderScrolled(window.scrollY > 20);
     updateHeader();
@@ -62,10 +65,34 @@ export function LandingPage() {
   }, []);
 
   useEffect(() => {
+    const root = landingRef.current;
+    if (!root) return;
+    let active = true;
+    let requested = false;
+    let cleanup: (() => void) | undefined;
+    const preference = window.matchMedia("(prefers-reduced-motion: no-preference) and (min-width: 761px)");
+    const start = () => {
+      if (requested || !preference.matches) return;
+      requested = true;
+      void import("./landing-motion").then(({ mountLandingMotion }) => {
+        if (active) cleanup = mountLandingMotion(root, setStage, (jump) => { jumpRef.current = jump; });
+      }).catch(() => { /* The static layout stays usable if the motion chunk cannot load. */ });
+    };
+    preference.addEventListener("change", start);
+    const timer = window.setTimeout(start, 120);
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+      preference.removeEventListener("change", start);
+      cleanup?.();
+    };
+  }, []);
+
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries)
-          if (entry.isIntersecting)
+          if (entry.isIntersecting && !processRef.current?.classList.contains("motion-enhanced"))
             setStage(Number((entry.target as HTMLElement).dataset.step));
       },
       { rootMargin: "-25% 0px -40% 0px", threshold: 0 },
@@ -76,7 +103,7 @@ export function LandingPage() {
     return () => observer.disconnect();
   }, []);
   return (
-    <div className="finora-landing">
+    <div className="finora-landing" id="top" ref={landingRef}>
       <a className="landing-skip" href="#main">
         Skip to content
       </a>
@@ -98,15 +125,15 @@ export function LandingPage() {
         <section className="landing-masthead" aria-labelledby="landing-title">
           <div className="masthead-scene">
             <picture className="masthead-art">
-              <source media="(max-width: 700px)" srcSet="/images/marble-flow-small.webp" />
-              <Image src="/images/marble-flow.webp" alt="" width={1774} height={887} unoptimized fetchPriority="high" loading="eager" />
+              <source media="(max-width: 700px)" srcSet="/images/statement-review-hero-mobile.webp" />
+              <Image src="/images/statement-review-hero.webp" alt="" width={1672} height={941} unoptimized fetchPriority="high" loading="eager" />
             </picture>
             <div className="masthead-copy">
               <h1 id="landing-title">See your money <em>take shape.</em></h1>
               <div className="masthead-actions">
                 <p>
-                  Turn your bank statements into a clear view of what you spend,
-                  what you save, and what you can plan for.
+                  Bring in a bank statement. Review your transactions, see where
+                  your money went, and plan what comes next.
                 </p>
                 <Link className="landing-button" href="/login">
                   Open your workspace <Arrow />
@@ -145,6 +172,10 @@ export function LandingPage() {
                   key={step.tag}
                   aria-pressed={stage === index}
                   onClick={() => {
+                    if (jumpRef.current) {
+                      jumpRef.current(index);
+                      return;
+                    }
                     setStage(index);
                     document
                       .getElementById(`process-${index}`)
@@ -170,6 +201,7 @@ export function LandingPage() {
             </p>
           </div>
           <div className="process-stories">
+            <div className="process-track">
             {steps.map((step, index) => (
               <article
                 id={`process-${index}`}
@@ -192,6 +224,7 @@ export function LandingPage() {
                 </div>
               </article>
             ))}
+            </div>
           </div>
         </section>
         <details className="instrument-preview" onToggle={(event) => setShowInstrument(event.currentTarget.open)}>
@@ -270,7 +303,7 @@ export function LandingPage() {
         </section>
         <WealthExplorer />
         <LandingPlans />
-        <section className="honesty-section">
+        <section className="honesty-section" id="questions">
           <div>
             <h2>
               A little clarity
@@ -308,26 +341,8 @@ export function LandingPage() {
             ))}
           </div>
         </section>
-        <section className="landing-final">
-          <h2>
-            Your future deserves
-            <br />
-            <em>more than a guess.</em>
-          </h2>
-          <p>Start with a clearer picture. Decide what comes next.</p>
-          <Link href="/login" className="landing-button">
-            Step inside Finora <Arrow />
-          </Link>
-          <small>Create an account or sign in. Your workspace starts empty until you add records.</small>
-        </section>
       </main>
-      <footer className="landing-footer">
-        <Link href="/" aria-label="Finora home">
-          <Wordmark />
-        </Link>
-        <span>Made for a more considered financial life.</span>
-        <span>© {new Date().getFullYear()} Finora · Sample workspace</span>
-      </footer>
+      <LandingFooter />
     </div>
   );
 }

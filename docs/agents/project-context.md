@@ -42,7 +42,7 @@ calculated.
 | Area | Current status | What that means |
 |---|---|---|
 | Vercel deployment | Frontend and FastAPI deployed; `/health` returns 200 | Root vercel.json routes Next.js and FastAPI under one Vercel Services deployment. Hosted Supabase auth, database persistence, and statement import still need end-to-end checks. Services are beta; the Python runtime is generally available. |
-| Landing page | Public product explanation | A stone, graphite, and brass visual system with original marble and transparent finance photography. The sample instrument and calculator remain interactive, and the three plan tiers are concepts. Authentication and workspace screens share the same palette and fonts. |
+| Landing page | Public product explanation | A stone, graphite, and brass visual system with a statement review photograph, transparent finance photography, and an illustrated footer. The sample instrument and calculator remain interactive, and the three plan tiers are concepts. Authentication and workspace screens share the same palette and fonts. |
 | Authenticated workspace | Real account/transaction loading; statement review/import implemented | New users see empty states, add an account label, preview a statement, edit candidate transactions, and explicitly confirm persistence. Browser visual QA remains pending because the app server was not started. |
 | Plans | Illustrative only | Prices and feature tiers are concepts. No subscription, checkout, or server-side entitlement enforcement exists. |
 | Login and RBAC | Supabase Auth signup, login, password recovery, and dashboard protection are implemented; RBAC remains mock-only | Supabase Auth remains the identity and password store. Email confirmation was turned off in the hosted dashboard on 2026-11-23, so new signups should create a session without email delivery. Existing unverified accounts may remain unverified. Auth diagnostics expose safe operation/code/status only. The role editor is not authorization. |
@@ -89,6 +89,10 @@ calculated.
 - Workspace logout uses a same-origin POST to `/auth/sign-out`. It expires this
   browser's session cookies and attempts to revoke that session with Supabase.
   Open workspace tabs follow the logout when BroadcastChannel is available.
+- The public landing uses GSAP for the hero and desktop story, Lenis for
+  desktop scroll, and Anime.js for the illustrated footer. Mobile and reduced
+  motion keep the walkthrough vertical. See [landing-motion.md](landing-motion.md)
+  for motion boundaries and review steps.
 - `frontend/.env.local` and `backend/.env` are ignored local files. Their
   committed templates contain placeholders only; never commit database
   passwords or Supabase secret/service-role keys.
