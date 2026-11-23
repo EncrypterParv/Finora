@@ -7,6 +7,7 @@ import {
   ArrowDownLeft,
   ArrowRight,
   CalendarDays,
+  ChevronDown,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -35,10 +36,10 @@ import {
   StatementPreview,
 } from "@/lib/api";
 import { CanonicalTransaction } from "@/types/transaction";
-import { formatCurrency } from "@/lib/utils";
 import { endDemoSession } from "@/lib/demo-session";
 import { SectionLoadingSkeleton, WorkspaceLoadingSkeleton } from "./PrototypeSkeletons";
 import { PageTitle } from "./prototype-ui";
+import { WorkspaceOverview } from "./WorkspaceOverview";
 import "./prototype-dashboard.css";
 
 const AccountsScreen = dynamic(() => import("./AccountsScreen").then((module) => module.AccountsScreen), { loading: () => <SectionLoadingSkeleton /> });
@@ -86,6 +87,8 @@ export function PrototypeDashboard({
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState(false);
   const signOutChannel = useRef<BroadcastChannel | null>(null);
+  const mobileNavigation = useRef<HTMLDetailsElement>(null);
+  const workspaceMain = useRef<HTMLElement>(null);
   const [welcomeToastState, setWelcomeToastState] = useState<"visible" | "leaving" | "hidden">(accountCreated ? "visible" : "hidden");
 
   useEffect(() => {
@@ -94,10 +97,10 @@ export function PrototypeDashboard({
   }, [accountCreated, router]);
 
   useEffect(() => {
-    if (!accountCreated || welcomeToastState !== "visible") return;
+    if (welcomeToastState !== "visible") return;
     const timer = window.setTimeout(() => setWelcomeToastState("leaving"), 5_000);
     return () => window.clearTimeout(timer);
-  }, [accountCreated, welcomeToastState]);
+  }, [welcomeToastState]);
 
   useEffect(() => {
     if (welcomeToastState !== "leaving") return;
@@ -207,32 +210,39 @@ export function PrototypeDashboard({
     if (removedTransactions) await reloadWorkspace();
   };
 
+  const sectionLabel = navigation.find((item) => item.id === section)?.label;
+
   return (
-    <div className="finora-prototype min-h-screen bg-[#f5f4f0] text-[#20211f]">
+    <div className="finora-prototype min-h-screen" data-section={section}>
       <a className="prototype-skip-link" href="#workspace-main">Skip to main content</a>
-      <aside className="prototype-sidebar fixed inset-y-0 left-0 hidden w-[244px] flex-col border-r border-[#d5d4cc] bg-[#f5f4f0] px-4 py-5 md:flex">
-        <div className="prototype-brand mb-10 px-2"><FinoraMark size="md" /><div className="prototype-brand-caption pl-1 text-[11px] text-[#62645d]">Personal finance workspace</div></div>
-        <div className="prototype-nav-label mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#62645d]">Your workspace</div>
-        <nav className="prototype-nav space-y-1" aria-label="Workspace sections">
-          {navigation.map(({ id, label, icon: Icon }) => (
-            <button key={id} type="button" onClick={() => setSection(id)} aria-current={section === id ? "page" : undefined} className={`prototype-nav-link flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] transition-colors ${section === id ? "is-active bg-[#eeede8] font-semibold text-[#262724]" : "text-[#575953] hover:bg-[#f5f4f0] hover:text-[#20211f]"}`}>
-              <Icon size={16} strokeWidth={1.8} />{label}
-            </button>
+      <aside className="prototype-sidebar fixed inset-y-0 left-0 hidden w-[244px] flex-col overflow-y-auto border-r px-4 py-5 md:flex">
+        <div className="prototype-brand px-2"><FinoraMark size="md" /></div>
+        <nav className="prototype-nav" aria-label="Workspace sections">
+          {[
+            { label: "Workspace", items: navigation.slice(0, 4) },
+            { label: "Manage", items: navigation.slice(4) },
+          ].map(({ label, items }) => (
+            <div key={label} className="prototype-nav-group">
+              <p className="prototype-nav-label">{label}</p>
+              {items.map(({ id, label, icon: Icon }) => (
+                <button key={id} type="button" onClick={() => setSection(id)} aria-current={section === id ? "page" : undefined} className={`prototype-nav-link flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors ${section === id ? "is-active font-semibold" : ""}`}>
+                  <Icon size={17} strokeWidth={1.8} aria-hidden="true" />{label}
+                </button>
+              ))}
+            </div>
           ))}
         </nav>
-        <div className="prototype-sidebar-note mt-auto rounded-lg border border-[#e5e4de] bg-[#fbfbf9] p-3 text-xs text-[#575953]">
-          <div className="mb-1 flex items-center gap-2 font-medium text-[#262724]"><ShieldCheck size={14} /> Your records</div>
-          Only records you confirm are saved to your account. Finora never asks for your bank password.
+        <div className="prototype-sidebar-profile">
+          <span className="prototype-avatar" aria-hidden="true">{(userName.trim() || userEmail || "F").charAt(0).toUpperCase()}</span>
+          <span className="min-w-0"><strong>{userName || "Personal workspace"}</strong><small>{userEmail || "Finora"}</small></span>
         </div>
       </aside>
 
       <div className="md:pl-[244px]">
-        <header className="prototype-topbar sticky top-0 z-20 border-b border-[#e5e4de] bg-[#f5f4f0]/95 px-4 py-3 md:px-8">
-          <div className="mx-auto flex max-w-[1280px] items-center justify-between gap-3">
-            <div className="min-w-0"><div className="prototype-breadcrumb text-[10px] font-semibold uppercase tracking-[0.12em] text-[#62645d]">Finora <span aria-hidden="true">/</span> Personal</div><div className="mt-1 text-sm font-semibold">{navigation.find((item) => item.id === section)?.label}</div></div>
+        <header className="prototype-topbar sticky top-0 z-20 border-b px-4 py-3 md:px-8">
+          <div className="mx-auto flex max-w-[1540px] items-center justify-between gap-3">
+            <div className="prototype-topbar-context"><span className="hidden sm:inline">Workspace</span><span className="hidden sm:inline" aria-hidden="true">/</span><strong>{sectionLabel}</strong></div>
             <div className="flex shrink-0 items-center gap-3">
-              <span className="prototype-status hidden items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] sm:inline-flex"><span aria-hidden="true" /> Private workspace</span>
-              <span className="hidden max-w-44 truncate text-xs font-medium sm:block">{userEmail || userName}</span>
               <button
                 type="button"
                 onClick={signOut}
@@ -245,15 +255,26 @@ export function PrototypeDashboard({
             </div>
           </div>
           <div className="sr-only" role="status">{signingOut ? "Signing out of Finora." : ""}</div>
-          {signOutError && <p role="status" className="mx-auto mt-2 max-w-[1280px] text-sm text-[#575953]">
+          {signOutError && <p role="status" className="prototype-signout-notice mx-auto mt-2 max-w-[1540px] text-sm">
             We couldn’t finish signing out. Please try again.
           </p>}
-          <nav className="prototype-mobile-nav mx-auto mt-3 flex max-w-[1280px] gap-1 overflow-x-auto pb-0.5 md:hidden" aria-label="Workspace sections">
-            {navigation.map(({ id, label }) => <button key={id} type="button" onClick={() => setSection(id)} aria-current={section === id ? "page" : undefined} className={`min-h-11 shrink-0 rounded-md px-3 py-2 text-xs ${section === id ? "bg-[#262724] text-white" : "bg-white text-[#414340]"}`}>{label}</button>)}
-          </nav>
+          <details ref={mobileNavigation} className="prototype-mobile-menu md:hidden">
+            <summary>Workspace sections <ChevronDown size={16} aria-hidden="true" /></summary>
+            <nav aria-label="Workspace sections">
+              {navigation.map(({ id, label, icon: Icon }) => (
+                <button key={id} type="button" onClick={() => {
+                  setSection(id);
+                  if (mobileNavigation.current) mobileNavigation.current.open = false;
+                  workspaceMain.current?.focus();
+                }} aria-current={section === id ? "page" : undefined}>
+                  <Icon size={16} aria-hidden="true" />{label}
+                </button>
+              ))}
+            </nav>
+          </details>
         </header>
 
-        <main id="workspace-main" tabIndex={-1} className="prototype-content mx-auto max-w-[1280px] px-4 py-6 md:px-8 md:py-8" aria-busy={loading}>
+        <main ref={workspaceMain} id="workspace-main" tabIndex={-1} className="prototype-content mx-auto max-w-[1540px] px-4 py-6 md:px-8 md:py-8" aria-busy={loading}>
           {welcomeToastState !== "hidden" && <aside className="prototype-toast" data-state={welcomeToastState} role="status" aria-live="polite" aria-atomic="true">
             <Check size={19} className="mt-0.5 shrink-0" aria-hidden="true" />
             <div className="min-w-0 flex-1"><p className="font-semibold">Your account is ready.</p><p className="mt-1 text-sm leading-5">You’re signed in to Finora. Your workspace starts empty; add a statement whenever you’re ready.</p></div>
@@ -276,8 +297,16 @@ export function PrototypeDashboard({
                 <BudgetsScreen />
               ) : section === "goals" ? (
                 <GoalsScreen />
+              ) : transactions.length > 0 ? (
+                <WorkspaceOverview
+                  userName={userName} accounts={accounts} transactions={transactions} transactionCount={transactionCount}
+                  onAdd={() => setSection("import")} onInsights={() => setSection("insights")}
+                  onAccounts={() => setSection("accounts")} onTransactions={() => setSection("transactions")}
+                />
+              ) : accounts.length > 0 ? (
+                <NoTransactionsState accounts={accounts} onAdd={() => setSection("import")} />
               ) : (
-                <OverviewView userName={userName} accounts={accounts} transactions={transactions} transactionCount={transactionCount} onAdd={() => setSection("import")} onInsights={() => setSection("insights")} />
+                <FirstUseEmptyState userName={userName} onAdd={() => setSection("import")} />
               )}
             </>
           )}
@@ -292,27 +321,7 @@ function LoadingWorkspace() {
 }
 
 function LoadError({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return <section className="rounded-xl border border-[#ead7d2] bg-white p-7" role="alert"><h1 className="text-xl font-semibold">Your records are temporarily unavailable</h1><p className="mt-2 text-sm text-[#575953]">{message}</p><button type="button" onClick={onRetry} className="prototype-primary-action mt-5 inline-flex items-center gap-2 rounded-md bg-[#262724] px-4 py-2.5 text-sm font-medium text-white"><RotateCw size={15} /> Try again</button></section>;
-}
-
-function OverviewView({ userName, accounts, transactions, transactionCount, onAdd, onInsights }: { userName: string; accounts: BankAccountSummary[]; transactions: CanonicalTransaction[]; transactionCount: number; onAdd: () => void; onInsights: () => void }) {
-  if (transactions.length === 0) {
-    return accounts.length === 0 ? <FirstUseEmptyState userName={userName} onAdd={onAdd} /> : <NoTransactionsState accounts={accounts} onAdd={onAdd} />;
-  }
-
-  const mostRecent = transactions.slice(0, 5);
-  return <>
-    <PageTitle title={userName ? `Welcome, ${userName.split(" ")[0]}.` : "Your money, in one view."} description="A clear view of the records you’ve added to Finora." action={<button type="button" onClick={onAdd} className="prototype-primary-action inline-flex items-center gap-2 rounded-md bg-[#262724] px-3.5 py-2.5 text-sm font-medium text-white"><FileUp size={16} /> Add a statement</button>} />
-    <div className="grid gap-4 sm:grid-cols-2">
-      <Metric label="Accounts added" value={String(accounts.length)} detail="Only accounts you added" icon={WalletCards} />
-      <Metric label="Imported transactions" value={String(transactionCount)} detail="Confirmed records" icon={ArrowDownLeft} />
-    </div>
-    <section className="mt-6 rounded-xl border border-[#e5e4de] bg-white p-5 md:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3"><div><span className="prototype-eyebrow">Your records</span><h2 className="mt-1 font-semibold">Recent transactions</h2></div><div className="flex flex-wrap items-center gap-x-4 gap-y-2"><button type="button" onClick={onInsights} className="prototype-inline-link inline-flex items-center gap-1 text-xs font-medium">See insights <ArrowRight size={14} /></button><button type="button" onClick={onAdd} className="prototype-inline-link inline-flex items-center gap-1 text-xs font-medium">Add another statement <ArrowRight size={14} /></button></div></div>
-      <TransactionRows transactions={mostRecent} />
-    </section>
-    <p className="mt-4 text-xs text-[#62645d]">Balances and insights appear only when they can be calculated from your imported records.</p>
-  </>;
+  return <section className="prototype-workspace-notice rounded-xl border border-[#ead7d2] bg-white p-7" role="alert"><h1 className="text-xl font-semibold">Your records are temporarily unavailable</h1><p className="mt-2 text-sm text-[#575953]">{message}</p><button type="button" onClick={onRetry} className="prototype-primary-action mt-5 inline-flex items-center gap-2 rounded-md bg-[#262724] px-4 py-2.5 text-sm font-medium text-white"><RotateCw size={15} /> Try again</button></section>;
 }
 
 function FirstUseEmptyState({ userName, onAdd }: { userName: string; onAdd: () => void }) {
@@ -334,29 +343,12 @@ function FirstUseEmptyState({ userName, onAdd }: { userName: string; onAdd: () =
 }
 
 function NoTransactionsState({ accounts, onAdd }: { accounts: BankAccountSummary[]; onAdd: () => void }) {
-  return <section className="rounded-xl border border-[#e5e4de] bg-white px-6 py-10 md:px-10">
+  return <section className="prototype-workspace-notice rounded-xl border border-[#e5e4de] bg-white px-6 py-10 md:px-10">
     <span className="prototype-eyebrow">{accounts.length === 1 ? accounts[0].institution_name : `${accounts.length} accounts`}</span>
     <h1 className="mt-3 text-2xl font-semibold">No transactions found yet.</h1>
-    <p className="mt-2 max-w-xl text-sm leading-6 text-[#575953]">Your account is saved, but there are no confirmed transaction records. The statement may have been empty or contained a layout we couldn’t read. Nothing has been invented or imported without your confirmation.</p>
+    <p className="mt-2 max-w-xl text-sm leading-6 text-[#575953]">Your account is ready. Add a statement to review and save transactions, or record one manually from the Transactions tab.</p>
     <button type="button" onClick={onAdd} className="prototype-primary-action mt-6 inline-flex items-center gap-2 rounded-md bg-[#262724] px-4 py-2.5 text-sm font-medium text-white"><FileUp size={16} /> Try another statement <ArrowRight size={15} /></button>
   </section>;
-}
-
-function Metric({ label, value, detail, icon: Icon }: { label: string; value: string; detail: string; icon: typeof WalletCards }) {
-  return <section className="rounded-xl border border-[#e5e4de] bg-white p-5"><div className="flex items-start justify-between text-xs text-[#575953]"><span>{label}</span><Icon size={16} className="text-[#8d7769]" /></div><div className="mt-3 text-2xl font-semibold tabular-nums">{value}</div><div className="mt-1 text-xs text-[#938b82]">{detail}</div></section>;
-}
-
-function TransactionRows({ transactions }: { transactions: CanonicalTransaction[] }) {
-  return <div className="mt-4 divide-y divide-[#e5e4de]">
-    {transactions.map((transaction) => {
-      const credit = transaction.transaction_type === "CREDIT";
-      const date = new Date(transaction.occurred_at);
-      return <article key={transaction.id} className="flex items-center justify-between gap-3 py-3">
-        <div className="min-w-0"><div className="truncate text-sm font-medium">{transaction.raw_description}</div><div className="mt-1 text-[11px] text-[#62645d]">{Number.isNaN(date.getTime()) ? "Date unavailable" : date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })} · {transaction.category_name}</div></div>
-        <div className={`shrink-0 text-sm font-medium tabular-nums ${credit ? "text-[#477250]" : "text-[#414340]"}`}>{credit ? "+" : "−"}{formatCurrency(transaction.amount, transaction.currency)}</div>
-      </article>;
-    })}
-  </div>;
 }
 
 function StatementImportFlow({ accounts, onAccountCreated, onComplete }: { accounts: BankAccountSummary[]; onAccountCreated: (account: BankAccountSummary) => void; onComplete: () => Promise<void> }) {

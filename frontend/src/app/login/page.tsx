@@ -77,6 +77,7 @@ export default function LoginPage() {
   const [diagnostic, setDiagnostic] = useState("");
   const [mode, setMode] = useState<"sign-in" | "sign-up" | "recover">("sign-in");
   const [pending, setPending] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -91,6 +92,7 @@ export default function LoginPage() {
       url.searchParams.delete("signed-out");
       window.history.replaceState(null, "", url);
     }
+    setReady(true);
   }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -206,7 +208,7 @@ export default function LoginPage() {
             frontend/.env.local, then restart the dev server.
           </p>
         )}
-        <form onSubmit={submit}>
+        <form method="post" onSubmit={submit}>
           {mode === "sign-up" ? (
             <>
               <label htmlFor="full_name">Full name</label>
@@ -266,7 +268,7 @@ export default function LoginPage() {
               <span>No email address, password, or token is included.</span>
             </details>
           )}
-          <button className="landing-button" type="submit" disabled={pending}>
+          <button className="landing-button" type="submit" disabled={!ready || pending}>
             {pending ? "Please wait…" : mode === "sign-in" ? "Sign in" : mode === "recover" ? "Send reset link" : "Create account"}
             {mode !== "recover" && <Arrow />}
           </button>

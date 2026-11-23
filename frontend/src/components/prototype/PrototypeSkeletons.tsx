@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import "./workspace-overview.css";
 
 function Block({ className = "" }: { className?: string }) {
   return <span aria-hidden="true" className={`prototype-skeleton ${className}`} />;
@@ -12,8 +13,29 @@ function LoadingStatus({ children }: { children: ReactNode }) {
   return <span className="sr-only" role="status" aria-live="polite">{children}</span>;
 }
 
+export function OverviewChartsSkeleton() {
+  return <div className="workspace-analysis" aria-hidden="true">
+    <div className="workspace-card workspace-chart"><Block className="h-5 w-28" /><Block className="mt-6 h-44 w-full" /></div>
+    <div className="workspace-card workspace-chart"><Block className="h-5 w-32" /><Block className="mx-auto mt-5 size-36 rounded-full" /></div>
+  </div>;
+}
+
+export function OverviewSummarySkeleton() {
+  return <div aria-busy="true" className="workspace-overview-loading">
+    <LoadingStatus>Loading monthly overview</LoadingStatus>
+    <OverviewFiguresSkeleton />
+    <OverviewChartsSkeleton />
+  </div>;
+}
+
+function OverviewFiguresSkeleton() {
+  return <div className="workspace-metrics" aria-hidden="true">
+    {[0, 1, 2, 3].map((item) => <div key={item} className="workspace-card workspace-metric"><Block className="h-4 w-20" /><Block className="mt-4 h-8 w-24" /><Block className="mt-4 h-8 w-full" /></div>)}
+  </div>;
+}
+
 export function WorkspaceLoadingSkeleton({ insideShell = false }: { insideShell?: boolean } = {}) {
-  return <div className={insideShell ? "min-h-[55vh]" : "finora-prototype min-h-screen bg-[#f5f4f0] p-4 md:pl-[268px] md:pr-8 md:pt-8"} aria-busy="true">
+  return <div className={insideShell ? "min-h-[55vh]" : "finora-prototype min-h-screen bg-[#f5f4f0] p-4 md:pl-[268px] md:pr-8 md:pt-8"} data-section="overview" aria-busy="true">
     <LoadingStatus>Loading your workspace</LoadingStatus>
     {!insideShell && <>
       <aside aria-hidden="true" className="prototype-skeleton-sidebar fixed inset-y-0 left-0 hidden w-[244px] flex-col gap-7 p-6 md:flex">
@@ -24,9 +46,7 @@ export function WorkspaceLoadingSkeleton({ insideShell = false }: { insideShell?
       <div className="prototype-skeleton-panel mb-6 hidden h-14 items-center justify-between px-5 md:flex" aria-hidden="true"><Block className="h-5 w-24" /><Block className="h-4 w-36" /></div>
     </>}
     <PageHeaderSkeleton />
-    <div className="grid gap-4 sm:grid-cols-2" aria-hidden="true">
-      {[0, 1].map((item) => <div key={item} className="prototype-skeleton-panel p-5"><Block className="h-3 w-28" /><Block className="mt-4 h-8 w-36" /><Block className="mt-3 h-3 w-40" /></div>)}
-    </div>
+    <div className="workspace-overview-loading"><OverviewFiguresSkeleton /><OverviewChartsSkeleton /></div>
     <div className="prototype-skeleton-panel mt-6 p-5 md:p-6" aria-hidden="true"><div className="flex items-center justify-between"><Block className="h-5 w-44" /><Block className="h-4 w-24" /></div><div className="mt-5 divide-y divide-[#e5e4de]">{[0, 1, 2, 3, 4].map((item) => <div key={item} className="flex items-center justify-between gap-4 py-4"><div className="min-w-0 flex-1"><Block className="h-4 w-3/5" /><Block className="mt-2 h-3 w-2/5" /></div><Block className="h-4 w-20" /></div>)}</div></div>
   </div>;
 }

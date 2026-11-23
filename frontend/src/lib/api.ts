@@ -393,6 +393,20 @@ export async function fetchTransactionPage(
   return { items, total };
 }
 
+export interface CurrencyCashFlow {
+  currency: string;
+  transaction_count: number;
+  days: { day: string; inflow: string; spending: string }[];
+  spending_by_account: Record<string, string>;
+}
+
+export async function fetchTransactionSummary(month: string): Promise<{ month: string; currencies: CurrencyCashFlow[] }> {
+  const params = new URLSearchParams({ month });
+  const response = await apiFetch(`${API_BASE}/transactions/summary?${params}`);
+  if (!response.ok) throw await responseError(response, "Could not load your monthly summary.");
+  return response.json();
+}
+
 // Records a manual transaction (e.g. cash spending). It does not change the account balance.
 export async function createManualTransaction(input: {
   account_id: string;

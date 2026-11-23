@@ -104,6 +104,10 @@ npm run build
 Client interface available at: `http://localhost:3000`
 For Supabase sign-in and database setup, complete [the Supabase setup guide](docs/supabase/setup.md) first. Without project keys, the login page displays a configuration prompt.
 
+Keep the FastAPI and Next.js development servers running in separate terminals.
+An `ECONNREFUSED 127.0.0.1:8000` error in the Next.js log means the backend
+is unreachable. With both servers up, `http://127.0.0.1:8000/health` should respond.
+
 ### 3. Quality Checks
 
 Run these checks before opening a pull request:
@@ -158,8 +162,9 @@ recommendation.
   affected data groups, and same-browser tabs receive invalidations. Sign-out
   clears the cache. Entries are LRU-evicted at 60 responses or 5 MB and are
   never stored persistently. Layout-matched loading skeletons cover route,
-  workspace, section, and initial data loading. The Overview fetches only the
-  five recent rows it displays and uses the API's total count.
+  workspace, section, and initial data loading. The Overview fetches five recent
+  rows with the API's total count and a separate monthly summary. The summary
+  uses the same scoped cache and loads only for workspaces with records.
 - CSV import requires recognizable date and description columns plus separate
   debit/credit columns or an explicit transaction type; amount-only CSVs are
   rejected because direction cannot be inferred safely. PDF and image OCR require the optional local dependencies in
@@ -172,7 +177,11 @@ recommendation.
 
 Open `/login` to create a Supabase Auth account or sign in, then enter
 `/dashboard`. With no imported records, the workspace explains how to add a
-statement. See
+statement. With records, Overview opens on the latest recorded month and shows
+money in, money out, net cash flow, and transaction count. Change the month or
+currency to explore recorded activity. The weekly chart and spending-by-account
+breakdown use confirmed records. Transfers appear in the count and recent activity.
+See
 [`docs/supabase/setup.md`](docs/supabase/setup.md) for project setup, local
 environment values, and applying the Postgres migration. Statement import saves
 reviewed records to the user's account; bank sync remains simulated and does

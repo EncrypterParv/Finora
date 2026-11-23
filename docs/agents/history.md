@@ -515,6 +515,19 @@ assumptions from old plans.
 - Replaced the marble scene with an original photograph of someone reviewing
   a statement at home. Kept the full screen composition and bottom fade.
 
+## 2026-11-23 — Dashboard Overview redesign
+
+- Adapted the chart-first layout from [Capitalio](https://ui.watermelon.sh/dashboard/capitalio-dashboard)
+  to Finora's graphite and brass. Added four monthly metrics, an animated
+  weekly cash-flow chart, spending by account, and a recent transactions table.
+- Added an authenticated monthly aggregate to the canonical transaction API
+  with UTC dates and currency separation. The Overview starts at the latest
+  recorded month. Transfers are included in transaction counts and excluded
+  from cash-flow and spending figures.
+- Added grouped desktop navigation, a mobile section menu, and a tabular
+  alternative to the charts. The summary uses the existing transaction cache.
+  The frontend and backend need to deploy together for the new summary route.
+
 ## Updating this history
 
 Append a dated entry after a meaningful feature or architecture milestone. Add
