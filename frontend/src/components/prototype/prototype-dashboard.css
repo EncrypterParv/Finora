@@ -464,6 +464,433 @@
   margin-top: 0;
 }
 
+/* ---- Shared controls for the workspace screens ---- */
+
+.prototype-secondary-action {
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.prototype-secondary-action:hover:not(:disabled) {
+  border-color: #cdbdad;
+  background: #f8f3ea;
+}
+
+.prototype-icon-action {
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.prototype-icon-action:hover:not(:disabled) {
+  background: #f4eee7;
+  color: #4e342e;
+}
+
+.prototype-danger-action:hover:not(:disabled) {
+  background: #852523;
+}
+
+/* Segmented control (All / Spending / Income, Month / Week / Day). */
+.prototype-segmented {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid #ddd6cb;
+  border-radius: 7px;
+  background: #f7f2ea;
+}
+
+.prototype-segmented button {
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 5px;
+  color: #6f645a;
+  font-size: 13px;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.prototype-segmented button:hover {
+  color: #28231f;
+}
+
+.prototype-segmented button[aria-checked="true"] {
+  background: #fffdf9;
+  box-shadow: 0 1px 2px rgba(50, 35, 27, 0.12);
+  color: #4e342e;
+  font-weight: 600;
+}
+
+/* Large money figures in budget and goal cards use the same serif as page titles. */
+.prototype-figure {
+  color: #33251f;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 34px;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1;
+}
+
+/* Straight progress track; colour shows on track, near the limit, over it, or done. */
+.prototype-progress {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: #efe7dc;
+}
+
+.prototype-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: #4e342e;
+  transition: width 300ms ease;
+}
+
+.prototype-progress[data-tone="caution"] > span {
+  background: #b7682b;
+}
+
+.prototype-progress[data-tone="over"] > span {
+  background: #9f2f2d;
+}
+
+.prototype-progress[data-tone="done"] > span {
+  background: #477250;
+}
+
+/* Squared status tag for goals. */
+.prototype-tag {
+  align-self: center;
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border: 1px solid #e2d6c7;
+  border-radius: 3px;
+  background: #faf6ee;
+  color: #6d5847;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.prototype-tag[data-status="COMPLETED"] {
+  border-color: #cfe0cc;
+  background: #edf5ed;
+  color: #3e6545;
+}
+
+.prototype-tag[data-status="PAUSED"] {
+  color: #8a7a6d;
+}
+
+/* Insights: warm red for concerning changes and large outliers, green for positive ones. */
+.prototype-tag[data-tone="concerning"] {
+  border-color: #ead7d2;
+  background: #fdf6f4;
+  color: #9f2f2d;
+}
+
+.prototype-tag[data-tone="positive"] {
+  border-color: #cfe0cc;
+  background: #edf5ed;
+  color: #3e6545;
+}
+
+.insights-direction {
+  color: #8a7a6d;
+}
+
+.insights-direction[data-tone="concerning"] {
+  color: #9f2f2d;
+}
+
+.insights-direction[data-tone="positive"] {
+  color: #477250;
+}
+
+/* Insights forecast: straight track with the 80% range band, spent-so-far fill and an expected-total marker. */
+.insights-range {
+  position: relative;
+  height: 12px;
+  border-radius: 2px;
+  background: #efe7dc;
+}
+
+.insights-range > span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.insights-range-band {
+  background: #ecd3bb;
+}
+
+.insights-range-spent {
+  left: 0;
+  border-radius: 2px 0 0 2px;
+  background: #4e342e;
+}
+
+.insights-range-expected {
+  top: -3px !important;
+  bottom: -3px !important;
+  width: 2px;
+  margin-left: -1px;
+  background: #b7682b;
+}
+
+.insights-key {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.insights-key-spent {
+  background: #4e342e;
+}
+
+.insights-key-expected {
+  width: 3px;
+  background: #b7682b;
+}
+
+.insights-key-band {
+  background: #ecd3bb;
+}
+
+/* ---- Calendar: the spending heat grid ---- */
+
+.calendar-period {
+  color: #33251f;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+}
+
+.calendar-totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  padding: 12px 0;
+  border-top: 1px solid #eeeae3;
+  border-bottom: 1px solid #eeeae3;
+}
+
+.calendar-totals dt {
+  color: #8b7d71;
+  font-size: 11px;
+}
+
+.calendar-totals dd {
+  margin-top: 2px;
+  color: #33251f;
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.calendar-weekdays,
+.calendar-cells {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.calendar-weekdays span {
+  padding: 0 4px 6px;
+  color: #8b7d71;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.calendar-cell,
+.calendar-blank {
+  min-height: 88px;
+  border-radius: 6px;
+}
+
+.calendar-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 9px;
+  border: 1px solid #eee5d9;
+  background: #fffdf9;
+  text-align: left;
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+
+.calendar-cell:hover {
+  border-color: #b98f6f;
+}
+
+.calendar-cell:active {
+  transform: translateY(1px);
+}
+
+.calendar-cell[data-heat="1"] { background: #faefe2; border-color: #f1e2cf; }
+.calendar-cell[data-heat="2"] { background: #f5dfc8; border-color: #ecd0b2; }
+.calendar-cell[data-heat="3"] { background: #ecc6a1; border-color: #e2b78d; }
+.calendar-cell[data-heat="4"] { background: #e0a473; border-color: #d4955f; }
+.calendar-cell[data-heat="5"] { background: #c9773a; border-color: #b9692e; }
+
+.calendar-cell[data-heat="3"] .calendar-date,
+.calendar-cell[data-heat="4"] .calendar-date,
+.calendar-cell[data-heat="5"] .calendar-date {
+  color: #28231f;
+}
+
+.calendar-cell[data-future] {
+  border-style: dashed;
+  background: transparent;
+}
+
+.calendar-cell[data-future] .calendar-date {
+  color: #b2a597;
+}
+
+/* Today: a short burnt-orange bar under the date, not a circle. */
+.calendar-cell[data-today] .calendar-date::after {
+  display: block;
+  width: 16px;
+  height: 2px;
+  margin-top: 3px;
+  background: #b84c0a;
+  content: "";
+}
+
+.calendar-date {
+  color: #5f554c;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.calendar-amount {
+  margin-top: auto;
+  color: #28231f;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.calendar-income {
+  color: #3e6545;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-cell[data-heat="5"] .calendar-income,
+.calendar-cell[data-heat="4"] .calendar-income {
+  color: #23402a;
+}
+
+.calendar-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  color: #8b7d71;
+  font-size: 11px;
+}
+
+.calendar-legend span {
+  margin: 0 4px;
+}
+
+.calendar-legend i {
+  width: 14px;
+  height: 14px;
+  border: 1px solid #eee5d9;
+  border-radius: 3px;
+  background: #fffdf9;
+}
+
+.calendar-legend i[data-heat="1"] { background: #faefe2; }
+.calendar-legend i[data-heat="2"] { background: #f5dfc8; }
+.calendar-legend i[data-heat="3"] { background: #ecc6a1; }
+.calendar-legend i[data-heat="4"] { background: #e0a473; }
+.calendar-legend i[data-heat="5"] { background: #c9773a; }
+
+.calendar-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.calendar-week-day {
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #eee5d9;
+  border-radius: 6px;
+  background: #fffdf9;
+}
+
+.calendar-week-day[data-today] {
+  border-color: #d9b394;
+}
+
+.calendar-week-head {
+  display: flex;
+  width: 100%;
+  min-height: 40px;
+  flex-direction: column;
+  align-items: flex-start;
+  color: #5f554c;
+  font-size: 12px;
+  text-align: left;
+}
+
+.calendar-week-head strong {
+  color: #28231f;
+}
+
+.calendar-week-head > span:last-child {
+  color: #28231f;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.calendar-week-head:hover strong {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.calendar-heat-rule {
+  height: 3px;
+  margin: 6px 0 2px;
+  border-radius: 2px;
+  background: #efe7dc;
+}
+
+.calendar-heat-rule[data-heat="1"] { background: #f5dfc8; }
+.calendar-heat-rule[data-heat="2"] { background: #ecc6a1; }
+.calendar-heat-rule[data-heat="3"] { background: #e0a473; }
+.calendar-heat-rule[data-heat="4"],
+.calendar-heat-rule[data-heat="5"] { background: #c9773a; }
+
+.calendar-event {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px 1px;
+  border-bottom: 1px solid #f3eee7;
+  color: #433b35;
+  font-size: 11px;
+}
+
+.calendar-event:last-child {
+  border-bottom: 0;
+}
+
+.calendar-swatch {
+  width: 3px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+
 @media (max-width: 1050px) {
   .overview-topline {
     grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
@@ -599,6 +1026,48 @@
 
   .overview-kpi {
     padding: 9px 8px;
+  }
+}
+
+@media (max-width: 760px) {
+  .calendar-weekdays,
+  .calendar-cells {
+    gap: 3px;
+  }
+
+  .calendar-cell,
+  .calendar-blank {
+    min-height: 58px;
+  }
+
+  .calendar-cell {
+    padding: 5px;
+  }
+
+  .calendar-amount {
+    font-size: 10px;
+  }
+
+  .calendar-income {
+    display: none;
+  }
+
+  .calendar-week {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-week-head {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .calendar-period {
+    font-size: 23px;
+  }
+
+  .prototype-figure {
+    font-size: 29px;
   }
 }
 

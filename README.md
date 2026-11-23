@@ -159,9 +159,10 @@ recommendation.
   rejected because direction cannot be inferred safely. PDF and image OCR require the optional local dependencies in
   `backend/requirements-ocr.txt`; OCR has not been benchmarked against bank
   layouts, and extracted rows require manual review.
-- Calendar, insights, roles/RBAC management, profile editing, billing, and real
-  bank connections are not part of the current authenticated workflow. Bank
-  adapters remain simulated; the role editor is not authorization.
+- `sample-statement-3-months.csv` (repo root) is a synthetic demo statement, Sep 1 to Nov 23 2026, 146 rows in the `sample-passbook.csv` column format; it contains no real names, accounts or financial data.
+- Calendar, insights, budgets and goals are part of the authenticated workspace.
+  Roles/RBAC management, profile editing, billing, and real bank connections
+  are not. Bank adapters remain simulated; the role editor is not authorization.
 
 Open `/login` to create a Supabase Auth account or sign in, then enter
 `/dashboard`. With no imported records, the workspace explains how to add a
