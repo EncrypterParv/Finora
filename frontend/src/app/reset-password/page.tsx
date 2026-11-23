@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Arrow, Wordmark } from "@/components/landing/LandingPage";
+import { clearApiResponseCache } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
 import "@/components/landing/landing.css";
 import "@/components/landing/refinement.css";
@@ -50,6 +51,7 @@ export default function ResetPasswordPage() {
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) throw updateError;
       await supabase.auth.signOut();
+      clearApiResponseCache();
       setNotice("Your password has been changed. Sign in with your new password.");
       window.setTimeout(() => router.replace("/login"), 900);
     } catch {

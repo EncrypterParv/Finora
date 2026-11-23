@@ -1,7 +1,7 @@
 # Finora Project Context
 
 Last reviewed: 2026-11-23
-Current milestone: Calendar, Insights, Budgets and Goals are connected in the signed-in workspace; transaction filters, manual entry, deletion, real budget spend, and calendar date handling are implemented; Supabase Auth signup now expects an immediate session with email confirmation off for the current demo. The hosted setting still needs to be changed.
+Current milestone: Calendar, Insights, Budgets and Goals are connected in the signed-in workspace; transaction filters, manual entry, deletion, real budget spend, calendar date handling, and statement-review pagination are implemented. Supabase Auth signup expects an immediate session with email confirmation off for the current demo. Authenticated API GET responses now use a short-lived, per-user in-memory cache; no Lighthouse measurement has been taken yet.
 
 This is the short continuity brief for coding agents. Read it before planning
 substantial work, then read [`history.md`](history.md) for dated decisions and
@@ -54,6 +54,7 @@ calculated.
 | Bank accounts | User-scoped CRUD and statement onboarding use `/accounts` | Account labels accept optional last four digits, never a full number. The statement flow marks them `STATEMENT_IMPORT`. Deleting an account with transactions returns 409 unless `?delete_transactions=true`. |
 | Transactions, budgets, goals | Connected in the workspace | The dashboard lists imported transactions. `GET /transactions` filters by date range, type, account, amount range, and case-insensitive description search (`q`, wildcards escaped), and returns the pre-pagination match count in `X-Total-Count` (exposed via CORS). `POST /transactions` records manual (e.g. cash) DEBIT/CREDIT entries with `source=MANUAL` and does not change account balances; `DELETE /transactions/{id}` removes one. Category filtering is not available because categories are not stored as rows yet (reviewed names live in transaction metadata), and the detail endpoint's budget/forecast context fields are still placeholders. The Budgets screen uses `/budgets` (real debit totals and linear burn projections; no per-category limits yet) and the Goals screen uses `/goals`. |
 | Frontend tests | Not present | There is no frontend unit or end-to-end test suite yet. |
+| Frontend performance and accessibility | Focused improvements in progress | Successful API GET responses are cached in browser memory for 30 seconds, scoped by Supabase user ID, invalidated on API mutations, and cleared on sign-out. The Overview fetches five recent transactions plus the server-reported total instead of downloading 200. Dashboard feature screens are split into on-demand chunks. Workspace navigation has a skip link and 44px mobile targets. Lighthouse and browser-based accessibility measurements remain pending. |
 
 ## Technical shape and boundaries
 

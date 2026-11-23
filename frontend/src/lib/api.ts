@@ -26,6 +26,35 @@ import {
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "/api/v1";
 
+// Short-lived, browser-memory-only cache for read-only API responses. Requests
+// are partitioned by the authenticated Supabase user and every mutation
+// invalidates that user's entries before it is sent.
+const API_CACHE_TTL_MS = 30_000;
+const API_CACHE_MAX_ENTRIES = 50;
+type CachedApiResponse = {
+  body: string;
+  status: number;
+  statusText: string;
+  headers: [string, string][];
+  expiresAt: number;
+};
+const apiResponseCache = new Map<string, CachedApiResponse>();
+const apiCacheGenerations = new Map<string, number>();
+let apiCacheEpoch = 0;
+
+export function clearApiResponseCache(userId?: string) {
+  if (!userId) {
+    apiCacheEpoch += 1;
+    apiResponseCache.clear();
+    apiCacheGenerations.clear();
+    return;
+  }
+  apiCacheGenerations.set(userId, (apiCacheGenerations.get(userId) ?? 0) + 1);
+  for (const key of apiResponseCache.keys()) {
+    if (key.startsWith(`${userId}:`)) apiResponseCache.delete(key);
+  }
+}
+
 export type StatementSourceFormat = "csv" | "pdf" | "image";
 
 export interface StatementDraftTransaction {
@@ -100,11 +129,61 @@ async function apiFetch(input: RequestInfo | URL, init: RequestInit = {}) {
   const { data, error } = await supabase.auth.getSession();
   if (error) throw error;
 
+  const method = (init.method ?? "GET").toUpperCase();
+  const userId = data.session?.user.id;
   const headers = new Headers(init.headers);
   if (data.session?.access_token) {
     headers.set("Authorization", `Bearer ${data.session.access_token}`);
   }
-  return fetch(input, { ...init, headers });
+
+  const requestUrl = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+  const cacheKey = userId ? `${userId}:${requestUrl}` : "";
+  const requestEpoch = apiCacheEpoch;
+  const requestGeneration = userId ? apiCacheGenerations.get(userId) ?? 0 : 0;
+  if (method === "GET" && cacheKey) {
+    const cached = apiResponseCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      // Refresh insertion order so frequently revisited screens stay in cache.
+      apiResponseCache.delete(cacheKey);
+      apiResponseCache.set(cacheKey, cached);
+      return new Response(cached.body, {
+        status: cached.status,
+        statusText: cached.statusText,
+        headers: cached.headers,
+      });
+    }
+    if (cached) apiResponseCache.delete(cacheKey);
+  } else if (userId && method !== "GET") {
+    clearApiResponseCache(userId);
+  }
+
+  const response = await fetch(input, { ...init, headers });
+  if (method !== "GET" && userId) clearApiResponseCache(userId);
+  if (method === "GET" && cacheKey && response.ok && requestEpoch === apiCacheEpoch && requestGeneration === (apiCacheGenerations.get(userId!) ?? 0)) {
+    const body = await response.clone().text();
+    const now = Date.now();
+    for (const [key, value] of apiResponseCache) {
+      if (value.expiresAt <= now) apiResponseCache.delete(key);
+    }
+    while (apiResponseCache.size >= API_CACHE_MAX_ENTRIES) {
+      const oldestKey = apiResponseCache.keys().next().value;
+      if (oldestKey === undefined) break;
+      apiResponseCache.delete(oldestKey);
+    }
+    const cachedHeaders = new Headers();
+    for (const name of ["content-type", "x-total-count"]) {
+      const value = response.headers.get(name);
+      if (value !== null) cachedHeaders.set(name, value);
+    }
+    apiResponseCache.set(cacheKey, {
+      body,
+      status: response.status,
+      statusText: response.statusText,
+      headers: Array.from(cachedHeaders.entries()),
+      expiresAt: now + API_CACHE_TTL_MS,
+    });
+  }
+  return response;
 }
 
 // `date` (yyyy-mm-dd) picks which week or day to show; month views use year/month.

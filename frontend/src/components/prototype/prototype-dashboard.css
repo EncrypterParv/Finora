@@ -21,6 +21,27 @@
   background-size: 32px 32px;
 }
 
+.prototype-skip-link {
+  position: fixed;
+  z-index: 100;
+  top: 1rem;
+  left: 1rem;
+  transform: translateY(-160%);
+  border-radius: 6px;
+  background: #352720;
+  color: #fff;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: transform 150ms ease;
+}
+
+.prototype-skip-link:focus {
+  transform: translateY(0);
+  outline: 3px solid #b84c0a;
+  outline-offset: 3px;
+}
+
 .prototype-sidebar {
   width: 244px;
   border-color: var(--prototype-line);

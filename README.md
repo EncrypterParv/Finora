@@ -153,7 +153,9 @@ recommendation.
   from FastAPI. New users see an empty state and can create an account label,
   preview a statement, edit extracted rows, and explicitly confirm an import.
   The source file is not retained. Only confirmed canonical transactions are
-  persisted.
+  persisted. Repeat API reads are kept in browser memory for up to 30 seconds
+  per signed-in user; writes and sign-out clear the cache. The Overview fetches
+  only the five recent rows it displays and uses the API's total count.
 - CSV import requires recognizable date and description columns plus separate
   debit/credit columns or an explicit transaction type; amount-only CSVs are
   rejected because direction cannot be inferred safely. PDF and image OCR require the optional local dependencies in
