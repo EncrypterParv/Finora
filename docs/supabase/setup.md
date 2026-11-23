@@ -18,6 +18,12 @@ Supabase config enables confirmation and uses a six-digit OTP template; the
 hosted project still needs its Confirm signup template and custom SMTP
 configured, then a real sign-up and recovery flow checked.
 
+The hosted Auth dashboard was reviewed on 2026-11-23: **Confirm sign up** is
+enabled, custom SMTP is not configured, and an existing user is still awaiting
+email verification. Do not create repeated test users or repeatedly request
+emails until the sender is configured and the current Auth rate limit has
+cleared.
+
 The configured pooler hostname contains `ap-northeast-1` (Tokyo), while the
 product context currently describes India as the primary audience. Confirm the
 region in Supabase **Project Settings → General** before accepting real users.
@@ -56,9 +62,18 @@ and [Supabase's region-change guidance](https://supabase.com/kb/troubleshooting/
 4. In **Authentication → Providers → Email**, leave Email enabled and keep
    **Confirm email** on. Users must prove they control the address before they
    can sign in.
-5. Open **Authentication → Email Templates → Confirm signup**. Set the subject
-   to `Your Finora verification code` and use an OTP body containing
-   `{{ .Token }}` (not `{{ .ConfirmationURL }}`), for example:
+5. Open **Authentication → Email Templates → Confirm signup**. Finora supports
+   both verification methods:
+
+   - **Code entry:** use an OTP body containing `{{ .Token }}` and keep the
+     signup screen's six-digit entry flow. A link-only template does not
+     provide a code for that form.
+   - **Confirmation link:** use `{{ .ConfirmationURL }}`. Supabase verifies
+     the link, redirects to Finora's `/auth/callback`, and the server exchanges
+     the returned PKCE `code` with Supabase before opening the workspace.
+
+   The local Supabase template uses the code-entry method. For that method, a
+   sample body is:
 
    ```html
    <h2>Confirm your Finora account</h2>
@@ -68,17 +83,39 @@ and [Supabase's region-change guidance](https://supabase.com/kb/troubleshooting/
    <p>Finora will never ask you to share your bank password or this code.</p>
    ```
 
-   The app accepts six digits. Supabase's template variables support the OTP
-   value; a confirmation-link template does not supply a code for this UI.
-6. Configure a custom SMTP provider under **Project Settings → Authentication → SMTP Settings**
-   (the dashboard label may appear as **Auth → SMTP Settings**). Use a sender
-   address verified with that provider. Supabase's default sender is restricted
-   and rate-limited, so it is not reliable for arbitrary user addresses. Enter
-   provider credentials only in the Supabase dashboard, never in chat, Git, or
-   frontend environment variables.
-7. Add the deployed site's exact `/auth/callback` URL to the redirect allowlist
+   The app accepts six digits.
+6. Set up a transactional email provider. **Resend** is the recommended
+   low-friction choice for this project; it provides SMTP credentials, so no
+   mail-sending code or Nodemailer server is needed. Create a Resend account,
+   add a domain you control, publish the SPF/DKIM DNS records Resend provides,
+   and wait for the domain to show as verified. A personal mailbox address is
+   not a substitute for verifying a sending domain.
+7. In Resend, create an API key for SMTP use. In Supabase, open **Auth → SMTP
+   Settings** (or **Project Settings → Authentication → SMTP Settings**),
+   enable custom SMTP, and enter:
+
+   | Supabase field | Resend value |
+   | --- | --- |
+   | Sender email | An address on the verified domain, e.g. `auth@your-domain` |
+   | Sender name | `Finora` |
+   | Host | `smtp.resend.com` |
+   | Port | `465` (SSL) |
+   | Username | `resend` |
+   | Password | The Resend API key |
+
+   Keep the Resend key in Supabase's SMTP password field only. Do not put it
+   in `frontend/.env.local`, Vercel environment variables, chat, or Git. The
+   Supabase built-in sender is restricted to project team addresses and has a
+   very low, changeable sending limit; it is not suitable for normal signup.
+8. Add the deployed site's exact `/auth/callback` URL to the redirect allowlist
    before testing hosted confirmation or password recovery. Keep the two local
    callback URLs above for local development.
+9. Test once with an inbox you control. The login screen has **Need a
+   verification email?** for an existing unconfirmed account; after requesting
+   a code, enter it on that screen. Alternatively, click the confirmation link
+   in the email and let Supabase complete the server callback. Do not retry
+   repeatedly if a rate-limit error appears; inspect the safe code/status shown
+   under **Technical details to share** and the Supabase Auth logs.
 
 ## Copy project values into local environment files
 
