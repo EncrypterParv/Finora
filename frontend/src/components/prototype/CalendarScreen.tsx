@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, RotateCw } from "lucide-react";
 import { fetchCalendarView } from "@/lib/api";
 import { CalendarDaySummary, CalendarEventBlock, CalendarViewMode, CalendarViewResponse } from "@/types/calendar";
 import { EmptyPanel, PageTitle, Panel, SecondaryButton, money, todayIso, toNumber } from "./prototype-ui";
+import { CalendarLoadingSkeleton } from "./PrototypeSkeletons";
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const modeLabels: Record<CalendarViewMode, string> = { month: "Month", week: "Week", day: "Day" };
@@ -69,7 +70,7 @@ export function CalendarScreen({ onAddStatement }: { onAddStatement: () => void 
   return <>
     <PageTitle title="Calendar" description="See your money as it happened, day by day. Darker days are the ones where you spent more than usual." />
 
-    <Panel className="p-4 md:p-5">
+    {!data && loading ? <CalendarLoadingSkeleton /> : <Panel className="p-4 md:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1.5">
           <SecondaryButton className="!px-2.5" onClick={() => step(-1)} aria-label={`Previous ${modeLabels[mode].toLowerCase()}`}><ChevronLeft size={16} /></SecondaryButton>
@@ -92,13 +93,13 @@ export function CalendarScreen({ onAddStatement }: { onAddStatement: () => void 
 
       <div className={`mt-4 ${loading ? "opacity-60" : ""}`} aria-busy={loading}>
         {error ? <div role="alert" className="rounded-lg bg-[#fdebec] p-4 text-sm text-[#9f2f2d]">{error}<SecondaryButton className="ml-3" onClick={() => setReloadKey((key) => key + 1)}><RotateCw size={14} /> Try again</SecondaryButton></div>
-          : !data ? <div role="status" className="py-16 text-center text-sm text-[#766e65]">Loading your calendar…</div>
+          : !data ? <div role="status" className="py-16 text-center text-sm text-[#766e65]">Your calendar could not be loaded.</div>
           : mode === "month" ? <MonthGrid data={data} today={today} onOpenDay={openDay} />
           : mode === "week" ? <WeekColumns data={data} today={today} onOpenDay={openDay} />
           : <DayDetail day={data.days[0]} />}
       </div>
       {data && mode === "month" && <div className="calendar-legend mt-4" aria-hidden="true"><span>Less spending</span>{[0, 1, 2, 3, 4, 5].map((level) => <i key={level} data-heat={level} />)}<span>More</span></div>}
-    </Panel>
+    </Panel>}
 
     {data && !loading && !hasRecords && <div className="mt-4"><EmptyPanel title={`Nothing recorded ${mode === "day" ? "on this day" : mode === "week" ? "this week" : "in this month"}`} body="Transactions appear on the calendar once you import a statement or add them by hand. Use the arrows to look at other dates." onAdd={onAddStatement} /></div>}
   </>;

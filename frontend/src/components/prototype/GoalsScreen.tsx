@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Check, Pause, Pencil, Play, Plus, RotateCw, Trash2 } from "lucide-react";
 import { createGoal, deleteGoal, fetchGoals, updateGoal } from "@/lib/api";
 import { GoalResponse, GoalStatus, GoalUpdate } from "@/types/goal";
+import { CollectionLoadingSkeleton } from "./PrototypeSkeletons";
 import {
   ConfirmStrip,
   EmptyPanel,
@@ -66,11 +67,11 @@ export function GoalsScreen() {
       action={<PrimaryButton onClick={() => setShowCreate((open) => !open)} aria-expanded={showCreate}><Plus size={16} /> New goal</PrimaryButton>}
     />
     {showCreate && <Panel className="mb-4 p-5"><GoalForm onCancel={() => setShowCreate(false)} onSaved={(goal) => { setGoals((current) => [goal, ...current]); setShowCreate(false); }} /></Panel>}
-    {loading ? <Panel className="p-8 text-sm text-[#766e65]"><span role="status">Loading your goals…</span></Panel>
+    {loading && goals.length === 0 ? <CollectionLoadingSkeleton label="Loading your goals" />
       : error ? <Panel className="p-6"><p role="alert" className="text-sm text-[#9f2f2d]">{error}</p><SecondaryButton className="mt-4" onClick={() => setReloadKey((key) => key + 1)}><RotateCw size={15} /> Try again</SecondaryButton></Panel>
       : ordered.length === 0 ? (!showCreate && <EmptyPanel title="No goals yet" body="Add a goal like an emergency fund or a trip. Enter what you’ve saved and what you can add each month, and Finora estimates your finish date." onAdd={() => setShowCreate(true)} actionLabel="Create your first goal" />)
       : <div className="grid gap-4 lg:grid-cols-2">{ordered.map((goal) => <GoalCard key={goal.id} goal={goal} onUpdated={replace} onDeleted={(id) => setGoals((current) => current.filter((item) => item.id !== id))} />)}</div>}
-    {!loading && ordered.length > 0 && <p className="mt-4 text-xs text-[#837970]">Finish dates are estimates that assume your monthly amount and expected return stay the same. They are not investment advice.</p>}
+    {ordered.length > 0 && <p className="mt-4 text-xs text-[#837970]">Finish dates are estimates that assume your monthly amount and expected return stay the same. They are not investment advice.</p>}
   </>;
 }
 
