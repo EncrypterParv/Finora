@@ -259,6 +259,24 @@ assumptions from old plans.
 - Keep in mind: the Vercel backend does not install the optional PaddleX OCR
   runtime, so CSV is the only supported statement format in that deployment.
 
+## 2026-11-22 — Sign-up feedback and demo email policy
+
+- The sign-up form previously discarded Supabase's error object and returned a
+  generic failure. On success without a session, it switched back to sign-in
+  without explaining that email confirmation was still required.
+- The form now maps common Auth errors to actionable messages and exposes only
+  the provider code/status in browser diagnostics; it never logs the user's
+  email, password, token, or raw provider message. Confirmation-required
+  responses remain visible instead of silently changing modes. Successful
+  immediate sessions land on the workspace with an account-created message.
+- The user selected immediate sign-up without confirmation emails for the
+  current judge demo. The app and setup docs now expect Supabase Confirm email
+  off. Hosted Auth settings and a real sign-up remain pending; email ownership
+  is therefore not verified, and password recovery still needs SMTP.
+- Keep in mind: Supabase's built-in email sender restricts recipients and is
+  rate-limited. Before public launch, configure custom SMTP, re-enable email
+  confirmation, and verify both sign-up and recovery flows.
+
 ## 2026-11-22 — Transaction filters, manual entry, and deletion
 
 - `GET /transactions` keeps its list response, `limit`/`offset`, and newest-first
@@ -310,6 +328,23 @@ assumptions from old plans.
 - Frontend lint, typecheck and production build passed after `npm ci` restored
   the locked `@vercel/analytics` dependency locally. Browser visual QA at
   390 px was not performed because the dev server was not started.
+
+## 2026-11-22 — Require email verification for signup
+
+- The previous demo decision to disable Supabase email confirmation was
+  reversed. Email ownership verification is now a requirement; do not turn off
+  **Confirm email** in the hosted project.
+- Signup now collects a six-digit OTP on the same entry page, supports a
+  confirmation resend and email correction, and enters the workspace only
+  after verification. Unconfirmed sign-in attempts route to the code-entry
+  state. Auth logs still exclude email, password, OTP, and raw provider text.
+- Local Supabase config now enables confirmations and supplies a code-based
+  Confirm signup template. Hosted SMTP and the hosted Confirm signup template
+  are external setup and must be configured before live user signup can be
+  considered verified. Password recovery also needs email delivery.
+- The prior “Sign-up feedback and demo email policy” entry records a decision
+  that has since been superseded; use this entry and current setup instructions
+  as the source of truth.
 
 ## Mistakes and corrections to carry forward
 
