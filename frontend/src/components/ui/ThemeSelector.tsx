@@ -6,10 +6,10 @@ import { Palette, Check } from "lucide-react";
 
 const themes: { id: Theme; name: string; description: string; preview: string }[] = [
   {
-    id: "fin",
-    name: "Fin Theme",
-    description: "Warm brass, stone canvas & paper",
-    preview: "bg-[#886731] border-[#d7ba82]",
+    id: "amoled",
+    name: "AMOLED Black",
+    description: "Pure #000000 pitch black for OLED (Default)",
+    preview: "bg-[#000000] border-[#ffffff]",
   },
   {
     id: "dark",
@@ -18,10 +18,10 @@ const themes: { id: Theme; name: string; description: string; preview: string }[
     preview: "bg-[#15161b] border-[#383a42]",
   },
   {
-    id: "amoled",
-    name: "AMOLED Black",
-    description: "Pure #000000 pitch black for OLED",
-    preview: "bg-[#000000] border-[#ffffff]",
+    id: "fin",
+    name: "Fin Theme",
+    description: "Warm brass, stone canvas & paper",
+    preview: "bg-[#886731] border-[#d7ba82]",
   },
 ];
 

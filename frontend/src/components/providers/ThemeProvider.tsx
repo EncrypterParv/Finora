@@ -10,14 +10,14 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: "fin",
+  theme: "amoled",
   setTheme: () => {},
 });
 
 const THEME_STORAGE_KEY = "finora-theme";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("fin");
+  const [theme, setThemeState] = useState<Theme>("amoled");
 
   const applyThemeToDOM = (t: Theme) => {
     document.documentElement.setAttribute("data-theme", t);
@@ -38,11 +38,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setThemeState(savedTheme);
         applyThemeToDOM(savedTheme);
       } else {
-        applyThemeToDOM("fin");
+        setThemeState("amoled");
+        applyThemeToDOM("amoled");
       }
     } catch {
       // localStorage may not be available in private mode or test environments
-      applyThemeToDOM("fin");
+      setThemeState("amoled");
+      applyThemeToDOM("amoled");
     }
   }, []);
 

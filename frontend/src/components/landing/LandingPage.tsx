@@ -8,7 +8,8 @@ import { useEffect, useRef, useState } from "react";
 import { FinancialWorkbench } from "./FinancialWorkbench";
 import { WealthExplorer } from "./WealthExplorer";
 import { LandingPlans } from "./LandingPlans";
-import { Arrow, Wordmark } from "./LandingBrand";
+import { Arrow } from "./LandingBrand";
+import { FinoraMark } from "@/components/brand/FinoraMark";
 import { LandingFooter } from "./LandingFooter";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
 
@@ -108,10 +109,10 @@ export function LandingPage() {
       <a className="landing-skip" href="#main">
         Skip to content
       </a>
-      <div className="sticky top-4 z-40 px-4 md:px-8">
-        <header className="landing-header-floating" data-scrolled={headerScrolled}>
+      <div className="fixed top-4 inset-x-0 z-50 px-4 md:px-8 pointer-events-none">
+        <header className="landing-header-floating pointer-events-auto mx-auto flex items-center justify-between" data-scrolled={headerScrolled}>
           {/* Left: Pill navigation buttons */}
-          <nav className="flex items-center gap-1.5 md:gap-2" aria-label="Main navigation">
+          <nav className="flex items-center gap-1.5 md:gap-2 shrink-0" aria-label="Main navigation">
             <a href="#how-it-works" className="landing-pill-btn">
               About
             </a>
@@ -124,12 +125,12 @@ export function LandingPage() {
           </nav>
 
           {/* Center: Brand Wordmark */}
-          <Link href="/" aria-label="Finora home" className="flex items-center">
-            <Wordmark />
+          <Link href="/" aria-label="Finora home" className="flex items-center shrink-0 hover:opacity-90 transition-opacity">
+            <FinoraMark size="sm" showWordmark={true} />
           </Link>
 
           {/* Right: Theme Selector & Log In Pill */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <ThemeSelector pill />
             <Link className="landing-pill-btn group flex items-center gap-2 font-bold" href="/login">
               <span>Log in</span>

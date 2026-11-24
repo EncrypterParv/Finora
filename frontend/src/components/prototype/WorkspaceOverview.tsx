@@ -324,11 +324,10 @@ function OverviewSummary({ cashFlow, month, accounts, onInsights, onAccounts, on
         <button
           type="button"
           onClick={() => setChartTab("fingraph")}
-          className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
-            chartTab === "fingraph"
-              ? "bg-[var(--workspace-gold,#d7ba82)] text-[var(--finora-dark,#20211f)] shadow-sm font-bold"
-              : "text-[var(--workspace-muted,#c6c5bb)] hover:text-[var(--workspace-ink,#f5f4f0)]"
-          }`}
+          className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${chartTab === "fingraph"
+            ? "bg-[var(--workspace-gold,#d7ba82)] text-[var(--finora-dark,#20211f)] shadow-sm font-bold"
+            : "text-[var(--workspace-muted,#c6c5bb)] hover:text-[var(--workspace-ink,#f5f4f0)]"
+            }`}
         >
           <LineChart size={14} />
           <span>FinGraph (10-Year Market View)</span>
@@ -336,11 +335,10 @@ function OverviewSummary({ cashFlow, month, accounts, onInsights, onAccounts, on
         <button
           type="button"
           onClick={() => setChartTab("breakdown")}
-          className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
-            chartTab === "breakdown"
-              ? "bg-[var(--workspace-gold,#d7ba82)] text-[var(--finora-dark,#20211f)] shadow-sm font-bold"
-              : "text-[var(--workspace-muted,#c6c5bb)] hover:text-[var(--workspace-ink,#f5f4f0)]"
-          }`}
+          className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${chartTab === "breakdown"
+            ? "bg-[var(--workspace-gold,#d7ba82)] text-[var(--finora-dark,#20211f)] shadow-sm font-bold"
+            : "text-[var(--workspace-muted,#c6c5bb)] hover:text-[var(--workspace-ink,#f5f4f0)]"
+            }`}
         >
           <PieChartIcon size={14} />
           <span>Monthly Cash Flow & Breakdown</span>
