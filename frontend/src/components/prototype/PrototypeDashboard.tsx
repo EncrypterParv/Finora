@@ -44,6 +44,7 @@ import { PageTitle } from "./prototype-ui";
 import { WorkspaceOverview } from "./WorkspaceOverview";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
 import "./prototype-dashboard.css";
+import "./themes.css";
 
 const AccountsScreen = dynamic(() => import("./AccountsScreen").then((module) => module.AccountsScreen), { loading: () => <SectionLoadingSkeleton /> });
 const BudgetsScreen = dynamic(() => import("./BudgetsScreen").then((module) => module.BudgetsScreen), { loading: () => <SectionLoadingSkeleton /> });

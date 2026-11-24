@@ -564,3 +564,140 @@ html[data-theme="blue"] .prototype-primary-action {
 html[data-theme="blue"] .prototype-primary-action:hover {
   background: #1d4ed8 !important;
 }
+
+/* ========================================================
+   HIGH CONTRAST & ACCESSIBILITY FOR DARK THEME TEXT
+   ======================================================== */
+
+html[data-theme="dark"] .prototype-page-title h1,
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] .prototype-figure {
+  color: #f8fafc !important;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+}
+
+html[data-theme="dark"] .prototype-page-title > div > p,
+html[data-theme="dark"] .prototype-page-title p {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .prototype-eyebrow {
+  color: #cbd5e1 !important;
+  letter-spacing: 0.16em;
+}
+
+html[data-theme="dark"] .text-\[\#575953\],
+html[data-theme="dark"] .text-\[\#62645d\],
+html[data-theme="dark"] .text-\[\#70665c\],
+html[data-theme="dark"] .text-\[\#414340\],
+html[data-theme="dark"] .text-\[\#917c73\],
+html[data-theme="dark"] .text-\[\#725b43\] {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .text-\[\#20211f\],
+html[data-theme="dark"] .text-\[\#262724\] {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .border-\[\#e5e4de\],
+html[data-theme="dark"] .border-\[\#d5d4cc\],
+html[data-theme="dark"] .border-\[\#ded0b5\],
+html[data-theme="dark"] .border-\[\#eeede8\] {
+  border-color: #232736 !important;
+}
+
+html[data-theme="dark"] .bg-\[\#fbfbf9\],
+html[data-theme="dark"] .bg-\[\#eeede8\],
+html[data-theme="dark"] .bg-\[\#f5f4f0\] {
+  background-color: #181b26 !important;
+}
+
+html[data-theme="dark"] .prototype-tag {
+  background: #1e2230 !important;
+  color: #f8fafc !important;
+  border: 1px solid #2f364d !important;
+}
+
+html[data-theme="dark"] .insights-range {
+  background: #181b26 !important;
+  border: 1px solid #282d3f !important;
+}
+
+html[data-theme="dark"] .insights-range-spent {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa) !important;
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.4);
+}
+
+html[data-theme="dark"] .insights-range-band {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+html[data-theme="dark"] .insights-range-expected {
+  background: #ffffff !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+html[data-theme="dark"] .prototype-progress {
+  background: #181b26 !important;
+  border: 1px solid #282d3f !important;
+}
+
+html[data-theme="dark"] .prototype-progress > span {
+  background: linear-gradient(90deg, #cbd5e1, #ffffff) !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+html[data-theme="dark"] .prototype-field,
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background-color: #181b26 !important;
+  border-color: #282d3f !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .prototype-field:focus,
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] select:focus {
+  border-color: #cbd5e1 !important;
+  outline: 2px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Definition lists and card typography inside dark theme */
+html[data-theme="dark"] dl dt,
+html[data-theme="dark"] .finora-prototype dt {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] dl dd,
+html[data-theme="dark"] .finora-prototype dd {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .finora-prototype section h2,
+html[data-theme="dark"] .finora-prototype section h3 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .divide-\[\#e5e4de\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: #232736 !important;
+}
+
+html[data-theme="dark"] .insights-key {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+html[data-theme="dark"] .insights-key-spent {
+  background: #3b82f6 !important;
+}
+
+html[data-theme="dark"] .insights-key-expected {
+  background: #ffffff !important;
+}
+
+html[data-theme="dark"] .insights-key-band {
+  background: rgba(255, 255, 255, 0.25) !important;
+}

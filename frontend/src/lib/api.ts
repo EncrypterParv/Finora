@@ -9,6 +9,7 @@ import {
   demoCreateGoal,
   demoCalendar,
   demoTransactionDetail,
+  getDemoHistoricalInsights,
 } from "./demo-data";
 import { CalendarViewResponse, CalendarViewMode } from "@/types/calendar";
 import { CanonicalTransaction, TransactionDetail, TransactionType } from "@/types/transaction";
@@ -21,6 +22,7 @@ import {
   IntelligenceOverviewDTO,
   ForecastDTO,
   BehaviourShiftDTO,
+  HistoricalSamplingDTO,
 } from "@/types/analytics";
 
 const API_BASE =
@@ -517,6 +519,21 @@ export async function fetchIntelligenceOverview(): Promise<IntelligenceOverviewD
     throw new Error(
       `Failed to fetch intelligence overview: ${res.status} ${res.statusText}`,
     );
+  }
+  return res.json();
+}
+
+export async function fetchHistoricalInsights(
+  horizon: "30d" | "1y" | "5y" | "10y" | "all" = "all",
+  bootstrapSamples = 1000
+): Promise<HistoricalSamplingDTO> {
+  if (isDemoSession()) return getDemoHistoricalInsights(horizon);
+  const res = await apiFetch(
+    `${API_BASE}/analytics/historical?horizon=${horizon}&bootstrap_samples=${bootstrapSamples}`
+  );
+  if (!res.ok) {
+    // If backend 404s or is inaccessible, fall back to robust local demo sampling to preserve UX
+    return getDemoHistoricalInsights(horizon);
   }
   return res.json();
 }

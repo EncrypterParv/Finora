@@ -231,3 +231,103 @@ async def test_analytics_overview_endpoint_integration(client: AsyncClient, db_s
         assert r["trigger"] != ""
         assert r["evidence"] != ""
         assert r["suggested_action"] != ""
+
+
+def test_kiteworks_privacy_gate_sanitization():
+    from app.domain.ml.privacy_gate import KiteworksPrivacyGate
+
+    raw_tx = {
+        "id": "tx-secret-123",
+        "raw_description": "Payment to John at john.doe@example.com call 9876543210 card 4111-2222-3333-4444",
+        "amount": Decimal("1500.00"),
+        "transaction_type": "DEBIT",
+    }
+
+    sanitized = KiteworksPrivacyGate.sanitize_transaction(raw_tx)
+    assert "[CARD_MASKED]" in sanitized["raw_description"]
+    assert "[EMAIL_MASKED]" in sanitized["raw_description"]
+    assert "john.doe@example.com" not in sanitized["raw_description"]
+    assert "4111" not in sanitized["raw_description"]
+    assert "pseudonym_id" in sanitized
+    assert sanitized["pseudonym_id"] != "tx-secret-123"
+
+    cert = KiteworksPrivacyGate.issue_privacy_certificate(
+        user_id="user-123",
+        transaction_count=50,
+        horizon="5y",
+    )
+    assert cert["air_gapped"] is True
+    assert cert["cloud_ai_leakage_prevented"] is True
+    assert cert["kiteworks_boundary_status"] == "ENFORCED_ZERO_TRUST"
+    assert "audit_hash" in cert
+
+
+def test_historical_ml_engine_analysis():
+    from app.domain.ml.historical_engine import HistoricalMLEngine
+
+    now = datetime(2026, 10, 20, 12, 0, 0, tzinfo=timezone.utc)
+    multi_year_txs = []
+
+    # Generate 3 years of mock historical transactions
+    for yr_offset in range(3):
+        yr = 2026 - yr_offset
+        # Salary credit
+        multi_year_txs.append({
+            "id": f"sal-{yr}",
+            "occurred_at": datetime(yr, 5, 1, 10, 0, 0, tzinfo=timezone.utc),
+            "amount": Decimal("100000.00"),
+            "transaction_type": "CREDIT",
+            "category_name": "Income",
+            "merchant_name": "Corp",
+            "raw_description": "Monthly Salary",
+        })
+        # Routine debit
+        multi_year_txs.append({
+            "id": f"spend-{yr}",
+            "occurred_at": datetime(yr, 5, 10, 14, 0, 0, tzinfo=timezone.utc),
+            "amount": Decimal("25000.00"),
+            "transaction_type": "DEBIT",
+            "category_name": "Groceries",
+            "merchant_name": "Supermarket",
+            "raw_description": "Groceries",
+        })
+
+    # Test 1-year horizon
+    res_1y = HistoricalMLEngine.analyze_historical_stream(
+        user_id="test-user",
+        transactions=multi_year_txs,
+        horizon="1y",
+        bootstrap_samples=100,
+    )
+    assert res_1y["horizon"] == "1y"
+    assert res_1y["privacy_certificate"]["air_gapped"] is True
+    assert res_1y["metrics"]["total_inflow"] > Decimal("0.00")
+
+    # Test 5-year horizon
+    res_5y = HistoricalMLEngine.analyze_historical_stream(
+        user_id="test-user",
+        transactions=multi_year_txs,
+        horizon="5y",
+        bootstrap_samples=100,
+    )
+    assert res_5y["horizon"] == "5y"
+    assert len(res_5y["yearly_trajectory"]) > 0
+    assert "Jan" in res_5y["seasonality_index"]
+    assert len(res_5y["forward_projection_12m"]) == 12
+
+
+@pytest.mark.asyncio
+async def test_analytics_historical_endpoint_integration(
+    client: AsyncClient,
+    db_session: AsyncSession,
+):
+    await seed_demo_data_if_empty(db_session)
+    response = await client.get("/api/v1/analytics/historical?horizon=all&bootstrap_samples=200")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["horizon"] == "all"
+    assert data["privacy_certificate"]["air_gapped"] is True
+    assert data["privacy_certificate"]["cloud_ai_leakage_prevented"] is True
+    assert "metrics" in data
+    assert "bootstrap_sampling" in data
+    assert "yearly_trajectory" in data
