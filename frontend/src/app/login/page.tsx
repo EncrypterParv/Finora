@@ -291,6 +291,9 @@ export default function LoginPage() {
           Sign-in uses Supabase Auth. Statement files are reviewed before
           import, and only the rows you confirm are saved to your account.
         </p>
+        <Link href="/dashboard/demo" className="login-demo-skip" aria-label="Explore Finora without an account">
+          Sign in later →
+        </Link>
       </section>
     </main>
   );

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { FinoraMark } from "@/components/brand/FinoraMark";
+import { ThemeSelector } from "@/components/ui/ThemeSelector";
 
 export type NavSection =
   | "overview"
@@ -93,6 +94,7 @@ export const AppShell: React.FC<AppShellProps> = ({
           </nav>
 
           <div className="ml-auto flex shrink-0 items-center gap-2">
+            <ThemeSelector />
             <div className="hidden items-center gap-1 md:flex">
               {secondaryNav.map((item) => {
                 const active = activeSection === item.id;
