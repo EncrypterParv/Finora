@@ -16,6 +16,8 @@ import {
   LayoutDashboard,
   Lightbulb,
   LogOut,
+  PanelLeftClose,
+  PanelLeftOpen,
   PiggyBank,
   RotateCw,
   ShieldCheck,
@@ -91,6 +93,7 @@ export function PrototypeDashboard({
   const mobileNavigation = useRef<HTMLDetailsElement>(null);
   const workspaceMain = useRef<HTMLElement>(null);
   const [welcomeToastState, setWelcomeToastState] = useState<"visible" | "leaving" | "hidden">(accountCreated ? "visible" : "hidden");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     if (!accountCreated) return;
@@ -216,33 +219,91 @@ export function PrototypeDashboard({
   return (
     <div className="finora-prototype min-h-screen" data-section={section}>
       <a className="prototype-skip-link" href="#workspace-main">Skip to main content</a>
-      <aside className="prototype-sidebar fixed inset-y-0 left-0 hidden w-[244px] flex-col overflow-y-auto border-r px-4 py-5 md:flex">
-        <div className="prototype-brand px-2"><FinoraMark size="md" /></div>
-        <nav className="prototype-nav" aria-label="Workspace sections">
+      <aside
+        className="prototype-sidebar-tahoe hidden md:flex"
+        data-collapsed={sidebarCollapsed}
+        aria-label="Workspace sidebar"
+      >
+        <div className="flex items-center justify-between px-3 pt-3 pb-2 border-b border-[var(--finora-sidebar-line)]">
+          <div className="flex items-center gap-2 overflow-hidden">
+            <FinoraMark size="sm" showWordmark={!sidebarCollapsed} />
+          </div>
+          <button
+            type="button"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="grid h-8 w-8 place-items-center rounded-lg text-[var(--finora-sidebar-text)] hover:bg-white/10 transition-colors"
+            aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={sidebarCollapsed ? "Expand sidebar (⌘+B)" : "Collapse sidebar"}
+          >
+            {sidebarCollapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
+          </button>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto px-2 py-3" aria-label="Workspace sections">
           {[
             { label: "Workspace", items: navigation.slice(0, 4) },
             { label: "Manage", items: navigation.slice(4) },
           ].map(({ label, items }) => (
-            <div key={label} className="prototype-nav-group">
-              <p className="prototype-nav-label">{label}</p>
-              {items.map(({ id, label, icon: Icon }) => (
-                <button key={id} type="button" onClick={() => setSection(id)} aria-current={section === id ? "page" : undefined} className={`prototype-nav-link flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors ${section === id ? "is-active font-semibold" : ""}`}>
-                  <Icon size={17} strokeWidth={1.8} aria-hidden="true" />{label}
-                </button>
-              ))}
+            <div key={label} className="mb-4">
+              {!sidebarCollapsed && (
+                <p className="px-3 mb-1 text-[10px] font-semibold tracking-wider uppercase text-[var(--finora-sidebar-text)] opacity-60">
+                  {label}
+                </p>
+              )}
+              <div className="space-y-1">
+                {items.map(({ id, label: itemLabel, icon: Icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setSection(id)}
+                    aria-current={section === id ? "page" : undefined}
+                    title={sidebarCollapsed ? itemLabel : undefined}
+                    className={`tahoe-nav-item w-full ${sidebarCollapsed ? "justify-center !px-0" : ""} ${
+                      section === id ? "is-active font-semibold" : ""
+                    }`}
+                  >
+                    <Icon size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                    {!sidebarCollapsed && <span className="truncate">{itemLabel}</span>}
+                  </button>
+                ))}
+              </div>
             </div>
           ))}
         </nav>
-        <div className="prototype-sidebar-profile">
-          <span className="prototype-avatar" aria-hidden="true">{(userName.trim() || userEmail || "F").charAt(0).toUpperCase()}</span>
-          <span className="min-w-0"><strong>{userName || "Personal workspace"}</strong><small>{userEmail || "Finora"}</small></span>
+
+        <div className="border-t border-[var(--finora-sidebar-line)] p-2.5">
+          <div className={`flex items-center gap-2.5 rounded-xl p-1.5 ${sidebarCollapsed ? "justify-center" : ""}`}>
+            <span className="prototype-avatar shrink-0" aria-hidden="true">
+              {(userName.trim() || userEmail || "F").charAt(0).toUpperCase()}
+            </span>
+            {!sidebarCollapsed && (
+              <span className="min-w-0 flex-1 truncate text-xs leading-4 text-[var(--finora-sidebar-text)]">
+                <strong className="block truncate font-semibold text-[var(--finora-on-dark,#ffffff)]">
+                  {userName || "Personal workspace"}
+                </strong>
+                <small className="block truncate opacity-70">{userEmail || "Finora"}</small>
+              </span>
+            )}
+          </div>
         </div>
       </aside>
 
-      <div className="md:pl-[244px]">
+      <div className="tahoe-content-shift min-h-screen flex flex-col" data-collapsed={sidebarCollapsed}>
         <header className="prototype-topbar sticky top-0 z-20 border-b px-4 py-3 md:px-8">
           <div className="mx-auto flex max-w-[1540px] items-center justify-between gap-3">
-            <div className="prototype-topbar-context"><span className="hidden sm:inline">Workspace</span><span className="hidden sm:inline" aria-hidden="true">/</span><strong>{sectionLabel}</strong></div>
+            <div className="prototype-topbar-context">
+              <button
+                type="button"
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="hidden md:grid h-8 w-8 place-items-center rounded-md hover:bg-black/5 dark:hover:bg-white/5 text-[var(--prototype-ink,#20211f)] mr-1"
+                aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                {sidebarCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+              </button>
+              <span className="hidden sm:inline">Workspace</span>
+              <span className="hidden sm:inline" aria-hidden="true">/</span>
+              <strong>{sectionLabel}</strong>
+            </div>
             <div className="flex shrink-0 items-center gap-3">
               <ThemeSelector />
               <button
@@ -276,7 +337,7 @@ export function PrototypeDashboard({
           </details>
         </header>
 
-        <main ref={workspaceMain} id="workspace-main" tabIndex={-1} className="prototype-content mx-auto max-w-[1540px] px-4 py-6 md:px-8 md:py-8" aria-busy={loading}>
+        <main ref={workspaceMain} id="workspace-main" tabIndex={-1} className="prototype-content flex-1 mx-auto w-full max-w-[1540px] px-4 py-6 md:px-8 md:py-8 section-fade-enter" key={section} aria-busy={loading}>
           {welcomeToastState !== "hidden" && <aside className="prototype-toast" data-state={welcomeToastState} role="status" aria-live="polite" aria-atomic="true">
             <Check size={19} className="mt-0.5 shrink-0" aria-hidden="true" />
             <div className="min-w-0 flex-1"><p className="font-semibold">Your account is ready.</p><p className="mt-1 text-sm leading-5">You’re signed in to Finora. Your workspace starts empty; add a statement whenever you’re ready.</p></div>

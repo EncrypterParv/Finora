@@ -1,4 +1,4 @@
-/* Finora Dynamic Theme Engine */
+/* Finora Dynamic Theme Engine & macOS 26 Tahoe Design System */
 
 /* 1. Fin Theme (Default warm brass, stone & paper) */
 :root,
@@ -39,6 +39,8 @@ html[data-theme="fin"] {
   --finora-sidebar-active-bar: #d7ba82;
   --finora-mark-ink: #f5f4f0;
   --finora-mark-accent: #d7ba82;
+  --panel-radius: 1.25rem;
+  --block-radius: 0.875rem;
   color-scheme: light;
 }
 
@@ -79,10 +81,12 @@ html[data-theme="blue"] {
   --finora-sidebar-active-bar: #3b82f6;
   --finora-mark-ink: #ffffff;
   --finora-mark-accent: #3b82f6;
+  --panel-radius: 1.25rem;
+  --block-radius: 0.875rem;
   color-scheme: light;
 }
 
-/* 3. Dark Dashboard Theme (Financial Car / Obsidian Dashboard with Gloomy Gradient White Accent) */
+/* 3. Dark Dashboard Theme (macOS Dark / Obsidian Cockpit with Gloomy Gradient Glow) */
 html[data-theme="dark"] {
   --finora-dark: #090a0f;
   --finora-on-dark: #ffffff;
@@ -111,24 +115,27 @@ html[data-theme="dark"] {
   --finora-negative: #f87171;
   --finora-negative-soft: rgba(248, 113, 113, 0.15);
   --finora-glow: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.06), transparent 70%);
-  --finora-sidebar-bg: #06070a;
-  --finora-sidebar-line: #1c1f2c;
+  --finora-sidebar-bg: #0d0f17;
+  --finora-sidebar-line: #232736;
   --finora-sidebar-text: #94a3b8;
-  --finora-sidebar-active-bg: rgba(255, 255, 255, 0.07);
+  --finora-sidebar-active-bg: rgba(255, 255, 255, 0.08);
   --finora-sidebar-active-text: #ffffff;
   --finora-sidebar-active-bar: #ffffff;
   --finora-mark-ink: #ffffff;
   --finora-mark-accent: #cbd5e1;
+  --panel-radius: 1.25rem;
+  --block-radius: 0.875rem;
   color-scheme: dark;
 }
 
-/* Dark mode specific subtle white gloomy gradient and glows */
+/* Subtle gloomy ambient background in dark mode */
 html[data-theme="dark"] body {
   background-color: var(--finora-canvas);
-  background-image: var(--finora-glow);
+  background-image: radial-gradient(at 10% 20%, rgba(255, 255, 255, 0.02) 0px, transparent 50%),
+                    radial-gradient(at 90% 80%, rgba(255, 255, 255, 0.015) 0px, transparent 50%);
 }
 
-/* Adaptation for .finora-prototype */
+/* Prototype root adaptation */
 html[data-theme="blue"] .finora-prototype {
   --prototype-paper: #f8fafc;
   --prototype-surface: #ffffff;
@@ -147,39 +154,314 @@ html[data-theme="dark"] .finora-prototype {
   --prototype-accent: #ffffff;
 }
 
-/* Sidebar styling across themes */
-.prototype-sidebar {
-  border-color: var(--finora-sidebar-line) !important;
+/* Global rounded curvy blocks */
+.prototype-surface,
+.workspace-card,
+section.rounded-xl,
+.prototype-first-use,
+.prototype-workspace-notice {
+  border-radius: var(--panel-radius, 1.25rem) !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Universal section backgrounds across dark theme */
+html[data-theme="dark"] .finora-prototype section.rounded-xl,
+html[data-theme="dark"] .finora-prototype .prototype-workspace-notice,
+html[data-theme="dark"] .finora-prototype .prototype-first-use,
+html[data-theme="dark"] .finora-prototype .workspace-card {
+  background: #12141c !important;
+  border-color: #232736 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Subtle glowing border in dark mode */
+html[data-theme="dark"] .finora-prototype section.rounded-xl:hover,
+html[data-theme="dark"] .finora-prototype .workspace-card:hover {
+  border-color: #383e54 !important;
+}
+
+/* macOS 26 Tahoe Sidebar - Floating, Rounded, Glassmorphic */
+.prototype-sidebar-tahoe {
+  position: fixed;
+  top: 14px;
+  bottom: 14px;
+  left: 14px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.5rem !important;
+  border: 1px solid var(--finora-sidebar-line);
   background: var(--finora-sidebar-bg) !important;
-  color: var(--finora-sidebar-text) !important;
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.35s ease;
+  overflow: hidden;
 }
 
-.prototype-sidebar .prototype-nav-link {
-  color: var(--finora-sidebar-text) !important;
+.prototype-sidebar-tahoe[data-collapsed="false"] {
+  width: 244px;
 }
 
-.prototype-sidebar .prototype-nav-link:hover {
+.prototype-sidebar-tahoe[data-collapsed="true"] {
+  width: 72px;
+}
+
+.tahoe-content-shift {
+  transition: padding-left 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.tahoe-content-shift[data-collapsed="false"] {
+  padding-left: 272px;
+}
+
+.tahoe-content-shift[data-collapsed="true"] {
+  padding-left: 100px;
+}
+
+@media (max-width: 768px) {
+  .prototype-sidebar-tahoe {
+    display: none !important;
+  }
+  .tahoe-content-shift {
+    padding-left: 0 !important;
+  }
+}
+
+/* Smooth Navigation Item Animations */
+.tahoe-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 0.875rem !important;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--finora-sidebar-text) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tahoe-nav-item:hover {
   background: var(--finora-sidebar-active-bg) !important;
   color: var(--finora-sidebar-active-text) !important;
+  transform: translateX(2px);
 }
 
-.prototype-sidebar .prototype-nav-link.is-active {
+.tahoe-nav-item.is-active {
   background: var(--finora-sidebar-active-bg) !important;
   color: var(--finora-sidebar-active-text) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
-.prototype-sidebar .prototype-nav-link.is-active::before {
+.tahoe-nav-item.is-active::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 3px;
   background: var(--finora-sidebar-active-bar) !important;
 }
 
-.prototype-sidebar-profile {
-  border-top-color: var(--finora-sidebar-line) !important;
-}
-
-/* Topbar adaptability */
+/* Topbar glass styling */
 .prototype-topbar {
   background: var(--prototype-paper) !important;
-  border-bottom-color: var(--prototype-line) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--prototype-line) !important;
+  transition: all 0.25s ease;
+}
+
+/* ========================================================
+   CALENDAR DARK THEME & CURVY ENHANCEMENTS
+   ======================================================== */
+.calendar-month,
+.calendar-week {
+  border-radius: var(--block-radius, 0.875rem);
+}
+
+.calendar-cell,
+.calendar-blank,
+.calendar-week-day {
+  border-radius: 0.875rem !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease,
+              background-color 0.2s ease;
+}
+
+.calendar-cell:hover,
+.calendar-week-day:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+/* Dark mode Calendar View */
+html[data-theme="dark"] .calendar-period {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .calendar-totals dt {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .calendar-totals dd {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .calendar-weekdays span {
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .calendar-cell {
+  background: #181b26 !important;
+  border-color: #282d3f !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .calendar-cell:hover {
+  border-color: #4b5563 !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme="dark"] .calendar-date {
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] .calendar-amount {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .calendar-cell[data-future] {
+  background: transparent !important;
+  border-color: #232736 !important;
+}
+
+html[data-theme="dark"] .calendar-cell[data-future] .calendar-date {
+  color: #475569 !important;
+}
+
+/* Dark theme calendar heat intensities with gloomy white/silver gradient glowing steps */
+html[data-theme="dark"] .calendar-cell[data-heat="1"] {
+  background: #1e2230 !important;
+  border-color: #2f364d !important;
+}
+html[data-theme="dark"] .calendar-cell[data-heat="2"] {
+  background: #252b3d !important;
+  border-color: #39425d !important;
+}
+html[data-theme="dark"] .calendar-cell[data-heat="3"] {
+  background: #2e354a !important;
+  border-color: #475375 !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.04);
+}
+html[data-theme="dark"] .calendar-cell[data-heat="4"] {
+  background: #3b445f !important;
+  border-color: #5c6c97 !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.08);
+}
+html[data-theme="dark"] .calendar-cell[data-heat="5"] {
+  background: #4a5578 !important;
+  border-color: #7b8ebb !important;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.15);
+}
+
+html[data-theme="dark"] .calendar-week-day {
+  background: #181b26 !important;
+  border-color: #282d3f !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .calendar-week-head strong,
+html[data-theme="dark"] .calendar-week-head > span:last-child {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .calendar-legend i {
+  border-color: #282d3f !important;
+  background: #181b26 !important;
+}
+html[data-theme="dark"] .calendar-legend i[data-heat="1"] { background: #1e2230 !important; }
+html[data-theme="dark"] .calendar-legend i[data-heat="2"] { background: #252b3d !important; }
+html[data-theme="dark"] .calendar-legend i[data-heat="3"] { background: #2e354a !important; }
+html[data-theme="dark"] .calendar-legend i[data-heat="4"] { background: #3b445f !important; }
+html[data-theme="dark"] .calendar-legend i[data-heat="5"] { background: #4a5578 !important; }
+
+/* Segmented controls (month/week/day) in dark mode */
+html[data-theme="dark"] .prototype-segmented {
+  background: #181b26 !important;
+  border-color: #282d3f !important;
+  border-radius: 0.75rem !important;
+}
+
+html[data-theme="dark"] .prototype-segmented button {
+  color: #94a3b8 !important;
+  border-radius: 0.5rem !important;
+}
+
+html[data-theme="dark"] .prototype-segmented button[aria-checked="true"] {
+  background: #282d3f !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+html[data-theme="dark"] .prototype-secondary-action {
+  background: #181b26 !important;
+  border-color: #282d3f !important;
+  color: #e2e8f0 !important;
+  border-radius: 0.75rem !important;
+}
+
+html[data-theme="dark"] .prototype-secondary-action:hover {
+  background: #232736 !important;
+  color: #ffffff !important;
+}
+
+/* Secondary Button Curviness & Micro-interaction across all themes */
+.prototype-secondary-action,
+.prototype-primary-action,
+.prototype-icon-action {
+  border-radius: 0.75rem !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.prototype-secondary-action:active,
+.prototype-primary-action:active {
+  transform: scale(0.97) !important;
+}
+
+/* Polished subtle fade & slide-in animations for section switching */
+.section-fade-enter {
+  animation: section-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes section-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Shimmer pulse for interactive elements */
+@keyframes subtle-glow {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+html[data-theme="dark"] .prototype-toast {
+  background: #181b26 !important;
+  border-color: #2f364d !important;
+  color: #f8fafc !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7) !important;
 }
 
 /* Overview section adaptions for blue theme */
