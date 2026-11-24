@@ -1,6 +1,6 @@
 """Application configuration settings."""
 
-from typing import Any, List, Literal, Union
+from typing import Any, Dict, List, Literal, Union
 import json
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -31,6 +31,12 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int = 5432
     DATABASE_URL: str = "sqlite+aiosqlite:///./financialcall.db"  # Defaults to async sqlite for immediate local dev/testing
     
+    # Feature Flags
+    FEATURE_FLAGS: Dict[str, bool] = {
+        "demoMode": True,
+        "liveMode": False,
+    }
+
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:3000",

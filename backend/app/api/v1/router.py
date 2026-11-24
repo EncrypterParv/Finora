@@ -11,6 +11,7 @@ from app.api.v1 import (
     goals,
     statements,
     transactions,
+    settings,
 )
 
 api_router = APIRouter()
@@ -24,3 +25,4 @@ api_router.include_router(statements.router, prefix="/statements", tags=["Statem
 api_router.include_router(budgets.router, prefix="/budgets", tags=["Budgets & Burn"])
 api_router.include_router(goals.router, prefix="/goals", tags=["Financial Goals & FIRE"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["ML & Behavioural Analytics"])
+api_router.include_router(settings.router, prefix="/settings", tags=["Settings"])
