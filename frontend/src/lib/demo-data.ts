@@ -1,4 +1,8 @@
-import type { IntelligenceOverviewDTO } from "@/types/analytics";
+import type {
+  HistoricalSamplingDTO,
+  IntelligenceOverviewDTO,
+  YearlyTrajectoryDTO,
+} from "@/types/analytics";
 import type { BudgetCreate, BudgetResponse } from "@/types/budget";
 import type { GoalCreate, GoalResponse } from "@/types/goal";
 import type { CalendarViewMode, CalendarViewResponse } from "@/types/calendar";
@@ -304,5 +308,112 @@ export function demoCalendar(
       year === 2026 && month === 10
         ? demoOverview.forecast.expected_total_burn
         : undefined,
+  };
+}
+
+
+export function getDemoHistoricalInsights(horizon: "30d" | "1y" | "5y" | "10y" | "all" = "all"): HistoricalSamplingDTO {
+  const is10y = horizon === "10y" || horizon === "all";
+  const is5y = horizon === "5y";
+  const is1y = horizon === "1y";
+
+  const totalTransactions = is10y ? 4280 : is5y ? 2150 : is1y ? 490 : 42;
+  const sampledDebits = Math.round(totalTransactions * 0.88);
+  const sampledCredits = totalTransactions - sampledDebits;
+  const activeMonths = is10y ? 120 : is5y ? 60 : is1y ? 12 : 1;
+
+  const totalOutflow = is10y ? 3240000 : is5y ? 1680000 : is1y ? 342000 : 24076;
+  const totalInflow = is10y ? 4850000 : is5y ? 2450000 : is1y ? 495000 : 38000;
+  const netSavings = totalInflow - totalOutflow;
+  const lifetimeSavingsRate = Number(((netSavings / totalInflow) * 100).toFixed(1));
+  const avgMonthlySpend = Math.round(totalOutflow / activeMonths);
+  const avgMonthlyInflow = Math.round(totalInflow / activeMonths);
+
+  const startYear = is10y ? 2017 : is5y ? 2022 : is1y ? 2025 : 2026;
+  const yearlyTrajectory: YearlyTrajectoryDTO[] = [];
+  for (let yr = startYear; yr <= 2026; yr++) {
+    const yrFactor = 1 + (yr - startYear) * 0.08;
+    const spend = Math.round((totalOutflow / (2026 - startYear + 1)) * yrFactor);
+    const inflow = Math.round((totalInflow / (2026 - startYear + 1)) * (yrFactor * 1.05));
+    yearlyTrajectory.push({
+      year: yr,
+      total_spend: spend,
+      total_inflow: inflow,
+      net_savings: inflow - spend,
+      savings_rate_pct: Number((((inflow - spend) / inflow) * 100).toFixed(1)),
+    });
+  }
+
+  return {
+    horizon,
+    total_transactions: totalTransactions,
+    sampled_debit_count: sampledDebits,
+    sampled_credit_count: sampledCredits,
+    date_range_start: `${startYear}-01-01`,
+    date_range_end: "2026-11-24",
+    history_span_days: activeMonths * 30,
+    active_months_count: activeMonths,
+    privacy_certificate: {
+      policy_id: "KW-FIN-ZERO-LEAKAGE-2026.1",
+      security_tier: "AIR_GAPPED_CONFIDENTIAL",
+      air_gapped: true,
+      cloud_ai_leakage_prevented: true,
+      egress_allowed: false,
+      model_architecture: "Deterministic Industrial Statistical & Non-Parametric Bootstrap (Non-LLM)",
+      model_name: "Finora-Industrial-Local-Historical-v2.6",
+      kiteworks_boundary_status: "ENFORCED_ZERO_TRUST",
+      kiteworks_gateway_hook: "AVAILABLE_FOR_ENTERPRISE_ATTACH",
+      data_retention: "IN_MEMORY_EPHEMERAL_ONLY",
+      audit_hash: "8f7e2a4c9b1d3e5f0a2c4e6b",
+      verified_at: new Date().toISOString(),
+    },
+    metrics: {
+      total_inflow: totalInflow,
+      total_outflow: totalOutflow,
+      net_savings: netSavings,
+      lifetime_savings_rate_pct: lifetimeSavingsRate,
+      average_monthly_spend: avgMonthlySpend,
+      average_monthly_inflow: avgMonthlyInflow,
+      yoy_spend_growth_pct: 6.4,
+      financial_resilience_score: 84,
+    },
+    bootstrap_sampling: {
+      iterations: 1000,
+      median_daily_spend: Math.round(avgMonthlySpend / 30),
+      ci_lower_80: Math.round((avgMonthlySpend / 30) * 0.88),
+      ci_upper_80: Math.round((avgMonthlySpend / 30) * 1.14),
+      ci_lower_95: Math.round((avgMonthlySpend / 30) * 0.76),
+      ci_upper_95: Math.round((avgMonthlySpend / 30) * 1.28),
+      bootstrap_method: "Empirical Non-Parametric Resampling (1,000 Draws)",
+    },
+    yearly_trajectory: yearlyTrajectory,
+    category_distribution: [
+      { category: "Housing & Utilities", amount: Math.round(totalOutflow * 0.35), percentage: 35.0 },
+      { category: "Groceries & Essentials", amount: Math.round(totalOutflow * 0.22), percentage: 22.0 },
+      { category: "Food & Dining", amount: Math.round(totalOutflow * 0.16), percentage: 16.0 },
+      { category: "Transportation", amount: Math.round(totalOutflow * 0.12), percentage: 12.0 },
+      { category: "Travel & Leisure", amount: Math.round(totalOutflow * 0.09), percentage: 9.0 },
+      { category: "Subscriptions & Personal", amount: Math.round(totalOutflow * 0.06), percentage: 6.0 },
+    ],
+    seasonality_index: {
+      Jan: 0.92, Feb: 0.88, Mar: 0.95, Apr: 1.02,
+      May: 1.15, Jun: 1.08, Jul: 0.98, Aug: 1.01,
+      Sep: 1.04, Oct: 1.22, Nov: 1.18, Dec: 1.12,
+    },
+    forward_projection_12m: [
+      { month_offset: 1, month_name: "Dec", projected_spend: Math.round(avgMonthlySpend * 1.12), lower_bound: Math.round(avgMonthlySpend * 0.95), upper_bound: Math.round(avgMonthlySpend * 1.28) },
+      { month_offset: 2, month_name: "Jan", projected_spend: Math.round(avgMonthlySpend * 0.92), lower_bound: Math.round(avgMonthlySpend * 0.80), upper_bound: Math.round(avgMonthlySpend * 1.08) },
+      { month_offset: 3, month_name: "Feb", projected_spend: Math.round(avgMonthlySpend * 0.89), lower_bound: Math.round(avgMonthlySpend * 0.77), upper_bound: Math.round(avgMonthlySpend * 1.04) },
+      { month_offset: 4, month_name: "Mar", projected_spend: Math.round(avgMonthlySpend * 0.96), lower_bound: Math.round(avgMonthlySpend * 0.82), upper_bound: Math.round(avgMonthlySpend * 1.11) },
+      { month_offset: 5, month_name: "Apr", projected_spend: Math.round(avgMonthlySpend * 1.03), lower_bound: Math.round(avgMonthlySpend * 0.88), upper_bound: Math.round(avgMonthlySpend * 1.19) },
+      { month_offset: 6, month_name: "May", projected_spend: Math.round(avgMonthlySpend * 1.16), lower_bound: Math.round(avgMonthlySpend * 0.99), upper_bound: Math.round(avgMonthlySpend * 1.34) },
+    ],
+    model_metadata: {
+      algorithm: "Empirical Bootstrap + Robust Median Absolute Deviation + LOESS Seasonality",
+      non_llm: true,
+      zero_cloud_leakage: true,
+      execution_mode: "IN_MEMORY_AIR_GAPPED",
+      sample_iterations: 1000,
+    },
   };
 }

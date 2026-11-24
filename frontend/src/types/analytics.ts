@@ -91,3 +91,79 @@ export interface IntelligenceOverviewDTO {
   top_anomalies: AnomalyAlertDTO[];
   data_sufficiency: DataSufficiencyDTO;
 }
+
+
+export interface BootstrapSamplingDTO {
+  iterations: number;
+  median_daily_spend: number;
+  ci_lower_80: number;
+  ci_upper_80: number;
+  ci_lower_95: number;
+  ci_upper_95: number;
+  bootstrap_method?: string;
+}
+
+export interface YearlyTrajectoryDTO {
+  year: number;
+  total_spend: number;
+  total_inflow: number;
+  net_savings: number;
+  savings_rate_pct: number;
+}
+
+export interface HistoricalMetricsDTO {
+  total_inflow: number;
+  total_outflow: number;
+  net_savings: number;
+  lifetime_savings_rate_pct: number;
+  average_monthly_spend: number;
+  average_monthly_inflow: number;
+  yoy_spend_growth_pct: number;
+  financial_resilience_score: number;
+}
+
+export interface PrivacyCertificateDTO {
+  policy_id: string;
+  security_tier: string;
+  air_gapped: boolean;
+  cloud_ai_leakage_prevented: boolean;
+  egress_allowed: boolean;
+  model_architecture: string;
+  model_name: string;
+  kiteworks_boundary_status: string;
+  kiteworks_gateway_hook: string;
+  data_retention: string;
+  audit_hash: string;
+  verified_at: string;
+}
+
+export interface HistoricalSamplingDTO {
+  horizon: "30d" | "1y" | "5y" | "10y" | "all";
+  total_transactions: number;
+  sampled_debit_count: number;
+  sampled_credit_count: number;
+  date_range_start: string;
+  date_range_end: string;
+  history_span_days: number;
+  active_months_count: number;
+  privacy_certificate: PrivacyCertificateDTO;
+  metrics: HistoricalMetricsDTO;
+  bootstrap_sampling: BootstrapSamplingDTO;
+  yearly_trajectory: YearlyTrajectoryDTO[];
+  category_distribution: { category: string; amount: number; percentage: number }[];
+  seasonality_index: Record<string, number>;
+  forward_projection_12m: {
+    month_offset: number;
+    month_name: string;
+    projected_spend: number;
+    lower_bound: number;
+    upper_bound: number;
+  }[];
+  model_metadata: {
+    algorithm: string;
+    non_llm: boolean;
+    zero_cloud_leakage: boolean;
+    execution_mode: string;
+    sample_iterations?: number;
+  };
+}

@@ -355,7 +355,7 @@
 }
 
 .prototype-eyebrow {
-  color: #987b65;
+  color: var(--prototype-muted, #987b65);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -364,7 +364,7 @@
 }
 
 .prototype-page-title h1 {
-  color: #20211f;
+  color: var(--prototype-ink, #20211f);
   font-family: var(--finora-display), Georgia, serif;
   font-size: clamp(38px, 4vw, 54px);
   font-weight: 400;
@@ -373,7 +373,7 @@
 }
 
 .prototype-page-title > div > p {
-  color: #70665c;
+  color: var(--prototype-muted, #70665c);
   font-size: 14px;
   line-height: 1.65;
 }
@@ -702,7 +702,7 @@
 
 /* Large money figures in budget and goal cards use the same serif as page titles. */
 .prototype-figure {
-  color: #20211f;
+  color: var(--prototype-ink, #20211f);
   font-family: var(--finora-display), Georgia, serif;
   font-size: 34px;
   font-weight: 400;

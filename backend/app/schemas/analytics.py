@@ -98,3 +98,51 @@ class IntelligenceOverviewDTO(BaseModel):
     recommendations: List[RecommendationDTO]
     top_anomalies: List[AnomalyAlertDTO]
     data_sufficiency: DataSufficiencyDTO
+
+
+class BootstrapSamplingDTO(BaseModel):
+    iterations: int
+    median_daily_spend: Decimal
+    ci_lower_80: Decimal
+    ci_upper_80: Decimal
+    ci_lower_95: Decimal
+    ci_upper_95: Decimal
+    bootstrap_method: Optional[str] = None
+
+
+class YearlyTrajectoryDTO(BaseModel):
+    year: int
+    total_spend: Decimal
+    total_inflow: Decimal
+    net_savings: Decimal
+    savings_rate_pct: float
+
+
+class HistoricalMetricsDTO(BaseModel):
+    total_inflow: Decimal
+    total_outflow: Decimal
+    net_savings: Decimal
+    lifetime_savings_rate_pct: float
+    average_monthly_spend: Decimal
+    average_monthly_inflow: Decimal
+    yoy_spend_growth_pct: float
+    financial_resilience_score: int
+
+
+class HistoricalSamplingDTO(BaseModel):
+    horizon: str
+    total_transactions: int
+    sampled_debit_count: int
+    sampled_credit_count: int
+    date_range_start: str
+    date_range_end: str
+    history_span_days: int
+    active_months_count: int
+    privacy_certificate: Dict[str, Any]
+    metrics: HistoricalMetricsDTO
+    bootstrap_sampling: BootstrapSamplingDTO
+    yearly_trajectory: List[YearlyTrajectoryDTO]
+    category_distribution: List[Dict[str, Any]]
+    seasonality_index: Dict[str, float]
+    forward_projection_12m: List[Dict[str, Any]]
+    model_metadata: Dict[str, Any]

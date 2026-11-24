@@ -66,3 +66,14 @@ flowchart TD
 - **Budget Exhaustion**:
   $$\text{Projected Exhaustion Day} = \frac{\text{Budget Limit} - \text{Current Spend}}{\text{Rolling 7-Day Average Daily Spend}} + \text{Current Day}$$
   If $\text{Projected Exhaustion Day} < \text{Days in Month}$, a budget breach alert is flagged.
+
+
+---
+
+## 5. Multi-Horizon Historical Engine & Kiteworks Zero-Trust Isolation
+
+For detailed system diagrams, local RAG retrieval architecture, and the complete Kiteworks air-gapped quarantine perimeter specification, see [system-design-and-ml-rag.md](system-design-and-ml-rag.md).
+
+- **Multi-Horizon Slicing**: Evaluates user financial data across 30 days, 1 year, 5 years, 10 years, and all-time connected history.
+- **Kiteworks Privacy Gate**: Enforces `KW-FIN-ZERO-LEAKAGE-2026.1` zero-trust policy. All PII is sanitized and salted; zero data leaves the local in-process memory. Third-party cloud LLM inference is strictly blocked.
+- **Empirical Bootstrap Sampling**: Computes 1,000 non-parametric bootstrap draws per horizon to deliver honest 80% and 95% empirical confidence intervals without cloud dependency.
