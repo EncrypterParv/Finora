@@ -1,7 +1,7 @@
 # Finora Project Context
 
 Last reviewed: 2026-11-24
-Current milestone: The Fin, True Dark, and AMOLED contrast audit found no automated text contrast violations on the audited desktop public/auth routes and dashboard sections, or the phone-width dashboard sections and login screen. Dashboard formulas are plain language, section chunks preload on navigation intent, and the mobile header fits a 390px viewport. Lighthouse measurement is still pending.
+Current milestone: Landing page SEO and sharing metadata now include a branded Open Graph/Twitter preview, canonical URL, JSON-LD software schema, sitemap, and crawler exclusions for private/auth routes. The Fin, True Dark, and AMOLED contrast audit found no automated text contrast violations on the audited desktop public/auth routes and dashboard sections, or the phone-width dashboard sections and login screen. Lighthouse measurement is still pending.
 
 This is the short continuity brief for coding agents. Read it before planning
 substantial work, then read the [context hub](context/README.md) and [history](history.md) for dated decisions and
@@ -56,6 +56,7 @@ calculated.
 | Frontend tests | Not present | There is no frontend unit or end-to-end test suite yet. |
 | Overview | Connected in the workspace | The Overview defaults to the latest recorded UTC month. `GET /transactions/summary?month=YYYY-MM-01` returns the current user's daily credits and debits, transaction counts, and debit totals by account, separately for each currency. Transfers count as activity. Weekly cash flow and account spending exclude them. The API uses existing canonical transaction rows and requires no migration. |
 | Frontend performance and accessibility | Focused improvements implemented; measurement pending | Successful authenticated API GET responses stay in bounded browser memory for the tab session, scoped by Supabase user ID. Mutations invalidate only dependent data groups and broadcast invalidations to other same-browser tabs. Sign-out clears the cache. Entries are LRU-evicted at 60 records or 5 MB and are never written to storage. Identical concurrent reads are deduplicated. The Overview fetches five recent rows and the API's total count, then requests the cached monthly aggregate for workspaces with records. Feature screens and Overview charts are split into on-demand chunks; section chunks now preload on pointer, touch, or keyboard intent to reduce first-open waiting. The login illustration is loaded eagerly because it is above the fold. Loading skeletons match their layout. The workspace has a skip link, a keyboard-accessible mobile menu, a weekly figures table, and reduced-motion chart behavior. The cache reduces repeated reads from the app. API rate limits and Lighthouse measurement are separate. |
+| Search and social sharing | Public landing page is crawlable and shareable | Root metadata sets canonical, Open Graph, and Twitter cards. A branded 1200×630 preview is generated from local fonts. JSON-LD describes the web application without financial performance claims. `/sitemap.xml` lists only `/`; `/robots.txt` excludes auth, dashboard, and API paths. `NEXT_PUBLIC_SITE_URL` sets the canonical origin and defaults to `https://finora-sem3.vercel.app`. |
 
 ## Technical shape and boundaries
 
