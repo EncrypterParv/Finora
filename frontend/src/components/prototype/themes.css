@@ -44,69 +44,27 @@ html[data-theme="fin"] {
   color-scheme: light;
 }
 
-/* 2. White Theme with Blue Accent */
-html[data-theme="blue"] {
-  --finora-dark: #1e293b;
-  --finora-on-dark: #ffffff;
-  --finora-gold-light: #60a5fa;
-  --finora-chocolate: #0f172a;
-  --finora-cream: #f8fafc;
-  --finora-orange: #2563eb;
-  --finora-accent: #2563eb;
-  --finora-accent-strong: #1d4ed8;
-  --finora-accent-soft: #dbeafe;
-  --finora-canvas: #f8fafc;
-  --finora-surface: #ffffff;
-  --finora-surface-muted: #f1f5f9;
-  --finora-ink: #0f172a;
-  --finora-ink-soft: #475569;
-  --finora-ink-muted: #94a3b8;
-  --finora-border: #e2e8f0;
-  --finora-border-strong: #cbd5e1;
-  --finora-brand: #1e3a8a;
-  --finora-brand-dark: #0f172a;
-  --finora-brand-soft: #eff6ff;
-  --finora-positive: #16a34a;
-  --finora-positive-soft: #dcfce7;
-  --finora-warning: #d97706;
-  --finora-warning-soft: #fef3c7;
-  --finora-negative: #dc2626;
-  --finora-negative-soft: #fee2e2;
-  --finora-glow: transparent;
-  --finora-sidebar-bg: #0f172a;
-  --finora-sidebar-line: #1e293b;
-  --finora-sidebar-text: #cbd5e1;
-  --finora-sidebar-active-bg: #1e293b;
-  --finora-sidebar-active-text: #60a5fa;
-  --finora-sidebar-active-bar: #3b82f6;
-  --finora-mark-ink: #ffffff;
-  --finora-mark-accent: #3b82f6;
-  --panel-radius: 1.25rem;
-  --block-radius: 0.875rem;
-  color-scheme: light;
-}
-
-/* 3. Dark Dashboard Theme (macOS Dark / Obsidian Cockpit with Gloomy Gradient Glow) */
+/* 2. True Dark Dashboard Theme (Neutral Obsidian & Charcoal — Zero-Blue Cockpit) */
 html[data-theme="dark"] {
-  --finora-dark: #090a0f;
+  --finora-dark: #0c0d10;
   --finora-on-dark: #ffffff;
   --finora-gold-light: #ffffff;
-  --finora-chocolate: #12141c;
-  --finora-cream: #12141c;
+  --finora-chocolate: #14151a;
+  --finora-cream: #14151a;
   --finora-orange: #ffffff;
   --finora-accent: #ffffff;
-  --finora-accent-strong: #e2e8f0;
-  --finora-accent-soft: rgba(255, 255, 255, 0.12);
-  --finora-canvas: #090a0f;
-  --finora-surface: #12141c;
-  --finora-surface-muted: #181b26;
-  --finora-ink: #f8fafc;
-  --finora-ink-soft: #94a3b8;
-  --finora-ink-muted: #64748b;
-  --finora-border: #232736;
-  --finora-border-strong: #2f3548;
+  --finora-accent-strong: #e5e7eb;
+  --finora-accent-soft: rgba(255, 255, 255, 0.1);
+  --finora-canvas: #0c0d10;
+  --finora-surface: #14151a;
+  --finora-surface-muted: #1b1c23;
+  --finora-ink: #f3f4f6;
+  --finora-ink-soft: #9ca3af;
+  --finora-ink-muted: #6b7280;
+  --finora-border: #262833;
+  --finora-border-strong: #333645;
   --finora-brand: #ffffff;
-  --finora-brand-dark: #050608;
+  --finora-brand-dark: #070709;
   --finora-brand-soft: rgba(255, 255, 255, 0.08);
   --finora-positive: #34d399;
   --finora-positive-soft: rgba(52, 211, 153, 0.15);
@@ -114,15 +72,57 @@ html[data-theme="dark"] {
   --finora-warning-soft: rgba(251, 191, 36, 0.15);
   --finora-negative: #f87171;
   --finora-negative-soft: rgba(248, 113, 113, 0.15);
-  --finora-glow: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.06), transparent 70%);
-  --finora-sidebar-bg: #0d0f17;
-  --finora-sidebar-line: #232736;
-  --finora-sidebar-text: #94a3b8;
+  --finora-glow: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.05), transparent 70%);
+  --finora-sidebar-bg: #0e0f13;
+  --finora-sidebar-line: #22242e;
+  --finora-sidebar-text: #9ca3af;
   --finora-sidebar-active-bg: rgba(255, 255, 255, 0.08);
   --finora-sidebar-active-text: #ffffff;
   --finora-sidebar-active-bar: #ffffff;
   --finora-mark-ink: #ffffff;
   --finora-mark-accent: #cbd5e1;
+  --panel-radius: 1.25rem;
+  --block-radius: 0.875rem;
+  color-scheme: dark;
+}
+
+/* 3. True AMOLED Pitch Black (100% OLED #000000) */
+html[data-theme="amoled"] {
+  --finora-dark: #000000;
+  --finora-on-dark: #ffffff;
+  --finora-gold-light: #ffffff;
+  --finora-chocolate: #060606;
+  --finora-cream: #060606;
+  --finora-orange: #ffffff;
+  --finora-accent: #ffffff;
+  --finora-accent-strong: #ffffff;
+  --finora-accent-soft: rgba(255, 255, 255, 0.14);
+  --finora-canvas: #000000;
+  --finora-surface: #060606;
+  --finora-surface-muted: #0e0e0e;
+  --finora-ink: #ffffff;
+  --finora-ink-soft: #a1a1aa;
+  --finora-ink-muted: #71717a;
+  --finora-border: #1a1a1a;
+  --finora-border-strong: #262626;
+  --finora-brand: #ffffff;
+  --finora-brand-dark: #000000;
+  --finora-brand-soft: rgba(255, 255, 255, 0.1);
+  --finora-positive: #34d399;
+  --finora-positive-soft: rgba(52, 211, 153, 0.18);
+  --finora-warning: #fbbf24;
+  --finora-warning-soft: rgba(251, 191, 36, 0.18);
+  --finora-negative: #f87171;
+  --finora-negative-soft: rgba(248, 113, 113, 0.18);
+  --finora-glow: none;
+  --finora-sidebar-bg: #000000;
+  --finora-sidebar-line: #1c1c1c;
+  --finora-sidebar-text: #a1a1aa;
+  --finora-sidebar-active-bg: rgba(255, 255, 255, 0.12);
+  --finora-sidebar-active-text: #ffffff;
+  --finora-sidebar-active-bar: #ffffff;
+  --finora-mark-ink: #ffffff;
+  --finora-mark-accent: #ffffff;
   --panel-radius: 1.25rem;
   --block-radius: 0.875rem;
   color-scheme: dark;
@@ -146,21 +146,21 @@ html[data-theme="fin"] .finora-prototype {
   --prototype-accent: #755727;
 }
 
-html[data-theme="blue"] .finora-prototype {
-  --prototype-paper: #f8fafc;
-  --prototype-surface: #ffffff;
-  --prototype-ink: #0f172a;
-  --prototype-muted: #475569;
-  --prototype-line: #cbd5e1;
-  --prototype-accent: #2563eb;
+html[data-theme="dark"] .finora-prototype {
+  --prototype-paper: #0c0d10;
+  --prototype-surface: #14151a;
+  --prototype-ink: #f3f4f6;
+  --prototype-muted: #9ca3af;
+  --prototype-line: #262833;
+  --prototype-accent: #ffffff;
 }
 
-html[data-theme="dark"] .finora-prototype {
-  --prototype-paper: #090a0f;
-  --prototype-surface: #12141c;
-  --prototype-ink: #f8fafc;
-  --prototype-muted: #94a3b8;
-  --prototype-line: #232736;
+html[data-theme="amoled"] .finora-prototype {
+  --prototype-paper: #000000;
+  --prototype-surface: #060606;
+  --prototype-ink: #ffffff;
+  --prototype-muted: #a1a1aa;
+  --prototype-line: #1c1c1c;
   --prototype-accent: #ffffff;
 }
 
@@ -180,16 +180,32 @@ html[data-theme="dark"] .finora-prototype section.rounded-xl,
 html[data-theme="dark"] .finora-prototype .prototype-workspace-notice,
 html[data-theme="dark"] .finora-prototype .prototype-first-use,
 html[data-theme="dark"] .finora-prototype .workspace-card {
-  background: #12141c !important;
-  border-color: #232736 !important;
-  color: #f8fafc !important;
-  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.6) !important;
+  background: #14151a !important;
+  border-color: #262833 !important;
+  color: #f3f4f6 !important;
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Subtle glowing border in dark mode */
+/* Universal section backgrounds across AMOLED pure black theme */
+html[data-theme="amoled"] .finora-prototype section.rounded-xl,
+html[data-theme="amoled"] .finora-prototype .prototype-workspace-notice,
+html[data-theme="amoled"] .finora-prototype .prototype-first-use,
+html[data-theme="amoled"] .finora-prototype .workspace-card {
+  background: #060606 !important;
+  border-color: #1a1a1a !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* Subtle glowing border in dark & amoled mode on hover */
 html[data-theme="dark"] .finora-prototype section.rounded-xl:hover,
 html[data-theme="dark"] .finora-prototype .workspace-card:hover {
-  border-color: #383e54 !important;
+  border-color: #3f4356 !important;
+}
+
+html[data-theme="amoled"] .finora-prototype section.rounded-xl:hover,
+html[data-theme="amoled"] .finora-prototype .workspace-card:hover {
+  border-color: #333333 !important;
 }
 
 /* macOS 26 Tahoe Sidebar - Floating, Rounded, Glassmorphic */
@@ -318,7 +334,7 @@ html[data-theme="dark"] .calendar-period {
 }
 
 html[data-theme="dark"] .calendar-totals dt {
-  color: #94a3b8 !important;
+  color: #9ca3af !important;
 }
 
 html[data-theme="dark"] .calendar-totals dd {
@@ -326,17 +342,17 @@ html[data-theme="dark"] .calendar-totals dd {
 }
 
 html[data-theme="dark"] .calendar-weekdays span {
-  color: #64748b !important;
+  color: #9ca3af !important;
 }
 
 html[data-theme="dark"] .calendar-cell {
-  background: #181b26 !important;
-  border-color: #282d3f !important;
+  background: #14151a !important;
+  border-color: #26272e !important;
   color: #f8fafc !important;
 }
 
 html[data-theme="dark"] .calendar-cell:hover {
-  border-color: #4b5563 !important;
+  border-color: #484b57 !important;
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.08) !important;
 }
 
@@ -350,41 +366,41 @@ html[data-theme="dark"] .calendar-amount {
 
 html[data-theme="dark"] .calendar-cell[data-future] {
   background: transparent !important;
-  border-color: #232736 !important;
+  border-color: #1e1f26 !important;
 }
 
 html[data-theme="dark"] .calendar-cell[data-future] .calendar-date {
-  color: #475569 !important;
+  color: #6b7280 !important;
 }
 
-/* Dark theme calendar heat intensities with gloomy white/silver gradient glowing steps */
+/* Dark theme calendar heat intensities with gloomy white/silver neutral steps (Zero blue tint) */
 html[data-theme="dark"] .calendar-cell[data-heat="1"] {
-  background: #1e2230 !important;
-  border-color: #2f364d !important;
+  background: #181920 !important;
+  border-color: #262833 !important;
 }
 html[data-theme="dark"] .calendar-cell[data-heat="2"] {
-  background: #252b3d !important;
-  border-color: #39425d !important;
+  background: #20222b !important;
+  border-color: #323542 !important;
 }
 html[data-theme="dark"] .calendar-cell[data-heat="3"] {
-  background: #2e354a !important;
-  border-color: #475375 !important;
+  background: #282a36 !important;
+  border-color: #3e4252 !important;
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.04);
 }
 html[data-theme="dark"] .calendar-cell[data-heat="4"] {
-  background: #3b445f !important;
-  border-color: #5c6c97 !important;
+  background: #333645 !important;
+  border-color: #4f5367 !important;
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.08);
 }
 html[data-theme="dark"] .calendar-cell[data-heat="5"] {
-  background: #4a5578 !important;
-  border-color: #7b8ebb !important;
+  background: #404457 !important;
+  border-color: #666c85 !important;
   box-shadow: 0 0 16px rgba(255, 255, 255, 0.15);
 }
 
 html[data-theme="dark"] .calendar-week-day {
-  background: #181b26 !important;
-  border-color: #282d3f !important;
+  background: #14151a !important;
+  border-color: #26272e !important;
   color: #f8fafc !important;
 }
 
@@ -394,42 +410,161 @@ html[data-theme="dark"] .calendar-week-head > span:last-child {
 }
 
 html[data-theme="dark"] .calendar-legend i {
-  border-color: #282d3f !important;
-  background: #181b26 !important;
+  border-color: #26272e !important;
+  background: #14151a !important;
 }
-html[data-theme="dark"] .calendar-legend i[data-heat="1"] { background: #1e2230 !important; }
-html[data-theme="dark"] .calendar-legend i[data-heat="2"] { background: #252b3d !important; }
-html[data-theme="dark"] .calendar-legend i[data-heat="3"] { background: #2e354a !important; }
-html[data-theme="dark"] .calendar-legend i[data-heat="4"] { background: #3b445f !important; }
-html[data-theme="dark"] .calendar-legend i[data-heat="5"] { background: #4a5578 !important; }
+html[data-theme="dark"] .calendar-legend i[data-heat="1"] { background: #181920 !important; }
+html[data-theme="dark"] .calendar-legend i[data-heat="2"] { background: #20222b !important; }
+html[data-theme="dark"] .calendar-legend i[data-heat="3"] { background: #282a36 !important; }
+html[data-theme="dark"] .calendar-legend i[data-heat="4"] { background: #333645 !important; }
+html[data-theme="dark"] .calendar-legend i[data-heat="5"] { background: #404457 !important; }
 
 /* Segmented controls (month/week/day) in dark mode */
 html[data-theme="dark"] .prototype-segmented {
-  background: #181b26 !important;
-  border-color: #282d3f !important;
+  background: #14151a !important;
+  border-color: #26272e !important;
   border-radius: 0.75rem !important;
 }
 
 html[data-theme="dark"] .prototype-segmented button {
-  color: #94a3b8 !important;
+  color: #9ca3af !important;
   border-radius: 0.5rem !important;
 }
 
 html[data-theme="dark"] .prototype-segmented button[aria-checked="true"] {
-  background: #282d3f !important;
+  background: #26272e !important;
   color: #ffffff !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
 }
 
 html[data-theme="dark"] .prototype-secondary-action {
-  background: #181b26 !important;
-  border-color: #282d3f !important;
+  background: #14151a !important;
+  border-color: #26272e !important;
   color: #e2e8f0 !important;
   border-radius: 0.75rem !important;
 }
 
 html[data-theme="dark"] .prototype-secondary-action:hover {
-  background: #232736 !important;
+  background: #1e1f26 !important;
+  color: #ffffff !important;
+}
+
+/* ========================================================
+   AMOLED CALENDAR & CONTROLS (Pure #000000 Black)
+   ======================================================== */
+html[data-theme="amoled"] .calendar-period {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .calendar-totals dt {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .calendar-totals dd {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .calendar-weekdays span {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .calendar-cell {
+  background: #060606 !important;
+  border-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .calendar-cell:hover {
+  border-color: #333333 !important;
+  background: #0d0d0d !important;
+}
+
+html[data-theme="amoled"] .calendar-date {
+  color: #e4e4e7 !important;
+}
+
+html[data-theme="amoled"] .calendar-amount {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .calendar-cell[data-future] {
+  background: transparent !important;
+  border-color: #141414 !important;
+}
+
+html[data-theme="amoled"] .calendar-cell[data-future] .calendar-date {
+  color: #52525b !important;
+}
+
+html[data-theme="amoled"] .calendar-cell[data-heat="1"] {
+  background: #111111 !important;
+  border-color: #222222 !important;
+}
+html[data-theme="amoled"] .calendar-cell[data-heat="2"] {
+  background: #1a1a1a !important;
+  border-color: #2e2e2e !important;
+}
+html[data-theme="amoled"] .calendar-cell[data-heat="3"] {
+  background: #262626 !important;
+  border-color: #3b3b3b !important;
+}
+html[data-theme="amoled"] .calendar-cell[data-heat="4"] {
+  background: #333333 !important;
+  border-color: #4a4a4a !important;
+}
+html[data-theme="amoled"] .calendar-cell[data-heat="5"] {
+  background: #444444 !important;
+  border-color: #666666 !important;
+}
+
+html[data-theme="amoled"] .calendar-week-day {
+  background: #060606 !important;
+  border-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .calendar-week-head strong,
+html[data-theme="amoled"] .calendar-week-head > span:last-child {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .calendar-legend i {
+  border-color: #1a1a1a !important;
+  background: #060606 !important;
+}
+html[data-theme="amoled"] .calendar-legend i[data-heat="1"] { background: #111111 !important; }
+html[data-theme="amoled"] .calendar-legend i[data-heat="2"] { background: #1a1a1a !important; }
+html[data-theme="amoled"] .calendar-legend i[data-heat="3"] { background: #262626 !important; }
+html[data-theme="amoled"] .calendar-legend i[data-heat="4"] { background: #333333 !important; }
+html[data-theme="amoled"] .calendar-legend i[data-heat="5"] { background: #444444 !important; }
+
+html[data-theme="amoled"] .prototype-segmented {
+  background: #060606 !important;
+  border-color: #1a1a1a !important;
+  border-radius: 0.75rem !important;
+}
+
+html[data-theme="amoled"] .prototype-segmented button {
+  color: #a1a1aa !important;
+  border-radius: 0.5rem !important;
+}
+
+html[data-theme="amoled"] .prototype-segmented button[aria-checked="true"] {
+  background: #1c1c1c !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
+html[data-theme="amoled"] .prototype-secondary-action {
+  background: #060606 !important;
+  border-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-radius: 0.75rem !important;
+}
+
+html[data-theme="amoled"] .prototype-secondary-action:hover {
+  background: #111111 !important;
+  border-color: #333333 !important;
   color: #ffffff !important;
 }
 
@@ -475,53 +610,53 @@ html[data-theme="dark"] .prototype-toast {
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7) !important;
 }
 
-/* Overview section adaptions for blue theme */
-html[data-theme="blue"] .finora-prototype[data-section="overview"] {
-  --workspace-surface: #ffffff;
-  --workspace-line: #cbd5e1;
-  --workspace-muted: #475569;
-  --workspace-ink: #0f172a;
-  --workspace-gold: #2563eb;
-  --workspace-green: #16a34a;
-  color: var(--workspace-ink);
-  background: var(--prototype-paper);
-}
-
-html[data-theme="blue"] [data-section="overview"] .prototype-topbar {
-  border-color: var(--workspace-line);
-  background: var(--prototype-paper);
-}
-
-html[data-theme="blue"] [data-section="overview"] .prototype-topbar-context {
-  color: var(--workspace-muted);
-}
-
-html[data-theme="blue"] [data-section="overview"] .prototype-signout {
-  border-color: var(--workspace-line);
-  color: var(--workspace-ink);
-}
-
-html[data-theme="blue"] [data-section="overview"] .workspace-card {
-  background: #ffffff;
-  border-color: #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-}
-
-/* Overview section adaptions for dark gloomy monochrome theme */
-html[data-theme="dark"] .finora-prototype[data-section="overview"] {
-  --workspace-surface: #12141c;
-  --workspace-line: #232736;
-  --workspace-muted: #94a3b8;
-  --workspace-ink: #f8fafc;
+/* Overview section adaptions for AMOLED pure black theme */
+html[data-theme="amoled"] .finora-prototype[data-section="overview"] {
+  --workspace-surface: #060606;
+  --workspace-line: #1c1c1c;
+  --workspace-muted: #a1a1aa;
+  --workspace-ink: #ffffff;
   --workspace-gold: #ffffff;
   --workspace-green: #34d399;
   color: var(--workspace-ink);
-  background: #090a0f;
+  background: #000000;
+}
+
+html[data-theme="amoled"] [data-section="overview"] .prototype-topbar {
+  border-color: #1c1c1c;
+  background: #000000;
+}
+
+html[data-theme="amoled"] [data-section="overview"] .prototype-topbar-context {
+  color: #a1a1aa;
+}
+
+html[data-theme="amoled"] [data-section="overview"] .prototype-signout {
+  border-color: #222222;
+  color: #ffffff;
+}
+
+html[data-theme="amoled"] [data-section="overview"] .workspace-card {
+  background: #060606;
+  border-color: #1a1a1a;
+  box-shadow: none;
+}
+
+/* Overview section adaptions for True Dark theme (Zero-Blue Neutral Charcoal) */
+html[data-theme="dark"] .finora-prototype[data-section="overview"] {
+  --workspace-surface: #14151a;
+  --workspace-line: #262833;
+  --workspace-muted: #9ca3af;
+  --workspace-ink: #f3f4f6;
+  --workspace-gold: #ffffff;
+  --workspace-green: #34d399;
+  color: var(--workspace-ink);
+  background: #0c0d10;
 }
 
 html[data-theme="dark"] [data-section="overview"] .prototype-topbar {
   border-color: var(--workspace-line);
-  background: #090a0f;
+  background: #0c0d10;
 }
 
 html[data-theme="dark"] [data-section="overview"] .prototype-topbar-context {
@@ -534,8 +669,8 @@ html[data-theme="dark"] [data-section="overview"] .prototype-signout {
 }
 
 html[data-theme="dark"] [data-section="overview"] .workspace-card {
-  background: #12141c;
-  border-color: #232736;
+  background: #14151a;
+  border-color: #262833;
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
   position: relative;
 }
@@ -548,7 +683,7 @@ html[data-theme="dark"] .stock-financial-chart::after {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.02) 60%, transparent 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 60%, transparent 100%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -562,43 +697,106 @@ html[data-theme="fin"] [data-section="overview"] .stock-financial-chart {
   color: #f5f4f0 !important;
 }
 
-/* Blue Theme Financial Chart */
-html[data-theme="blue"] .stock-financial-chart {
-  background: #ffffff !important;
-  border-color: #e2e8f0 !important;
-  color: #0f172a !important;
-  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.05);
+/* AMOLED Theme Financial Chart */
+html[data-theme="amoled"] .stock-financial-chart {
+  background: #060606 !important;
+  border-color: #1a1a1a !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
 }
 
 /* Dark Theme Financial Chart */
 html[data-theme="dark"] .stock-financial-chart {
-  background: #12141c !important;
-  border-color: #232736 !important;
-  color: #f8fafc !important;
+  background: #14151a !important;
+  border-color: #262833 !important;
+  color: #f3f4f6 !important;
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
   position: relative;
 }
 
-html[data-theme="dark"] .prototype-primary-action {
+html[data-theme="dark"] .prototype-primary-action,
+html[data-theme="amoled"] .prototype-primary-action {
   background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%) !important;
   color: #090a0f !important;
   border-color: #ffffff !important;
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
 }
 
-html[data-theme="dark"] .prototype-primary-action:hover {
+html[data-theme="dark"] .prototype-primary-action:hover,
+html[data-theme="amoled"] .prototype-primary-action:hover {
   background: #ffffff !important;
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.35);
 }
 
-html[data-theme="blue"] .prototype-primary-action {
-  background: #2563eb !important;
-  color: #ffffff !important;
-  border-color: #1d4ed8 !important;
+/* ========================================================
+   LANDING PAGE THEME HARMONIZATION & GLASS FLOATING HEADER
+   ======================================================== */
+html[data-theme="dark"] .finora-landing {
+  background: #0c0d10 !important;
+  color: #f3f4f6 !important;
+  --landing-ink: #f3f4f6;
+  --landing-muted: #9ca3af;
+  --landing-line: #262833;
 }
 
-html[data-theme="blue"] .prototype-primary-action:hover {
-  background: #1d4ed8 !important;
+html[data-theme="amoled"] .finora-landing {
+  background: #000000 !important;
+  color: #ffffff !important;
+  --landing-ink: #ffffff;
+  --landing-muted: #a1a1aa;
+  --landing-line: #1c1c1c;
+}
+
+/* Pill buttons on floating glass header */
+.landing-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 6px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none !important;
+}
+
+html[data-theme="fin"] .landing-pill-btn {
+  border: 1px solid rgba(117, 87, 39, 0.3);
+  background: rgba(240, 233, 218, 0.6);
+  color: #20211f;
+}
+
+html[data-theme="fin"] .landing-pill-btn:hover {
+  background: #f0e9da;
+  border-color: #755727;
+  transform: translateY(-1px);
+}
+
+html[data-theme="dark"] .landing-pill-btn {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e5e7eb;
+}
+
+html[data-theme="dark"] .landing-pill-btn:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+html[data-theme="amoled"] .landing-pill-btn {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+html[data-theme="amoled"] .landing-pill-btn:hover {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
 }
 
 /* ========================================================
@@ -642,29 +840,29 @@ html[data-theme="dark"] .border-\[\#e5e4de\],
 html[data-theme="dark"] .border-\[\#d5d4cc\],
 html[data-theme="dark"] .border-\[\#ded0b5\],
 html[data-theme="dark"] .border-\[\#eeede8\] {
-  border-color: #232736 !important;
+  border-color: #26272e !important;
 }
 
 html[data-theme="dark"] .bg-\[\#fbfbf9\],
 html[data-theme="dark"] .bg-\[\#eeede8\],
 html[data-theme="dark"] .bg-\[\#f5f4f0\] {
-  background-color: #181b26 !important;
+  background-color: #14151a !important;
 }
 
 html[data-theme="dark"] .prototype-tag {
-  background: #1e2230 !important;
+  background: #1c1d22 !important;
   color: #f8fafc !important;
-  border: 1px solid #2f364d !important;
+  border: 1px solid #26272e !important;
 }
 
 html[data-theme="dark"] .insights-range {
-  background: #181b26 !important;
-  border: 1px solid #282d3f !important;
+  background: #14151a !important;
+  border: 1px solid #26272e !important;
 }
 
 html[data-theme="dark"] .insights-range-spent {
-  background: linear-gradient(90deg, #3b82f6, #60a5fa) !important;
-  box-shadow: 0 0 10px rgba(96, 165, 250, 0.4);
+  background: linear-gradient(90deg, #94a3b8, #f8fafc) !important;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
 html[data-theme="dark"] .insights-range-band {
@@ -677,12 +875,12 @@ html[data-theme="dark"] .insights-range-expected {
 }
 
 html[data-theme="dark"] .prototype-progress {
-  background: #181b26 !important;
-  border: 1px solid #282d3f !important;
+  background: #14151a !important;
+  border: 1px solid #26272e !important;
 }
 
 html[data-theme="dark"] .prototype-progress > span {
-  background: linear-gradient(90deg, #cbd5e1, #ffffff) !important;
+  background: linear-gradient(90deg, #9ca3af, #ffffff) !important;
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
@@ -690,8 +888,8 @@ html[data-theme="dark"] .prototype-field,
 html[data-theme="dark"] input,
 html[data-theme="dark"] select,
 html[data-theme="dark"] textarea {
-  background-color: #181b26 !important;
-  border-color: #282d3f !important;
+  background-color: #14151a !important;
+  border-color: #26272e !important;
   color: #f8fafc !important;
 }
 
@@ -705,7 +903,7 @@ html[data-theme="dark"] select:focus {
 /* Definition lists and card typography inside dark theme */
 html[data-theme="dark"] dl dt,
 html[data-theme="dark"] .finora-prototype dt {
-  color: #94a3b8 !important;
+  color: #9ca3af !important;
 }
 
 html[data-theme="dark"] dl dd,
@@ -719,7 +917,7 @@ html[data-theme="dark"] .finora-prototype section h3 {
 }
 
 html[data-theme="dark"] .divide-\[\#e5e4de\] > :not([hidden]) ~ :not([hidden]) {
-  border-color: #232736 !important;
+  border-color: #26272e !important;
 }
 
 html[data-theme="dark"] .insights-key {
@@ -727,7 +925,7 @@ html[data-theme="dark"] .insights-key {
 }
 
 html[data-theme="dark"] .insights-key-spent {
-  background: #3b82f6 !important;
+  background: #cbd5e1 !important;
 }
 
 html[data-theme="dark"] .insights-key-expected {
@@ -736,4 +934,189 @@ html[data-theme="dark"] .insights-key-expected {
 
 html[data-theme="dark"] .insights-key-band {
   background: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* ========================================================
+   HIGH CONTRAST & ACCESSIBILITY FOR AMOLED THEME
+   ======================================================== */
+html[data-theme="amoled"] .prototype-page-title h1,
+html[data-theme="amoled"] h1,
+html[data-theme="amoled"] h2,
+html[data-theme="amoled"] h3,
+html[data-theme="amoled"] .prototype-figure {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .prototype-page-title > div > p,
+html[data-theme="amoled"] .prototype-page-title p {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .prototype-eyebrow {
+  color: #e4e4e7 !important;
+  letter-spacing: 0.16em;
+}
+
+html[data-theme="amoled"] .text-\[\#575953\],
+html[data-theme="amoled"] .text-\[\#62645d\],
+html[data-theme="amoled"] .text-\[\#70665c\],
+html[data-theme="amoled"] .text-\[\#414340\],
+html[data-theme="amoled"] .text-\[\#917c73\],
+html[data-theme="amoled"] .text-\[\#725b43\] {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .text-\[\#20211f\],
+html[data-theme="amoled"] .text-\[\#262724\] {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .border-\[\#e5e4de\],
+html[data-theme="amoled"] .border-\[\#d5d4cc\],
+html[data-theme="amoled"] .border-\[\#ded0b5\],
+html[data-theme="amoled"] .border-\[\#eeede8\] {
+  border-color: #1c1c1c !important;
+}
+
+html[data-theme="amoled"] .bg-\[\#fbfbf9\],
+html[data-theme="amoled"] .bg-\[\#eeede8\],
+html[data-theme="amoled"] .bg-\[\#f5f4f0\] {
+  background-color: #060606 !important;
+}
+
+html[data-theme="amoled"] .prototype-tag {
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #222222 !important;
+}
+
+html[data-theme="amoled"] .insights-range {
+  background: #060606 !important;
+  border: 1px solid #1a1a1a !important;
+}
+
+html[data-theme="amoled"] .insights-range-spent {
+  background: #ffffff !important;
+}
+
+html[data-theme="amoled"] .insights-range-band {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+html[data-theme="amoled"] .insights-range-expected {
+  background: #ffffff !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 1);
+}
+
+html[data-theme="amoled"] .prototype-progress {
+  background: #060606 !important;
+  border: 1px solid #1a1a1a !important;
+}
+
+html[data-theme="amoled"] .prototype-progress > span {
+  background: #ffffff !important;
+}
+
+html[data-theme="amoled"] .prototype-field,
+html[data-theme="amoled"] input,
+html[data-theme="amoled"] select,
+html[data-theme="amoled"] textarea {
+  background-color: #060606 !important;
+  border-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .prototype-field:focus,
+html[data-theme="amoled"] input:focus,
+html[data-theme="amoled"] select:focus {
+  border-color: #ffffff !important;
+  outline: 2px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+html[data-theme="amoled"] dl dt,
+html[data-theme="amoled"] .finora-prototype dt {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] dl dd,
+html[data-theme="amoled"] .finora-prototype dd {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .finora-prototype section h2,
+html[data-theme="amoled"] .finora-prototype section h3 {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .divide-\[\#e5e4de\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: #1a1a1a !important;
+}
+
+html[data-theme="amoled"] .insights-key-spent {
+  background: #ffffff !important;
+}
+
+html[data-theme="amoled"] .insights-key-expected {
+  background: #ffffff !important;
+}
+
+html[data-theme="amoled"] .insights-key-band {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ========================================================
+   CLICKABLE METRIC BLOCKS & FORMULA INSPECTOR CUES
+   ======================================================== */
+.workspace-metric-clickable {
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.22s ease;
+  user-select: none;
+}
+
+.workspace-metric-clickable:hover {
+  transform: translateY(-3px) scale(1.01);
+}
+
+.workspace-metric-clickable:focus-visible {
+  outline: 2px solid var(--finora-accent, #d7ba82);
+  outline-offset: 2px;
+}
+
+.formula-inspect-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.workspace-metric-clickable:hover .formula-inspect-badge {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+html[data-theme="fin"] .formula-inspect-badge {
+  background: rgba(117, 87, 39, 0.12);
+  color: #755727;
+  border: 1px solid rgba(117, 87, 39, 0.2);
+}
+
+html[data-theme="dark"] .formula-inspect-badge {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+html[data-theme="amoled"] .formula-inspect-badge {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }

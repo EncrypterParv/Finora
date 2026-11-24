@@ -10,6 +10,7 @@ import { WealthExplorer } from "./WealthExplorer";
 import { LandingPlans } from "./LandingPlans";
 import { Arrow, Wordmark } from "./LandingBrand";
 import { LandingFooter } from "./LandingFooter";
+import { ThemeSelector } from "@/components/ui/ThemeSelector";
 
 const InstrumentPreview = dynamic(() => import("./InstrumentPreview"), {
   loading: () => <p className="instrument-loading" role="status">Opening the walkthrough…</p>,
@@ -107,20 +108,38 @@ export function LandingPage() {
       <a className="landing-skip" href="#main">
         Skip to content
       </a>
-      <header className="landing-header" data-scrolled={headerScrolled}>
-        <Link href="/" aria-label="Finora home">
-          <Wordmark />
-        </Link>
-        <nav aria-label="Main navigation">
-          <a href="#how-it-works">How it works</a>
-          <a href="#your-money">The bigger picture</a>
-          <a href="#wealth">Your future</a>
-          <a href="#plans">Plans</a>
-        </nav>
-        <Link className="landing-login" href="/login">
-          Log in <Arrow diagonal />
-        </Link>
-      </header>
+      <div className="sticky top-4 z-40 px-4 md:px-8">
+        <header className="landing-header-floating" data-scrolled={headerScrolled}>
+          {/* Left: Pill navigation buttons */}
+          <nav className="flex items-center gap-1.5 md:gap-2" aria-label="Main navigation">
+            <a href="#how-it-works" className="landing-pill-btn">
+              About
+            </a>
+            <a href="#your-money" className="landing-pill-btn">
+              Product
+            </a>
+            <a href="#plans" className="landing-pill-btn hidden sm:inline-flex">
+              FAQ
+            </a>
+          </nav>
+
+          {/* Center: Brand Wordmark */}
+          <Link href="/" aria-label="Finora home" className="flex items-center">
+            <Wordmark />
+          </Link>
+
+          {/* Right: Theme Selector & Log In Pill */}
+          <div className="flex items-center gap-2">
+            <ThemeSelector pill />
+            <Link className="landing-pill-btn group flex items-center gap-2 font-bold" href="/login">
+              <span>Log in</span>
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-current/20 group-hover:scale-110 transition-transform">
+                <Arrow diagonal />
+              </span>
+            </Link>
+          </div>
+        </header>
+      </div>
       <main id="main" tabIndex={-1}>
         <section className="landing-masthead" aria-labelledby="landing-title">
           <div className="masthead-scene">

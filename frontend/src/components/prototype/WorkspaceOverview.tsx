@@ -11,6 +11,7 @@ import type { CanonicalTransaction } from "@/types/transaction";
 import { formatDate, money } from "./prototype-ui";
 import { OverviewChartsSkeleton, OverviewSummarySkeleton } from "./PrototypeSkeletons";
 import { StockMarketFinancialChart } from "@/components/charts/StockMarketFinancialChart";
+import { MetricFormulaModal, type MetricFormulaData } from "@/components/modals/MetricFormulaModal";
 
 const OverviewCharts = dynamic(() => import("./WorkspaceOverviewCharts"), {
   loading: () => <OverviewChartsSkeleton />,
@@ -54,23 +55,76 @@ function summarizeWeeks(month: string, days: CurrencyCashFlow["days"]): CashFlow
   return weeks;
 }
 
-function Metric({ label, value, detail, icon: Icon, series, tone }: {
+function Metric({
+  label,
+  value,
+  detail,
+  icon: Icon,
+  series,
+  tone,
+  onClick,
+}: {
   label: string;
   value: string;
   detail: string;
   icon: typeof WalletCards;
   series?: number[];
   tone?: "inflow" | "spending" | "net";
+  onClick?: () => void;
 }) {
   const scale = Math.max(1, ...(series?.map(Math.abs) ?? []));
-  return <section className="workspace-card workspace-metric" data-tone={tone}>
-    <div className="workspace-metric-label"><h2>{label}</h2><span className="workspace-metric-icon"><Icon size={17} aria-hidden="true" /></span></div>
-    <p className="workspace-metric-value">{value}</p>
-    <p className="workspace-metric-note">{detail}</p>
-    {series && <div className="workspace-mini-bars" aria-hidden="true">{series.map((value, index) => (
-      <span key={index} data-negative={value < 0 || undefined} style={{ height: `${value === 0 ? 3 : Math.max(9, Math.abs(value) / scale * 100)}%` }} />
-    ))}</div>}
-  </section>;
+  return (
+    <section
+      className={`workspace-card workspace-metric ${onClick ? "workspace-metric-clickable cursor-pointer" : ""}`}
+      data-tone={tone}
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={(e) => {
+        if (onClick && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      aria-label={onClick ? `${label}: ${value}. Click to view calculation formula` : undefined}
+    >
+      <div className="workspace-metric-label">
+        <div className="flex items-center gap-1.5">
+          <h2>{label}</h2>
+          {onClick && (
+            <span className="formula-inspect-badge" title="Click to inspect calculation formula">
+              ƒ(x)
+            </span>
+          )}
+        </div>
+        <span className="workspace-metric-icon">
+          <Icon size={17} aria-hidden="true" />
+        </span>
+      </div>
+      <p className="workspace-metric-value">{value}</p>
+      <div className="flex items-center justify-between">
+        <p className="workspace-metric-note">{detail}</p>
+        {onClick && (
+          <span className="text-[10px] text-[var(--workspace-muted,#9ca3af)] hover:underline opacity-80">
+            Formula &rarr;
+          </span>
+        )}
+      </div>
+      {series && (
+        <div className="workspace-mini-bars" aria-hidden="true">
+          {series.map((value, index) => (
+            <span
+              key={index}
+              data-negative={value < 0 || undefined}
+              style={{
+                height: `${value === 0 ? 3 : Math.max(9, (Math.abs(value) / scale) * 100)}%`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </section>
+  );
 }
 
 function OverviewSummary({ cashFlow, month, accounts, onInsights, onAccounts, onTransactions }: {
@@ -82,6 +136,7 @@ function OverviewSummary({ cashFlow, month, accounts, onInsights, onAccounts, on
   onTransactions: () => void;
 }) {
   const [chartTab, setChartTab] = useState<"fingraph" | "breakdown">("fingraph");
+  const [inspectingMetric, setInspectingMetric] = useState<MetricFormulaData | null>(null);
   const { currency, days, transaction_count, spending_by_account } = cashFlow;
   const weeks = summarizeWeeks(month, days);
   const inflow = weeks.reduce((sum, week) => sum + week.inflow, 0);
@@ -102,18 +157,166 @@ function OverviewSummary({ cashFlow, month, accounts, onInsights, onAccounts, on
     color: breakdownColors[4],
   });
 
+  const inspectMoneyIn = () => {
+    setInspectingMetric({
+      title: "Money In (Total Recorded Credits)",
+      formula: "\\text{Total Inflow} = \\sum_{t \\in T_{\\text{credits}}} \\text{amount}(t)",
+      explanation:
+        "Calculated by summing all verified positive credit transactions (including payroll salary, incoming transfers, dividend credits, and merchant refunds) for the selected monthly statement window.",
+      inputs: [
+        { label: "Active Month", value: monthLabel.format(new Date(month + "T00:00:00Z")) },
+        { label: "Recorded Days in Scope", value: `${days.length} days` },
+        { label: "Weekly Subtotals", value: weeks.map((w) => money(w.inflow, currency, 0)).join(" + ") },
+        { label: "Sum Total", value: money(inflow, currency, 2) },
+      ],
+      steps: [
+        "Filter all canonical transactions where amount > 0 and transaction state is CONFIRMED.",
+        "Partition transactions into weekly intervals across the calendar month.",
+        "Aggregate weekly inflows: ∑ week.inflow = Total Money In.",
+      ],
+      methodology: "Deterministic Ledger Ingestion (Air-Gapped)",
+      notes: "Calculated strictly on-device using local immutable database ledger records. No raw records or financial identifiers are sent to any LLM or third-party cloud service.",
+    });
+  };
+
+  const inspectMoneyOut = () => {
+    setInspectingMetric({
+      title: "Money Out (Total Recorded Debits)",
+      formula: "\\text{Total Outflow} = \\sum_{t \\in T_{\\text{debits}}} |\\text{amount}(t)|",
+      explanation:
+        "Calculated by taking the absolute sum of all debit transactions (including utility bills, living expenses, card debits, and transfers out) across all linked accounts during the period.",
+      inputs: [
+        { label: "Active Month", value: monthLabel.format(new Date(month + "T00:00:00Z")) },
+        { label: "Recorded Accounts", value: `${Object.keys(spending_by_account).length} linked accounts` },
+        { label: "Weekly Debits", value: weeks.map((w) => money(w.spending, currency, 0)).join(" + ") },
+        { label: "Sum Total", value: money(spending, currency, 2) },
+      ],
+      steps: [
+        "Identify all canonical debits where transaction direction is OUTFLOW.",
+        "Deduplicate internal account transfers to avoid artificial double-counting of outflow.",
+        "Compute cumulative absolute sum: ∑ |amount| = Total Money Out.",
+      ],
+      methodology: "Double-Entry Verification & Transfer Deduplication",
+      notes: "Internal transfers between your own accounts are segregated to preserve true discretionary & fixed expenditure figures.",
+    });
+  };
+
+  const inspectNetCashFlow = () => {
+    const savingsRatio = inflow > 0 ? Math.round((net / inflow) * 100) : 0;
+    setInspectingMetric({
+      title: "Net Cash Flow (Retained Liquidity)",
+      formula: "\\text{Net Cash Flow} = \\text{Total Inflow} - \\text{Total Outflow}",
+      explanation:
+        "The fundamental liquidity equation measuring retained capital for the period. A positive value denotes net savings and surplus, while a negative value signifies net capital depletion.",
+      inputs: [
+        { label: "Total Inflow (+)", value: money(inflow, currency, 2) },
+        { label: "Total Outflow (-)", value: money(spending, currency, 2) },
+        { label: "Net Retained Difference", value: money(net, currency, 2) },
+        { label: "Savings Rate", value: `${savingsRatio}% of gross income` },
+      ],
+      steps: [
+        "Take verified Total Inflow from ledger credits.",
+        "Take verified Total Outflow from ledger debits.",
+        "Subtract Outflow from Inflow: Net = Inflow - Outflow.",
+        "Calculate savings retention efficiency: (Net / Inflow) × 100%.",
+      ],
+      methodology: "Standard Industrial Treasury Balance",
+    });
+  };
+
+  const inspectTransactions = () => {
+    setInspectingMetric({
+      title: "Transaction Volume & Cadence",
+      formula: "N_{\\text{tx}} = |T| = \\sum_{t \\in T} 1",
+      explanation:
+        "Total count of atomic canonical financial entries recorded, parsed, verified, and mapped to this month's ledger statement.",
+      inputs: [
+        { label: "Total Recorded Count", value: `${transaction_count} transactions` },
+        { label: "Active Accounts Count", value: `${accounts.length} accounts` },
+        { label: "Average Daily Volume", value: `${(transaction_count / Math.max(1, days.length)).toFixed(1)} tx/day` },
+      ],
+      steps: [
+        "Ingest canonical transactions through Finora normalizer.",
+        "Filter for timestamps strictly within month boundary [00:00:00Z .. 23:59:59Z].",
+        "Compute cardinal count |T|.",
+      ],
+      methodology: "Canonical Ledger Indexing",
+      notes: "Includes debit card purchases, UPI payments, direct deposits, refunds, and bank fees.",
+    });
+  };
+
   return <>
     <div className="workspace-metrics" key={`${month}-${currency}`}>
-      <Metric label="Money in" value={money(inflow, currency, 2)} detail="Recorded credits" icon={ArrowDownLeft} series={weeks.map((week) => week.inflow)} tone="inflow" />
-      <Metric label="Money out" value={money(spending, currency, 2)} detail="Recorded debits" icon={ArrowUpRight} series={weeks.map((week) => week.spending)} tone="spending" />
-      <Metric label="Net cash flow" value={money(net, currency, 2)} detail="Money in minus money out" icon={ArrowDownUp} series={weeks.map((week) => week.inflow - week.spending)} tone="net" />
-      <section className="workspace-card workspace-metric">
-        <div className="workspace-metric-label"><h2>Transactions</h2><span className="workspace-metric-icon"><List size={17} aria-hidden="true" /></span></div>
+      <Metric
+        label="Money in"
+        value={money(inflow, currency, 2)}
+        detail="Recorded credits"
+        icon={ArrowDownLeft}
+        series={weeks.map((week) => week.inflow)}
+        tone="inflow"
+        onClick={inspectMoneyIn}
+      />
+      <Metric
+        label="Money out"
+        value={money(spending, currency, 2)}
+        detail="Recorded debits"
+        icon={ArrowUpRight}
+        series={weeks.map((week) => week.spending)}
+        tone="spending"
+        onClick={inspectMoneyOut}
+      />
+      <Metric
+        label="Net cash flow"
+        value={money(net, currency, 2)}
+        detail="Money in minus money out"
+        icon={ArrowDownUp}
+        series={weeks.map((week) => week.inflow - week.spending)}
+        tone="net"
+        onClick={inspectNetCashFlow}
+      />
+      <section
+        className="workspace-card workspace-metric workspace-metric-clickable cursor-pointer"
+        onClick={inspectTransactions}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            inspectTransactions();
+          }
+        }}
+        aria-label="Transactions: Click to view volume formula"
+      >
+        <div className="workspace-metric-label">
+          <div className="flex items-center gap-1.5">
+            <h2>Transactions</h2>
+            <span className="formula-inspect-badge" title="Click to inspect calculation formula">
+              ƒ(x)
+            </span>
+          </div>
+          <span className="workspace-metric-icon"><List size={17} aria-hidden="true" /></span>
+        </div>
         <p className="workspace-metric-value">{numberLabel.format(transaction_count)}</p>
         <p className="workspace-metric-note">Including transfers</p>
-        <button type="button" className="workspace-text-button workspace-metric-link" onClick={onTransactions}>View transactions <ArrowRight size={14} aria-hidden="true" /></button>
+        <button
+          type="button"
+          className="workspace-text-button workspace-metric-link"
+          onClick={(e) => {
+            e.stopPropagation();
+            onTransactions();
+          }}
+        >
+          View transactions <ArrowRight size={14} aria-hidden="true" />
+        </button>
       </section>
     </div>
+
+    {/* Metric Formula Modal */}
+    <MetricFormulaModal
+      isOpen={!!inspectingMetric}
+      onClose={() => setInspectingMetric(null)}
+      data={inspectingMetric}
+    />
 
     {/* Elegant Chart View Switcher */}
     <div className="my-5 flex items-center justify-between gap-3 flex-wrap">
