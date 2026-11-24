@@ -7,16 +7,18 @@ import {
   Calendar,
   CandlestickChart,
   LineChart,
+  TrendingUp,
   Zap,
 } from "lucide-react";
 import {
   getDemo10YearMonthlyRecords,
   MonthlyFinancialRecord,
 } from "@/lib/demo-data";
+import { useTheme } from "@/components/providers/ThemeProvider";
 import { money } from "../prototype/prototype-ui";
 
-type Timeframe = "1Y" | "3Y" | "5Y" | "10Y" | "ALL";
-type ChartMode = "trend" | "candlestick" | "volume";
+export type Timeframe = "1Y" | "3Y" | "5Y" | "10Y" | "ALL";
+export type ChartMode = "flow" | "trajectory" | "candlestick" | "volume";
 
 const CHART_WIDTH = 960;
 const CHART_PADDING = { top: 25, right: 30, bottom: 45, left: 65 };
@@ -26,23 +28,32 @@ interface StockMarketFinancialChartProps {
   title?: string;
   subtitle?: string;
   compact?: boolean;
+  variant?: "overview" | "panel";
 }
 
 export function StockMarketFinancialChart({
   records: initialRecords,
-  title = "10-Year Financial Records & Market-Style Trajectory",
-  subtitle = "Dynamic multi-year cash velocity with stock-market grade candlestick and volume momentum.",
+  title = "10-Year Financial Records & Market Trajectory",
+  subtitle = "Dynamic multi-year cash velocity with stock-market grade trend curves, candlestick volatility, and volume momentum.",
   compact = false,
+  variant = "panel",
 }: StockMarketFinancialChartProps) {
+  const { theme } = useTheme();
+
   const allRecords = useMemo(
     () => initialRecords ?? getDemo10YearMonthlyRecords(),
     [initialRecords]
   );
 
   const [timeframe, setTimeframe] = useState<Timeframe>("10Y");
-  const [chartMode, setChartMode] = useState<ChartMode>("trend");
+  const [chartMode, setChartMode] = useState<ChartMode>("flow");
   const [showSMA, setShowSMA] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  // Context-aware theme styling
+  const isDarkContext =
+    theme === "dark" || (variant === "overview" && theme === "fin");
+  const isBlueTheme = theme === "blue";
 
   // Filter records based on selected timeframe
   const filteredRecords = useMemo(() => {
@@ -61,7 +72,7 @@ export function StockMarketFinancialChart({
     }
   }, [allRecords, timeframe]);
 
-  // Key aggregate stats for the active timeframe
+  // Aggregate stats for the active timeframe
   const stats = useMemo(() => {
     let totalIn = 0;
     let totalOut = 0;
@@ -121,30 +132,44 @@ export function StockMarketFinancialChart({
   const graphWidth = width - padding.left - padding.right;
   const graphHeight = height - padding.top - padding.bottom;
 
-  // Calculate scales
-  const maxVal = useMemo(() => {
+  // Calculate scales per mode to prevent squashed lines
+  const { maxVal, minVal } = useMemo(() => {
     let highest = 1000;
-    filteredRecords.forEach((r) => {
-      if (chartMode === "trend") {
-        highest = Math.max(highest, r.inflow, r.outflow, r.cumulativeBalance);
-      } else if (chartMode === "candlestick") {
-        highest = Math.max(highest, r.high, r.inflow);
-      } else {
-        highest = Math.max(highest, r.inflow, r.outflow);
-      }
-    });
-    return highest * 1.08;
-  }, [filteredRecords, chartMode]);
+    let lowest = 0;
 
-  const minVal = useMemo(() => {
-    if (chartMode === "candlestick") {
-      let lowest = Infinity;
+    if (chartMode === "trajectory") {
+      // Scale against cumulative balance
       filteredRecords.forEach((r) => {
-        lowest = Math.min(lowest, r.low);
+        highest = Math.max(highest, r.cumulativeBalance);
+        lowest = Math.min(lowest, r.cumulativeBalance);
       });
-      return Math.max(0, lowest * 0.9);
+      return {
+        maxVal: highest * 1.08,
+        minVal: Math.max(0, lowest * 0.9),
+      };
     }
-    return 0;
+
+    if (chartMode === "candlestick") {
+      // Scale against high and low
+      let candLowest = Infinity;
+      filteredRecords.forEach((r) => {
+        highest = Math.max(highest, r.high);
+        candLowest = Math.min(candLowest, r.low);
+      });
+      return {
+        maxVal: highest * 1.05,
+        minVal: Math.max(0, candLowest * 0.95),
+      };
+    }
+
+    // "flow" and "volume" modes compare monthly inflow and outflow
+    filteredRecords.forEach((r) => {
+      highest = Math.max(highest, r.inflow, r.outflow);
+    });
+    return {
+      maxVal: highest * 1.12,
+      minVal: 0,
+    };
   }, [filteredRecords, chartMode]);
 
   const getX = (index: number) => {
@@ -178,15 +203,17 @@ export function StockMarketFinancialChart({
     return `${line} L ${lastX} ${baseY} L ${firstX} ${baseY} Z`;
   };
 
-  // 12-Month Simple Moving Average (SMA) of Inflow/Net
+  // 6-Month Simple Moving Average (SMA) of Inflow
   const windowSize = 6;
   const range = Math.max(1, maxVal - minVal);
   const n = filteredRecords.length;
   const smaPoints = filteredRecords.map((_, i) => {
     const sliceStart = Math.max(0, i - windowSize + 1);
     const slice = filteredRecords.slice(sliceStart, i + 1);
+    const metricToAverage =
+      chartMode === "trajectory" ? (item: MonthlyFinancialRecord) => item.cumulativeBalance : (item: MonthlyFinancialRecord) => item.inflow;
     const avg =
-      slice.reduce((sum, item) => sum + item.inflow, 0) / slice.length;
+      slice.reduce((sum, item) => sum + metricToAverage(item), 0) / slice.length;
     const x = n <= 1 ? padding.left : padding.left + (i / (n - 1)) * graphWidth;
     const normalized = (avg - minVal) / range;
     const y = height - padding.bottom - normalized * graphHeight;
@@ -198,55 +225,124 @@ export function StockMarketFinancialChart({
     ""
   );
 
+  // Colors & Aesthetic Tokens
+  const cardBgClass = isDarkContext
+    ? variant === "overview" && theme === "fin"
+      ? "bg-[#252622] border-[#3d3e37] text-[#f5f4f0]"
+      : "bg-[#12141c] border-[#232736] text-[#f8fafc]"
+    : isBlueTheme
+    ? "bg-white border-[#e2e8f0] text-[#0f172a]"
+    : "bg-white border-[#e5e4de] text-[#20211f]";
+
+  const subCardBgClass = isDarkContext
+    ? variant === "overview" && theme === "fin"
+      ? "bg-[#1c1d1a] border-[#3d3e37]"
+      : "bg-[#181b26] border-[#282d3f]"
+    : isBlueTheme
+    ? "bg-[#f8fafc] border-[#cbd5e1]"
+    : "bg-[#faf9f5] border-[#e5e4de]";
+
+  const textMutedClass = isDarkContext
+    ? "text-[#c6c5bb]"
+    : isBlueTheme
+    ? "text-[#475569]"
+    : "text-[#575953]";
+
+  const gridStroke = isDarkContext
+    ? variant === "overview" && theme === "fin"
+      ? "#3d3e37"
+      : "#232736"
+    : isBlueTheme
+    ? "#e2e8f0"
+    : "#eeede8";
+
+  const axisTextFill = isDarkContext
+    ? variant === "overview" && theme === "fin"
+      ? "#c6c5bb"
+      : "#94a3b8"
+    : isBlueTheme
+    ? "#64748b"
+    : "#888982";
+
+  // Financial Semantics: Green (Inflow), Red (Spend), Blue (Wealth), Gold (SMA)
+  const colorInflow = isDarkContext ? "#34d399" : "#10b981";
+  const colorOutflow = isDarkContext ? "#fb7185" : "#f43f5e";
+  const colorWealth = isDarkContext ? "#38bdf8" : "#0284c7";
+  const colorSMA = isDarkContext ? "#fbbf24" : "#d97706";
+
   return (
-    <section className="stock-financial-chart rounded-2xl border border-[#e5e4de] dark:border-[#232736] bg-white dark:bg-[#12141c] p-5 md:p-6 shadow-sm transition-all">
+    <section
+      className={`stock-financial-chart rounded-2xl border p-5 md:p-6 shadow-sm transition-all ${cardBgClass}`}
+    >
       {/* Header & Metric Tickers */}
-      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[#eeede8] dark:border-[#232736] pb-5">
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-inherit pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 rounded-full bg-[#10b981] animate-pulse" />
-            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#10b981] dark:text-[#34d399]">
-              LIVE 10-YEAR FINANCIAL TIMELINE (DEMO ENGINE)
+            <span
+              className="flex h-2 w-2 rounded-full animate-pulse"
+              style={{ backgroundColor: colorInflow }}
+            />
+            <span
+              className="font-mono text-[11px] font-bold uppercase tracking-wider"
+              style={{ color: colorInflow }}
+            >
+              10-YEAR DEMO FINANCIAL RECORD (2017–2026)
             </span>
           </div>
-          <h2 className="mt-1 text-xl font-bold tracking-tight text-[#20211f] dark:text-[#f8fafc]">
-            {title}
-          </h2>
-          <p className="mt-0.5 text-xs text-[#575953] dark:text-[#94a3b8]">{subtitle}</p>
+          <h2 className="mt-1 text-xl font-bold tracking-tight">{title}</h2>
+          <p className={`mt-0.5 text-xs ${textMutedClass}`}>{subtitle}</p>
         </div>
 
         {/* Dynamic Stock-Market Stat Badges */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Green Inflow Ticker */}
-          <div className="rounded-lg border border-[#d1fae5] dark:border-[#064e3b] bg-[#ecfdf5] dark:bg-[#064e3b]/30 px-3 py-1.5">
-            <span className="flex items-center gap-1 text-[10px] font-semibold text-[#047857] dark:text-[#6ee7b7]">
-              <ArrowDownRight size={12} className="rotate-180 text-[#10b981]" />
-              TOTAL INFLOW (CREDITS)
+          <div
+            className={`rounded-lg border px-3 py-1.5 ${
+              isDarkContext
+                ? "border-emerald-900/50 bg-emerald-950/30 text-emerald-400"
+                : "border-emerald-200 bg-emerald-50 text-emerald-800"
+            }`}
+          >
+            <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider">
+              <ArrowDownRight size={12} className="rotate-180" />
+              Total Inflow (Credits)
             </span>
-            <p className="font-mono text-sm font-bold text-[#065f46] dark:text-[#34d399] tabular-nums">
+            <p className="font-mono text-sm font-bold tabular-nums">
               {money(stats.totalIn)}
             </p>
           </div>
 
           {/* Red Outflow Ticker */}
-          <div className="rounded-lg border border-[#fee2e2] dark:border-[#7f1d1d] bg-[#fef2f2] dark:bg-[#7f1d1d]/30 px-3 py-1.5">
-            <span className="flex items-center gap-1 text-[10px] font-semibold text-[#b91c1c] dark:text-[#fca5a5]">
-              <ArrowDownRight size={12} className="text-[#ef4444]" />
-              TOTAL SPEND (DEBITS)
+          <div
+            className={`rounded-lg border px-3 py-1.5 ${
+              isDarkContext
+                ? "border-rose-900/50 bg-rose-950/30 text-rose-400"
+                : "border-rose-200 bg-rose-50 text-rose-800"
+            }`}
+          >
+            <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider">
+              <ArrowDownRight size={12} />
+              Total Spend (Debits)
             </span>
-            <p className="font-mono text-sm font-bold text-[#991b1b] dark:text-[#f87171] tabular-nums">
+            <p className="font-mono text-sm font-bold tabular-nums">
               {money(stats.totalOut)}
             </p>
           </div>
 
           {/* Blue Net Retained Ticker */}
-          <div className="rounded-lg border border-[#dbeafe] dark:border-[#1e3a8a] bg-[#eff6ff] dark:bg-[#1e3a8a]/30 px-3 py-1.5">
-            <span className="flex items-center gap-1 text-[10px] font-semibold text-[#1d4ed8] dark:text-[#93c5fd]">
-              <Zap size={12} className="text-[#3b82f6]" />
-              NET WEALTH RETAINED
+          <div
+            className={`rounded-lg border px-3 py-1.5 ${
+              isDarkContext
+                ? "border-sky-900/50 bg-sky-950/30 text-sky-400"
+                : "border-sky-200 bg-sky-50 text-sky-800"
+            }`}
+          >
+            <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider">
+              <Zap size={12} />
+              Net Retained ({stats.savingsRate.toFixed(1)}%)
             </span>
-            <p className="font-mono text-sm font-bold text-[#1e40af] dark:text-[#60a5fa] tabular-nums">
-              {money(stats.netRetained)} ({stats.savingsRate.toFixed(1)}%)
+            <p className="font-mono text-sm font-bold tabular-nums">
+              {money(stats.netRetained)}
             </p>
           </div>
         </div>
@@ -255,48 +351,70 @@ export function StockMarketFinancialChart({
       {/* Chart Toolbar (Timeframes & Visual Modes) */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         {/* Timeframe Selector */}
-        <div className="flex items-center gap-1 rounded-lg border border-[#e5e4de] dark:border-[#282d3f] bg-[#fbfbf9] dark:bg-[#181b26] p-1">
-          {(["1Y", "3Y", "5Y", "10Y", "ALL"] as Timeframe[]).map((tf) => (
-            <button
-              key={tf}
-              type="button"
-              onClick={() => setTimeframe(tf)}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
-                timeframe === tf
-                  ? "bg-[#20211f] text-white shadow-sm dark:bg-white dark:text-[#090a0f] dark:font-semibold"
-                  : "text-[#575953] hover:text-[#20211f] dark:text-[#94a3b8] dark:hover:text-white"
-              }`}
-            >
-              {tf === "ALL" ? "All 10Y" : tf}
-            </button>
-          ))}
+        <div className={`flex items-center gap-1 rounded-lg border p-1 ${subCardBgClass}`}>
+          {(["1Y", "3Y", "5Y", "10Y", "ALL"] as Timeframe[]).map((tf) => {
+            const isActive = timeframe === tf;
+            const activeClass = isDarkContext
+              ? variant === "overview" && theme === "fin"
+                ? "bg-[#d7ba82] text-[#20211f] font-bold shadow-sm"
+                : "bg-white text-[#090a0f] font-bold shadow-sm"
+              : isBlueTheme
+              ? "bg-blue-600 text-white font-medium shadow-sm"
+              : "bg-[#20211f] text-white font-medium shadow-sm";
+
+            return (
+              <button
+                key={tf}
+                type="button"
+                onClick={() => setTimeframe(tf)}
+                className={`rounded-md px-2.5 py-1 text-xs transition-all ${
+                  isActive ? activeClass : `${textMutedClass} hover:opacity-100`
+                }`}
+              >
+                {tf === "ALL" ? "All 10Y" : tf}
+              </button>
+            );
+          })}
         </div>
 
         {/* Chart View Modes */}
         <div className="flex items-center gap-1.5">
-          <div className="flex items-center gap-1 rounded-lg border border-[#e5e4de] dark:border-[#282d3f] bg-[#fbfbf9] dark:bg-[#181b26] p-1">
+          <div className={`flex items-center gap-1 rounded-lg border p-1 ${subCardBgClass}`}>
             <button
               type="button"
-              onClick={() => setChartMode("trend")}
+              onClick={() => setChartMode("flow")}
               className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
-                chartMode === "trend"
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "text-[#575953] hover:text-[#20211f] dark:text-[#94a3b8]"
+                chartMode === "flow"
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : `${textMutedClass} hover:opacity-100`
               }`}
-              title="Multi-Curve Cash Flow Area Graph"
+              title="Monthly Inflow vs Outflow Cash Curves"
             >
               <LineChart size={13} />
-              <span className="hidden sm:inline">Trend Curve</span>
+              <span className="hidden sm:inline">Cash Flow</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setChartMode("trajectory")}
+              className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
+                chartMode === "trajectory"
+                  ? "bg-sky-600 text-white shadow-sm"
+                  : `${textMutedClass} hover:opacity-100`
+              }`}
+              title="10-Year Cumulative Wealth Trajectory Curve"
+            >
+              <TrendingUp size={13} />
+              <span className="hidden sm:inline">Wealth Trajectory</span>
             </button>
             <button
               type="button"
               onClick={() => setChartMode("candlestick")}
               className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
                 chartMode === "candlestick"
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-[#575953] hover:text-[#20211f] dark:text-[#94a3b8]"
+                  ? "bg-amber-600 text-white shadow-sm"
+                  : `${textMutedClass} hover:opacity-100`
               }`}
-              title="Financial Trading Candlesticks"
+              title="Stock Market Monthly Candlestick Volatility"
             >
               <CandlestickChart size={13} />
               <span className="hidden sm:inline">Candlesticks</span>
@@ -307,12 +425,12 @@ export function StockMarketFinancialChart({
               className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
                 chartMode === "volume"
                   ? "bg-purple-600 text-white shadow-sm"
-                  : "text-[#575953] hover:text-[#20211f] dark:text-[#94a3b8]"
+                  : `${textMutedClass} hover:opacity-100`
               }`}
-              title="Inflow vs Outflow Cash Volume"
+              title="Monthly Inflow vs Outflow Volume Bars"
             >
               <BarChart2 size={13} />
-              <span className="hidden sm:inline">Cash Volume</span>
+              <span className="hidden sm:inline">Volume Bars</span>
             </button>
           </div>
 
@@ -322,10 +440,12 @@ export function StockMarketFinancialChart({
             onClick={() => setShowSMA((prev) => !prev)}
             className={`rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors ${
               showSMA
-                ? "border-amber-400 bg-amber-50 text-amber-800 dark:border-amber-500/40 dark:bg-amber-950/30 dark:text-amber-300"
-                : "border-[#e5e4de] dark:border-[#282d3f] text-[#62645d] dark:text-[#94a3b8]"
+                ? isDarkContext
+                  ? "border-amber-500/50 bg-amber-950/40 text-amber-300"
+                  : "border-amber-300 bg-amber-50 text-amber-900"
+                : `${subCardBgClass} ${textMutedClass}`
             }`}
-            title="Toggle 6-Month Moving Average Line"
+            title="Toggle 6-Month Moving Average Trendline"
           >
             SMA (6M)
           </button>
@@ -334,17 +454,21 @@ export function StockMarketFinancialChart({
 
       {/* Floating Active Month HUD Badge */}
       {activeRecord && (
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e5e4de] dark:border-[#232736] bg-[#fbfbf9] dark:bg-[#181b26] p-3 text-xs">
+        <div
+          className={`mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3 text-xs ${subCardBgClass}`}
+        >
           <div className="flex items-center gap-2">
-            <Calendar size={14} className="text-[#62645d] dark:text-[#94a3b8]" />
-            <span className="font-semibold text-[#20211f] dark:text-[#f8fafc]">
-              {activeRecord.monthLabel}
-            </span>
+            <Calendar size={14} className={textMutedClass} />
+            <span className="font-semibold">{activeRecord.monthLabel}</span>
             <span
               className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
                 activeRecord.isBullish
-                  ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-                  : "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300"
+                  ? isDarkContext
+                    ? "bg-emerald-950 text-emerald-300"
+                    : "bg-emerald-100 text-emerald-800"
+                  : isDarkContext
+                  ? "bg-rose-950 text-rose-300"
+                  : "bg-rose-100 text-rose-800"
               }`}
             >
               {activeRecord.isBullish ? "▲ Surplus Month" : "▼ Drawdown Month"}
@@ -353,26 +477,26 @@ export function StockMarketFinancialChart({
 
           <div className="flex flex-wrap items-center gap-4 font-mono text-[11px]">
             <div>
-              <span className="text-[#62645d] dark:text-[#94a3b8]">Inflow: </span>
-              <strong className="text-[#16a34a] dark:text-[#34d399]">
+              <span className={textMutedClass}>Inflow: </span>
+              <strong style={{ color: colorInflow }}>
                 +{money(activeRecord.inflow)}
               </strong>
             </div>
             <div>
-              <span className="text-[#62645d] dark:text-[#94a3b8]">Spend: </span>
-              <strong className="text-[#dc2626] dark:text-[#f87171]">
+              <span className={textMutedClass}>Spend: </span>
+              <strong style={{ color: colorOutflow }}>
                 −{money(activeRecord.outflow)}
               </strong>
             </div>
             <div>
-              <span className="text-[#62645d] dark:text-[#94a3b8]">Net Retained: </span>
-              <strong className="text-[#2563eb] dark:text-[#60a5fa]">
+              <span className={textMutedClass}>Net Cash: </span>
+              <strong style={{ color: colorWealth }}>
                 {money(activeRecord.net)}
               </strong>
             </div>
             <div>
-              <span className="text-[#62645d] dark:text-[#94a3b8]">Portfolio Reserve: </span>
-              <strong className="text-[#20211f] dark:text-[#f8fafc]">
+              <span className={textMutedClass}>10Y Reserve: </span>
+              <strong className="font-bold">
                 {money(activeRecord.cumulativeBalance)}
               </strong>
             </div>
@@ -401,21 +525,21 @@ export function StockMarketFinancialChart({
         >
           <defs>
             {/* Green Inflow Gradient */}
-            <linearGradient id="inflowGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+            <linearGradient id="finInflowGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={colorInflow} stopOpacity={0.28} />
+              <stop offset="100%" stopColor={colorInflow} stopOpacity={0.0} />
             </linearGradient>
 
             {/* Red Outflow Gradient */}
-            <linearGradient id="outflowGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#ef4444" stopOpacity="0.30" />
-              <stop offset="100%" stopColor="#ef4444" stopOpacity="0.0" />
+            <linearGradient id="finOutflowGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={colorOutflow} stopOpacity={0.22} />
+              <stop offset="100%" stopColor={colorOutflow} stopOpacity={0.0} />
             </linearGradient>
 
-            {/* Blue Cumulative Reserve Gradient */}
-            <linearGradient id="reserveGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+            {/* Blue Wealth Reserve Gradient */}
+            <linearGradient id="finWealthGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={colorWealth} stopOpacity={0.32} />
+              <stop offset="100%" stopColor={colorWealth} stopOpacity={0.0} />
             </linearGradient>
           </defs>
 
@@ -430,15 +554,15 @@ export function StockMarketFinancialChart({
                   y1={y}
                   x2={width - padding.right}
                   y2={y}
-                  stroke="currentColor"
-                  strokeOpacity={0.08}
+                  stroke={gridStroke}
                   strokeDasharray="4 4"
                 />
                 <text
                   x={padding.left - 8}
                   y={y + 3}
                   textAnchor="end"
-                  className="fill-[#888982] dark:fill-[#64748b] text-[9px] font-mono"
+                  fill={axisTextFill}
+                  className="text-[9px] font-mono"
                 >
                   {val >= 100000
                     ? `₹${(val / 100000).toFixed(1)}L`
@@ -448,9 +572,8 @@ export function StockMarketFinancialChart({
             );
           })}
 
-          {/* Year Markers (X-Axis) */}
+          {/* Year & Month Markers (X-Axis) */}
           {filteredRecords.map((r, i) => {
-            // Show label every 6 or 12 months
             const showLabel =
               filteredRecords.length <= 12
                 ? true
@@ -467,14 +590,14 @@ export function StockMarketFinancialChart({
                   y1={height - padding.bottom}
                   x2={x}
                   y2={height - padding.bottom + 5}
-                  stroke="currentColor"
-                  strokeOpacity={0.2}
+                  stroke={gridStroke}
                 />
                 <text
                   x={x}
                   y={height - padding.bottom + 18}
                   textAnchor="middle"
-                  className="fill-[#62645d] dark:fill-[#94a3b8] text-[9px] font-medium"
+                  fill={axisTextFill}
+                  className="text-[9px] font-medium"
                 >
                   {filteredRecords.length <= 12 ? r.monthLabel.split(" ")[0] : r.year}
                 </text>
@@ -482,44 +605,62 @@ export function StockMarketFinancialChart({
             );
           })}
 
-          {/* MODE 1: AREA & TREND CURVES */}
-          {chartMode === "trend" && (
+          {/* MODE 1: CASH FLOW CURVES (INFLOW & OUTFLOW PROPERLY SCALED) */}
+          {chartMode === "flow" && (
             <>
-              {/* Green Inflow Area & Stroke */}
-              <path d={createAreaPath((r) => r.inflow)} fill="url(#inflowGrad)" />
+              {/* Inflow Area & Stroke */}
+              <path d={createAreaPath((r) => r.inflow)} fill="url(#finInflowGrad)" />
               <path
                 d={createPath((r) => r.inflow)}
                 fill="none"
-                stroke="#10b981"
-                strokeWidth={2}
+                stroke={colorInflow}
+                strokeWidth={2.5}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
 
-              {/* Red Outflow Area & Stroke */}
-              <path d={createAreaPath((r) => r.outflow)} fill="url(#outflowGrad)" />
+              {/* Outflow Area & Stroke */}
+              <path d={createAreaPath((r) => r.outflow)} fill="url(#finOutflowGrad)" />
               <path
                 d={createPath((r) => r.outflow)}
                 fill="none"
-                stroke="#ef4444"
-                strokeWidth={2}
+                stroke={colorOutflow}
+                strokeWidth={2.5}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
 
-              {/* Blue Cumulative Reserve Line */}
+              {/* Net Surplus Line */}
               <path
-                d={createPath((r) => r.cumulativeBalance)}
+                d={createPath((r) => Math.max(0, r.net))}
                 fill="none"
-                stroke="#3b82f6"
-                strokeWidth={2.5}
-                strokeDasharray="2 2"
+                stroke={colorWealth}
+                strokeWidth={1.8}
+                strokeDasharray="3 3"
                 strokeLinecap="round"
               />
             </>
           )}
 
-          {/* MODE 2: STOCK MARKET CANDLESTICKS */}
+          {/* MODE 2: CUMULATIVE 10-YEAR WEALTH TRAJECTORY */}
+          {chartMode === "trajectory" && (
+            <>
+              <path
+                d={createAreaPath((r) => r.cumulativeBalance)}
+                fill="url(#finWealthGrad)"
+              />
+              <path
+                d={createPath((r) => r.cumulativeBalance)}
+                fill="none"
+                stroke={colorWealth}
+                strokeWidth={3}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </>
+          )}
+
+          {/* MODE 3: STOCK MARKET CANDLESTICKS */}
           {chartMode === "candlestick" && (
             <>
               {filteredRecords.map((r, i) => {
@@ -529,14 +670,13 @@ export function StockMarketFinancialChart({
                 const yLow = getY(r.low);
                 const yOpen = getY(r.open);
                 const yClose = getY(r.close);
-                const candleColor = r.isBullish ? "#10b981" : "#ef4444";
+                const candleColor = r.isBullish ? colorInflow : colorOutflow;
 
                 const topY = Math.min(yOpen, yClose);
                 const candleHeight = Math.max(2, Math.abs(yClose - yOpen));
 
                 return (
                   <g key={r.monthKey}>
-                    {/* Wick */}
                     <line
                       x1={x}
                       y1={yHigh}
@@ -545,7 +685,6 @@ export function StockMarketFinancialChart({
                       stroke={candleColor}
                       strokeWidth={1.2}
                     />
-                    {/* Candle Body */}
                     <rect
                       x={x - barWidth / 2}
                       y={topY}
@@ -561,7 +700,7 @@ export function StockMarketFinancialChart({
             </>
           )}
 
-          {/* MODE 3: INFLOW VS OUTFLOW VOLUME HISTOGRAM */}
+          {/* MODE 4: INFLOW VS OUTFLOW VOLUME HISTOGRAM */}
           {chartMode === "volume" && (
             <>
               {filteredRecords.map((r, i) => {
@@ -573,24 +712,24 @@ export function StockMarketFinancialChart({
 
                 return (
                   <g key={r.monthKey}>
-                    {/* Inflow Bar (Green) */}
+                    {/* Inflow Bar */}
                     <rect
                       x={x - barWidth}
                       y={yIn}
                       width={barWidth - 0.5}
                       height={Math.max(2, baseY - yIn)}
-                      fill="#10b981"
-                      fillOpacity={0.8}
+                      fill={colorInflow}
+                      fillOpacity={0.85}
                       rx={1}
                     />
-                    {/* Outflow Bar (Red) */}
+                    {/* Outflow Bar */}
                     <rect
                       x={x}
                       y={yOut}
                       width={barWidth - 0.5}
                       height={Math.max(2, baseY - yOut)}
-                      fill="#ef4444"
-                      fillOpacity={0.8}
+                      fill={colorOutflow}
+                      fillOpacity={0.85}
                       rx={1}
                     />
                   </g>
@@ -604,10 +743,10 @@ export function StockMarketFinancialChart({
             <path
               d={smaPath}
               fill="none"
-              stroke="#f59e0b"
-              strokeWidth={1.8}
-              strokeDasharray="4 2"
-              strokeOpacity={0.85}
+              stroke={colorSMA}
+              strokeWidth={2}
+              strokeDasharray="4 3"
+              strokeOpacity={0.9}
             />
           )}
 
@@ -619,58 +758,74 @@ export function StockMarketFinancialChart({
                 y1={padding.top}
                 x2={getX(hoveredIndex)}
                 y2={height - padding.bottom}
-                stroke="#64748b"
+                stroke={isDarkContext ? "#94a3b8" : "#64748b"}
                 strokeWidth={1}
                 strokeDasharray="3 3"
               />
-              {/* Inflow Dot */}
               <circle
                 cx={getX(hoveredIndex)}
-                cy={getY(filteredRecords[hoveredIndex].inflow)}
-                r={4}
-                fill="#10b981"
+                cy={getY(
+                  chartMode === "trajectory"
+                    ? filteredRecords[hoveredIndex].cumulativeBalance
+                    : filteredRecords[hoveredIndex].inflow
+                )}
+                r={4.5}
+                fill={chartMode === "trajectory" ? colorWealth : colorInflow}
                 stroke="#ffffff"
                 strokeWidth={2}
               />
-              {/* Outflow Dot */}
-              <circle
-                cx={getX(hoveredIndex)}
-                cy={getY(filteredRecords[hoveredIndex].outflow)}
-                r={4}
-                fill="#ef4444"
-                stroke="#ffffff"
-                strokeWidth={2}
-              />
+              {chartMode === "flow" && (
+                <circle
+                  cx={getX(hoveredIndex)}
+                  cy={getY(filteredRecords[hoveredIndex].outflow)}
+                  r={4.5}
+                  fill={colorOutflow}
+                  stroke="#ffffff"
+                  strokeWidth={2}
+                />
+              )}
             </>
           )}
         </svg>
       </div>
 
       {/* Legend & Methodology Footer */}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#eeede8] dark:border-[#232736] pt-3 text-[11px] text-[#62645d] dark:text-[#94a3b8]">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-inherit pt-3 text-[11px]">
         <div className="flex flex-wrap items-center gap-4">
           <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-[#10b981]" />
-            Monthly Inflow (Credits)
+            <span
+              className="h-2 w-2 rounded-full"
+              style={{ backgroundColor: colorInflow }}
+            />
+            Inflow Credits
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-[#ef4444]" />
-            Monthly Outflow (Debits)
+            <span
+              className="h-2 w-2 rounded-full"
+              style={{ backgroundColor: colorOutflow }}
+            />
+            Spend Debits
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-[#3b82f6]" />
-            Net Wealth Reserve
+            <span
+              className="h-2 w-2 rounded-full"
+              style={{ backgroundColor: colorWealth }}
+            />
+            {chartMode === "trajectory" ? "10Y Cumulative Growth" : "Net Surplus"}
           </span>
           {showSMA && (
             <span className="flex items-center gap-1.5">
-              <span className="h-0.5 w-3 bg-[#f59e0b]" />
-              6-Month Moving Average (SMA)
+              <span
+                className="h-0.5 w-3"
+                style={{ backgroundColor: colorSMA }}
+              />
+              SMA (6-Month Momentum)
             </span>
           )}
         </div>
 
-        <span className="font-mono text-[10px]">
-          Sampled: {filteredRecords.length} Monthly Statements • 10-Yr Continuous Series
+        <span className={`font-mono text-[10px] ${textMutedClass}`}>
+          Sampled {filteredRecords.length} Continuous Monthly Cycles • Zero Cloud Leakage
         </span>
       </div>
     </section>
