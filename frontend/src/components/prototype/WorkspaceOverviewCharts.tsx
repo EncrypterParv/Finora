@@ -3,6 +3,7 @@
 import { useId, useSyncExternalStore } from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useTheme } from "@/components/providers/ThemeProvider";
 import { money } from "./prototype-ui";
 import type { CashFlowWeek, SpendingSegment } from "./WorkspaceOverview";
 
@@ -25,8 +26,20 @@ export default function WorkspaceOverviewCharts({ weeks, currency, segments, tot
   onInsights: () => void;
   onAccounts: () => void;
 }) {
+  const { theme } = useTheme();
   const fillId = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const reduceMotion = useSyncExternalStore(subscribeToMotion, () => window.matchMedia(reducedMotionQuery).matches, () => true);
+
+  const inflowColor = theme === "blue" ? "#2563eb" : theme === "dark" ? "#ffffff" : "#d7ba82";
+  const spendingColor = theme === "blue" ? "#16a34a" : theme === "dark" ? "#34d399" : "#a7b99a";
+  const gridStroke = theme === "blue" ? "#e2e8f0" : theme === "dark" ? "#232736" : "#494941";
+  const axisColor = theme === "blue" ? "#64748b" : theme === "dark" ? "#94a3b8" : "#c6c5bb";
+  const tooltipStyle = theme === "blue"
+    ? { background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 8, color: "#0f172a" }
+    : theme === "dark"
+    ? { background: "#181b26", border: "1px solid #282d3f", borderRadius: 8, color: "#f8fafc" }
+    : { background: "#292a26", border: "1px solid #56554b", borderRadius: 8, color: "#f5f4f0" };
+
   return <div className="workspace-analysis">
     <section className="workspace-card workspace-chart" aria-labelledby="workspace-cash-flow-title">
       <div className="workspace-card-heading">
@@ -43,16 +56,16 @@ export default function WorkspaceOverviewCharts({ weeks, currency, segments, tot
             <AreaChart data={weeks} margin={{ top: 14, right: 14, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id={fillId} x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stopColor="#d7ba82" stopOpacity={0.34} />
-                  <stop offset="100%" stopColor="#d7ba82" stopOpacity={0.02} />
+                  <stop offset="0%" stopColor={inflowColor} stopOpacity={0.34} />
+                  <stop offset="100%" stopColor={inflowColor} stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid vertical={false} stroke="#494941" strokeDasharray="3 5" />
-              <YAxis stroke="#c6c5bb" tickLine={false} axisLine={false} tickFormatter={(value: number) => compactAmount.format(value)} fontSize={11} width={46} tickCount={5} allowDecimals={false} />
-              <XAxis dataKey="label" stroke="#c6c5bb" axisLine={false} tickLine={false} tickMargin={12} fontSize={11} />
-              <Tooltip labelFormatter={(label) => `Days ${label}`} formatter={(value: number, name) => [money(value, currency, 2), name]} contentStyle={{ background: "#292a26", border: "1px solid #56554b", borderRadius: 8, color: "#f5f4f0" }} />
-              <Area type="linear" dataKey="inflow" name="Money in" stroke="#d7ba82" strokeWidth={2.5} fill={`url(#${fillId})`} isAnimationActive={!reduceMotion} animationDuration={680} />
-              <Area type="linear" dataKey="spending" name="Money out" stroke="#a7b99a" strokeWidth={2} strokeDasharray="6 4" fill="none" isAnimationActive={!reduceMotion} animationDuration={740} />
+              <CartesianGrid vertical={false} stroke={gridStroke} strokeDasharray="3 5" />
+              <YAxis stroke={axisColor} tickLine={false} axisLine={false} tickFormatter={(value: number) => compactAmount.format(value)} fontSize={11} width={46} tickCount={5} allowDecimals={false} />
+              <XAxis dataKey="label" stroke={axisColor} axisLine={false} tickLine={false} tickMargin={12} fontSize={11} />
+              <Tooltip labelFormatter={(label) => `Days ${label}`} formatter={(value: number, name) => [money(value, currency, 2), name]} contentStyle={tooltipStyle} />
+              <Area type="linear" dataKey="inflow" name="Money in" stroke={inflowColor} strokeWidth={2.5} fill={`url(#${fillId})`} isAnimationActive={!reduceMotion} animationDuration={680} />
+              <Area type="linear" dataKey="spending" name="Money out" stroke={spendingColor} strokeWidth={2} strokeDasharray="6 4" fill="none" isAnimationActive={!reduceMotion} animationDuration={740} />
             </AreaChart>
           </ResponsiveContainer>
         </div>

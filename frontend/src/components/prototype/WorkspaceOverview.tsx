@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import {
   ArrowDownLeft, ArrowDownUp, ArrowRight, ArrowUpRight, Banknote, CalendarDays,
-  ChevronLeft, ChevronRight, FileUp, List, RotateCw, WalletCards,
+  ChevronLeft, ChevronRight, FileUp, LineChart, List, PieChart as PieChartIcon, RotateCw, WalletCards,
 } from "lucide-react";
 import { fetchTransactionSummary, type BankAccountSummary, type CurrencyCashFlow } from "@/lib/api";
 import type { CanonicalTransaction } from "@/types/transaction";
@@ -81,6 +81,7 @@ function OverviewSummary({ cashFlow, month, accounts, onInsights, onAccounts, on
   onAccounts: () => void;
   onTransactions: () => void;
 }) {
+  const [chartTab, setChartTab] = useState<"fingraph" | "breakdown">("fingraph");
   const { currency, days, transaction_count, spending_by_account } = cashFlow;
   const weeks = summarizeWeeks(month, days);
   const inflow = weeks.reduce((sum, week) => sum + week.inflow, 0);
@@ -113,22 +114,62 @@ function OverviewSummary({ cashFlow, month, accounts, onInsights, onAccounts, on
         <button type="button" className="workspace-text-button workspace-metric-link" onClick={onTransactions}>View transactions <ArrowRight size={14} aria-hidden="true" /></button>
       </section>
     </div>
-    <div className="my-6">
-      <StockMarketFinancialChart
-        title="10-Year Financial Records & Capital Velocity"
-        subtitle="Dynamic pre-calculated monthly expenditure, annual growth, and stock-market style cash trajectory in green, red, and blue."
-      />
+
+    {/* Elegant Chart View Switcher */}
+    <div className="my-5 flex items-center justify-between gap-3 flex-wrap">
+      <div className="inline-flex rounded-xl p-1 border border-[var(--workspace-line,#3d3e37)] bg-[var(--workspace-surface,#1c1d1a)]">
+        <button
+          type="button"
+          onClick={() => setChartTab("fingraph")}
+          className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
+            chartTab === "fingraph"
+              ? "bg-[var(--workspace-gold,#d7ba82)] text-[var(--finora-dark,#20211f)] shadow-sm font-bold"
+              : "text-[var(--workspace-muted,#c6c5bb)] hover:text-[var(--workspace-ink,#f5f4f0)]"
+          }`}
+        >
+          <LineChart size={14} />
+          <span>FinGraph (10-Year Market View)</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setChartTab("breakdown")}
+          className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
+            chartTab === "breakdown"
+              ? "bg-[var(--workspace-gold,#d7ba82)] text-[var(--finora-dark,#20211f)] shadow-sm font-bold"
+              : "text-[var(--workspace-muted,#c6c5bb)] hover:text-[var(--workspace-ink,#f5f4f0)]"
+          }`}
+        >
+          <PieChartIcon size={14} />
+          <span>Monthly Cash Flow & Breakdown</span>
+        </button>
+      </div>
+
+      <div className="flex items-center gap-2 text-xs text-[var(--workspace-muted,#c6c5bb)]">
+        <span className="h-2 w-2 rounded-full bg-[#10b981] animate-pulse" />
+        <span>Pre-calculated 10-Year Historical Engine</span>
+      </div>
     </div>
-    <OverviewCharts
-      key={`${month}-${currency}`}
-      weeks={weeks}
-      currency={currency}
-      segments={segments}
-      hasCashFlow={days.length > 0}
-      totalSpending={spending}
-      onInsights={onInsights}
-      onAccounts={onAccounts}
-    />
+
+    {chartTab === "fingraph" ? (
+      <div className="mb-6">
+        <StockMarketFinancialChart
+          variant="overview"
+          title="Your FinGraph (10-Year Market Trajectory)"
+          subtitle="Pre-calculated 10-year monthly expenditure, annual growth, and stock-market style cash trajectory in green, red, and blue."
+        />
+      </div>
+    ) : (
+      <OverviewCharts
+        key={`${month}-${currency}`}
+        weeks={weeks}
+        currency={currency}
+        segments={segments}
+        hasCashFlow={days.length > 0}
+        totalSpending={spending}
+        onInsights={onInsights}
+        onAccounts={onAccounts}
+      />
+    )}
   </>;
 }
 

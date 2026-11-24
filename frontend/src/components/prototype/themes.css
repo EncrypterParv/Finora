@@ -136,6 +136,16 @@ html[data-theme="dark"] body {
 }
 
 /* Prototype root adaptation */
+:root .finora-prototype,
+html[data-theme="fin"] .finora-prototype {
+  --prototype-paper: #f5f4f0;
+  --prototype-surface: #ffffff;
+  --prototype-ink: #20211f;
+  --prototype-muted: #575953;
+  --prototype-line: #e5e4de;
+  --prototype-accent: #755727;
+}
+
 html[data-theme="blue"] .finora-prototype {
   --prototype-paper: #f8fafc;
   --prototype-surface: #ffffff;
@@ -157,6 +167,7 @@ html[data-theme="dark"] .finora-prototype {
 /* Global rounded curvy blocks */
 .prototype-surface,
 .workspace-card,
+.stock-financial-chart,
 section.rounded-xl,
 .prototype-first-use,
 .prototype-workspace-notice {
@@ -530,7 +541,8 @@ html[data-theme="dark"] [data-section="overview"] .workspace-card {
 }
 
 /* Gloomy gradient glow highlight for cards in dark theme */
-html[data-theme="dark"] .workspace-card::after {
+html[data-theme="dark"] .workspace-card::after,
+html[data-theme="dark"] .stock-financial-chart::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -541,6 +553,30 @@ html[data-theme="dark"] .workspace-card::after {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
+}
+
+/* Fin Theme Overview Financial Chart */
+html[data-theme="fin"] [data-section="overview"] .stock-financial-chart {
+  background: #252622 !important;
+  border-color: #3d3e37 !important;
+  color: #f5f4f0 !important;
+}
+
+/* Blue Theme Financial Chart */
+html[data-theme="blue"] .stock-financial-chart {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Dark Theme Financial Chart */
+html[data-theme="dark"] .stock-financial-chart {
+  background: #12141c !important;
+  border-color: #232736 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  position: relative;
 }
 
 html[data-theme="dark"] .prototype-primary-action {

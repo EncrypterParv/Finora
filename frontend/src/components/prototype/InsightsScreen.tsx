@@ -174,8 +174,9 @@ export function InsightsScreen({
           {/* 10-Year Dynamic Stock-Market Financial Chart */}
           <div className="mb-4">
             <StockMarketFinancialChart
-              title="10-Year Financial Records & Market-Style Trajectory"
-              subtitle="Pre-calculated 10-year monthly expenditure, yearly growth, and stock-market style cash trajectory in green, red, and blue."
+              variant="panel"
+              title="10-Year Financial Records & Market Trajectory"
+              subtitle="Pre-calculated 10-year monthly expenditure, annual growth, and stock-market style cash trajectory with zero cloud leakage."
             />
           </div>
 
