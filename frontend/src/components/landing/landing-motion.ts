@@ -36,7 +36,7 @@ export function mountLandingMotion(
     const steps = track?.querySelectorAll<HTMLElement>("[data-step]");
     if (!story || !viewport || !track || !steps || steps.length < 2) return;
 
-    const header = root.querySelector<HTMLElement>(".landing-header");
+    const header = root.querySelector<HTMLElement>(".landing-header-floating, .landing-header");
     const lenis = new Lenis({ autoRaf: false, lerp: 0.13 });
     const tick = (seconds: number) => lenis.raf(seconds * 1000);
     lenis.on("scroll", ScrollTrigger.update);

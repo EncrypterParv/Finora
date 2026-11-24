@@ -1,47 +1,47 @@
 /* Finora Dynamic Theme Engine & macOS 26 Tahoe Design System */
 
-/* 1. Fin Theme (Default warm brass, stone & paper) */
+/* 1. True AMOLED Pitch Black (Default 100% OLED #000000) */
 :root,
-html[data-theme="fin"] {
+html[data-theme="amoled"] {
   --finora-display: "Newsreader", Georgia, serif;
-  --finora-dark: #20211f;
-  --finora-on-dark: #f5f4f0;
-  --finora-gold-light: #d7ba82;
-  --finora-chocolate: #262724;
-  --finora-cream: #f5f4f0;
-  --finora-orange: #886731;
-  --finora-accent: #886731;
-  --finora-accent-strong: #755727;
-  --finora-accent-soft: #f0e9da;
-  --finora-canvas: #f5f4f0;
-  --finora-surface: #ffffff;
-  --finora-surface-muted: #eeede8;
-  --finora-ink: #20211f;
-  --finora-ink-soft: #575953;
-  --finora-ink-muted: #888982;
-  --finora-border: #e5e4de;
-  --finora-border-strong: #d5d4cc;
-  --finora-brand: #262724;
-  --finora-brand-dark: #20211f;
-  --finora-brand-soft: #f0e9da;
-  --finora-positive: #2f6b45;
-  --finora-positive-soft: #edf4ed;
-  --finora-warning: #8a641e;
-  --finora-warning-soft: #fbf4df;
-  --finora-negative: #a04646;
-  --finora-negative-soft: #faeeee;
-  --finora-glow: transparent;
-  --finora-sidebar-bg: #20211f;
-  --finora-sidebar-line: #454640;
-  --finora-sidebar-text: #deded6;
-  --finora-sidebar-active-bg: #37362e;
-  --finora-sidebar-active-text: #d7ba82;
-  --finora-sidebar-active-bar: #d7ba82;
-  --finora-mark-ink: #f5f4f0;
-  --finora-mark-accent: #d7ba82;
+  --finora-dark: #000000;
+  --finora-on-dark: #ffffff;
+  --finora-gold-light: #ffffff;
+  --finora-chocolate: #060606;
+  --finora-cream: #060606;
+  --finora-orange: #ffffff;
+  --finora-accent: #ffffff;
+  --finora-accent-strong: #ffffff;
+  --finora-accent-soft: rgba(255, 255, 255, 0.14);
+  --finora-canvas: #000000;
+  --finora-surface: #060606;
+  --finora-surface-muted: #0e0e0e;
+  --finora-ink: #ffffff;
+  --finora-ink-soft: #a1a1aa;
+  --finora-ink-muted: #71717a;
+  --finora-border: #1a1a1a;
+  --finora-border-strong: #262626;
+  --finora-brand: #ffffff;
+  --finora-brand-dark: #000000;
+  --finora-brand-soft: rgba(255, 255, 255, 0.1);
+  --finora-positive: #34d399;
+  --finora-positive-soft: rgba(52, 211, 153, 0.18);
+  --finora-warning: #fbbf24;
+  --finora-warning-soft: rgba(251, 191, 36, 0.18);
+  --finora-negative: #f87171;
+  --finora-negative-soft: rgba(248, 113, 113, 0.18);
+  --finora-glow: none;
+  --finora-sidebar-bg: #000000;
+  --finora-sidebar-line: #1c1c1c;
+  --finora-sidebar-text: #a1a1aa;
+  --finora-sidebar-active-bg: rgba(255, 255, 255, 0.12);
+  --finora-sidebar-active-text: #ffffff;
+  --finora-sidebar-active-bar: #ffffff;
+  --finora-mark-ink: #ffffff;
+  --finora-mark-accent: #ffffff;
   --panel-radius: 1.25rem;
   --block-radius: 0.875rem;
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 /* 2. True Dark Dashboard Theme (Neutral Obsidian & Charcoal — Zero-Blue Cockpit) */
@@ -86,46 +86,47 @@ html[data-theme="dark"] {
   color-scheme: dark;
 }
 
-/* 3. True AMOLED Pitch Black (100% OLED #000000) */
-html[data-theme="amoled"] {
-  --finora-dark: #000000;
-  --finora-on-dark: #ffffff;
-  --finora-gold-light: #ffffff;
-  --finora-chocolate: #060606;
-  --finora-cream: #060606;
-  --finora-orange: #ffffff;
-  --finora-accent: #ffffff;
-  --finora-accent-strong: #ffffff;
-  --finora-accent-soft: rgba(255, 255, 255, 0.14);
-  --finora-canvas: #000000;
-  --finora-surface: #060606;
-  --finora-surface-muted: #0e0e0e;
-  --finora-ink: #ffffff;
-  --finora-ink-soft: #a1a1aa;
-  --finora-ink-muted: #71717a;
-  --finora-border: #1a1a1a;
-  --finora-border-strong: #262626;
-  --finora-brand: #ffffff;
-  --finora-brand-dark: #000000;
-  --finora-brand-soft: rgba(255, 255, 255, 0.1);
-  --finora-positive: #34d399;
-  --finora-positive-soft: rgba(52, 211, 153, 0.18);
-  --finora-warning: #fbbf24;
-  --finora-warning-soft: rgba(251, 191, 36, 0.18);
-  --finora-negative: #f87171;
-  --finora-negative-soft: rgba(248, 113, 113, 0.18);
-  --finora-glow: none;
-  --finora-sidebar-bg: #000000;
-  --finora-sidebar-line: #1c1c1c;
-  --finora-sidebar-text: #a1a1aa;
-  --finora-sidebar-active-bg: rgba(255, 255, 255, 0.12);
-  --finora-sidebar-active-text: #ffffff;
-  --finora-sidebar-active-bar: #ffffff;
-  --finora-mark-ink: #ffffff;
-  --finora-mark-accent: #ffffff;
+/* 3. Fin Theme (Warm brass, stone & paper) */
+html[data-theme="fin"] {
+  --finora-display: "Newsreader", Georgia, serif;
+  --finora-dark: #20211f;
+  --finora-on-dark: #f5f4f0;
+  --finora-gold-light: #d7ba82;
+  --finora-chocolate: #262724;
+  --finora-cream: #f5f4f0;
+  --finora-orange: #886731;
+  --finora-accent: #886731;
+  --finora-accent-strong: #755727;
+  --finora-accent-soft: #f0e9da;
+  --finora-canvas: #f5f4f0;
+  --finora-surface: #ffffff;
+  --finora-surface-muted: #eeede8;
+  --finora-ink: #20211f;
+  --finora-ink-soft: #575953;
+  --finora-ink-muted: #888982;
+  --finora-border: #e5e4de;
+  --finora-border-strong: #d5d4cc;
+  --finora-brand: #262724;
+  --finora-brand-dark: #20211f;
+  --finora-brand-soft: #f0e9da;
+  --finora-positive: #2f6b45;
+  --finora-positive-soft: #edf4ed;
+  --finora-warning: #8a641e;
+  --finora-warning-soft: #fbf4df;
+  --finora-negative: #a04646;
+  --finora-negative-soft: #faeeee;
+  --finora-glow: transparent;
+  --finora-sidebar-bg: #20211f;
+  --finora-sidebar-line: #454640;
+  --finora-sidebar-text: #deded6;
+  --finora-sidebar-active-bg: #37362e;
+  --finora-sidebar-active-text: #d7ba82;
+  --finora-sidebar-active-bar: #d7ba82;
+  --finora-mark-ink: #20211f;
+  --finora-mark-accent: #755727;
   --panel-radius: 1.25rem;
   --block-radius: 0.875rem;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /* Subtle gloomy ambient background in dark mode */
@@ -137,13 +138,13 @@ html[data-theme="dark"] body {
 
 /* Prototype root adaptation */
 :root .finora-prototype,
-html[data-theme="fin"] .finora-prototype {
-  --prototype-paper: #f5f4f0;
-  --prototype-surface: #ffffff;
-  --prototype-ink: #20211f;
-  --prototype-muted: #575953;
-  --prototype-line: #e5e4de;
-  --prototype-accent: #755727;
+html[data-theme="amoled"] .finora-prototype {
+  --prototype-paper: #000000;
+  --prototype-surface: #060606;
+  --prototype-ink: #ffffff;
+  --prototype-muted: #a1a1aa;
+  --prototype-line: #1c1c1c;
+  --prototype-accent: #ffffff;
 }
 
 html[data-theme="dark"] .finora-prototype {
@@ -155,13 +156,13 @@ html[data-theme="dark"] .finora-prototype {
   --prototype-accent: #ffffff;
 }
 
-html[data-theme="amoled"] .finora-prototype {
-  --prototype-paper: #000000;
-  --prototype-surface: #060606;
-  --prototype-ink: #ffffff;
-  --prototype-muted: #a1a1aa;
-  --prototype-line: #1c1c1c;
-  --prototype-accent: #ffffff;
+html[data-theme="fin"] .finora-prototype {
+  --prototype-paper: #f5f4f0;
+  --prototype-surface: #ffffff;
+  --prototype-ink: #20211f;
+  --prototype-muted: #575953;
+  --prototype-line: #e5e4de;
+  --prototype-accent: #755727;
 }
 
 /* Global rounded curvy blocks */
@@ -227,6 +228,11 @@ html[data-theme="amoled"] .finora-prototype .workspace-card:hover {
               transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
               box-shadow 0.35s ease;
   overflow: hidden;
+}
+
+html[data-theme="fin"] .prototype-sidebar-tahoe {
+  --finora-mark-ink: #f5f4f0;
+  --finora-mark-accent: #d7ba82;
 }
 
 .prototype-sidebar-tahoe[data-collapsed="false"] {
@@ -745,6 +751,55 @@ html[data-theme="amoled"] .finora-landing {
   --landing-ink: #ffffff;
   --landing-muted: #a1a1aa;
   --landing-line: #1c1c1c;
+}
+
+/* ========================================================
+   FLOATING GLASS PILL HEADER (Single row, responsive)
+   ======================================================== */
+.landing-header-floating {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: nowrap !important;
+  width: 100% !important;
+  max-width: 1080px !important;
+  margin: 0 auto !important;
+  padding: 8px 16px !important;
+  border-radius: 9999px !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative !important;
+  z-index: 50 !important;
+  box-sizing: border-box !important;
+}
+
+html[data-theme="amoled"] .landing-header-floating {
+  background: rgba(8, 8, 8, 0.88) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .landing-header-floating {
+  background: rgba(18, 19, 24, 0.88) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.75), 0 0 1px 1px rgba(255, 255, 255, 0.04) !important;
+  color: #f3f4f6 !important;
+}
+
+html[data-theme="fin"] .landing-header-floating {
+  background: rgba(245, 244, 240, 0.92) !important;
+  border: 1px solid rgba(117, 87, 39, 0.25) !important;
+  box-shadow: 0 16px 40px -10px rgba(117, 87, 39, 0.15) !important;
+  color: #20211f !important;
+}
+
+@media (max-width: 640px) {
+  .landing-header-floating {
+    padding: 6px 12px !important;
+  }
 }
 
 /* Pill buttons on floating glass header */

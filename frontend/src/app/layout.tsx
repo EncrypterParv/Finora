@@ -16,8 +16,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-[var(--finora-canvas,#f5f4f0)] text-[var(--finora-ink,#20211f)] antialiased transition-colors duration-200">
+    <html lang="en" data-theme="amoled" className="dark amoled">
+      <body className="min-h-screen bg-[var(--finora-canvas,#000000)] text-[var(--finora-ink,#ffffff)] antialiased transition-colors duration-200">
         <ThemeProvider>
           <QueryProvider>
             {children}

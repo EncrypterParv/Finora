@@ -66,51 +66,51 @@
 
 :root {
   --finora-display: "Newsreader", Georgia, serif;
-  --finora-dark: #20211f;
-  --finora-on-dark: #f5f4f0;
-  --finora-gold-light: #d7ba82;
-  --finora-chocolate: #262724;
-  --finora-cream: #f5f4f0;
-  --finora-orange: #886731;
-  --finora-accent: #886731;
-  --finora-accent-strong: #755727;
-  --finora-accent-soft: #f0e9da;
-  --finora-canvas: #f5f4f0;
-  --finora-surface: #ffffff;
-  --finora-surface-muted: #f5f4f0;
-  --finora-ink: #20211f;
-  --finora-ink-soft: #575953;
-  --finora-ink-muted: #575953;
-  --finora-border: #e5e4de;
-  --finora-border-strong: #d5d4cc;
-  --finora-brand: #262724;
-  --finora-brand-dark: #20211f;
-  --finora-brand-soft: #f0e9da;
-  --finora-positive: #2f6b45;
-  --finora-positive-soft: #edf4ed;
-  --finora-warning: #8a641e;
-  --finora-warning-soft: #fbf4df;
-  --finora-negative: #a04646;
-  --finora-negative-soft: #faeeee;
-  --background: 48 20% 95%;
-  --foreground: 90 3% 13%;
-  --card: 0 0% 100%;
-  --card-foreground: 13 22% 13%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 13 22% 13%;
-  --primary: 80 4% 15%;
-  --primary-foreground: 48 20% 95%;
-  --secondary: 50 15% 92%;
-  --secondary-foreground: 90 3% 13%;
-  --muted: 50 15% 92%;
-  --muted-foreground: 80 3% 34%;
-  --accent: 41 42% 90%;
-  --accent-foreground: 37 50% 31%;
-  --destructive: 0 43% 46%;
+  --finora-dark: #000000;
+  --finora-on-dark: #ffffff;
+  --finora-gold-light: #ffffff;
+  --finora-chocolate: #060606;
+  --finora-cream: #060606;
+  --finora-orange: #ffffff;
+  --finora-accent: #ffffff;
+  --finora-accent-strong: #ffffff;
+  --finora-accent-soft: rgba(255, 255, 255, 0.14);
+  --finora-canvas: #000000;
+  --finora-surface: #060606;
+  --finora-surface-muted: #0e0e0e;
+  --finora-ink: #ffffff;
+  --finora-ink-soft: #a1a1aa;
+  --finora-ink-muted: #71717a;
+  --finora-border: #1a1a1a;
+  --finora-border-strong: #262626;
+  --finora-brand: #ffffff;
+  --finora-brand-dark: #000000;
+  --finora-brand-soft: rgba(255, 255, 255, 0.1);
+  --finora-positive: #34d399;
+  --finora-positive-soft: rgba(52, 211, 153, 0.18);
+  --finora-warning: #fbbf24;
+  --finora-warning-soft: rgba(251, 191, 36, 0.18);
+  --finora-negative: #f87171;
+  --finora-negative-soft: rgba(248, 113, 113, 0.18);
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 2%;
+  --card-foreground: 0 0% 100%;
+  --popover: 0 0% 2%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 0 0% 100%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 6%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 8%;
+  --muted-foreground: 240 5% 65%;
+  --accent: 0 0% 12%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 63% 50%;
   --destructive-foreground: 0 0% 100%;
-  --border: 38 20% 88%;
-  --input: 38 20% 88%;
-  --ring: 37 50% 31%;
+  --border: 0 0% 10%;
+  --input: 0 0% 10%;
+  --ring: 0 0% 100%;
   --radius: 0.625rem;
 }
 
@@ -119,8 +119,9 @@
 }
 
 html {
-  background: var(--finora-canvas);
-  color-scheme: light;
+  background: var(--finora-canvas, #000000);
+  color-scheme: dark;
+  zoom: 0.9;
 }
 
 body {
