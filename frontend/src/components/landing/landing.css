@@ -796,6 +796,30 @@
   gap: 4px 22px;
   margin-top: 12px;
 }
+/* Demo bypass link — small ghost link in the bottom-right of the login panel */
+.login-demo-skip {
+  position: absolute;
+  bottom: 32px;
+  right: 36px;
+  font-size: 11px;
+  color: #9b9d97;
+  text-decoration: none;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+  letter-spacing: 0.01em;
+}
+.login-demo-skip:hover {
+  opacity: 1;
+  color: #575953;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.login-demo-skip:focus-visible {
+  outline: 2px solid #755727;
+  outline-offset: 3px;
+  border-radius: 2px;
+  opacity: 1;
+}
 .login-recovery-link:focus-visible {
   outline: 2px solid #755727;
   outline-offset: 3px;

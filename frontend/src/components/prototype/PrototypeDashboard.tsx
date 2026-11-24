@@ -40,6 +40,7 @@ import { endDemoSession } from "@/lib/demo-session";
 import { SectionLoadingSkeleton, WorkspaceLoadingSkeleton } from "./PrototypeSkeletons";
 import { PageTitle } from "./prototype-ui";
 import { WorkspaceOverview } from "./WorkspaceOverview";
+import { ThemeSelector } from "@/components/ui/ThemeSelector";
 import "./prototype-dashboard.css";
 
 const AccountsScreen = dynamic(() => import("./AccountsScreen").then((module) => module.AccountsScreen), { loading: () => <SectionLoadingSkeleton /> });
@@ -243,6 +244,7 @@ export function PrototypeDashboard({
           <div className="mx-auto flex max-w-[1540px] items-center justify-between gap-3">
             <div className="prototype-topbar-context"><span className="hidden sm:inline">Workspace</span><span className="hidden sm:inline" aria-hidden="true">/</span><strong>{sectionLabel}</strong></div>
             <div className="flex shrink-0 items-center gap-3">
+              <ThemeSelector />
               <button
                 type="button"
                 onClick={signOut}

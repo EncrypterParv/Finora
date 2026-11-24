@@ -1,0 +1,284 @@
+/* Finora Dynamic Theme Engine */
+
+/* 1. Fin Theme (Default warm brass, stone & paper) */
+:root,
+html[data-theme="fin"] {
+  --finora-display: "Newsreader", Georgia, serif;
+  --finora-dark: #20211f;
+  --finora-on-dark: #f5f4f0;
+  --finora-gold-light: #d7ba82;
+  --finora-chocolate: #262724;
+  --finora-cream: #f5f4f0;
+  --finora-orange: #886731;
+  --finora-accent: #886731;
+  --finora-accent-strong: #755727;
+  --finora-accent-soft: #f0e9da;
+  --finora-canvas: #f5f4f0;
+  --finora-surface: #ffffff;
+  --finora-surface-muted: #eeede8;
+  --finora-ink: #20211f;
+  --finora-ink-soft: #575953;
+  --finora-ink-muted: #888982;
+  --finora-border: #e5e4de;
+  --finora-border-strong: #d5d4cc;
+  --finora-brand: #262724;
+  --finora-brand-dark: #20211f;
+  --finora-brand-soft: #f0e9da;
+  --finora-positive: #2f6b45;
+  --finora-positive-soft: #edf4ed;
+  --finora-warning: #8a641e;
+  --finora-warning-soft: #fbf4df;
+  --finora-negative: #a04646;
+  --finora-negative-soft: #faeeee;
+  --finora-glow: transparent;
+  --finora-sidebar-bg: #20211f;
+  --finora-sidebar-line: #454640;
+  --finora-sidebar-text: #deded6;
+  --finora-sidebar-active-bg: #37362e;
+  --finora-sidebar-active-text: #d7ba82;
+  --finora-sidebar-active-bar: #d7ba82;
+  --finora-mark-ink: #f5f4f0;
+  --finora-mark-accent: #d7ba82;
+  color-scheme: light;
+}
+
+/* 2. White Theme with Blue Accent */
+html[data-theme="blue"] {
+  --finora-dark: #1e293b;
+  --finora-on-dark: #ffffff;
+  --finora-gold-light: #60a5fa;
+  --finora-chocolate: #0f172a;
+  --finora-cream: #f8fafc;
+  --finora-orange: #2563eb;
+  --finora-accent: #2563eb;
+  --finora-accent-strong: #1d4ed8;
+  --finora-accent-soft: #dbeafe;
+  --finora-canvas: #f8fafc;
+  --finora-surface: #ffffff;
+  --finora-surface-muted: #f1f5f9;
+  --finora-ink: #0f172a;
+  --finora-ink-soft: #475569;
+  --finora-ink-muted: #94a3b8;
+  --finora-border: #e2e8f0;
+  --finora-border-strong: #cbd5e1;
+  --finora-brand: #1e3a8a;
+  --finora-brand-dark: #0f172a;
+  --finora-brand-soft: #eff6ff;
+  --finora-positive: #16a34a;
+  --finora-positive-soft: #dcfce7;
+  --finora-warning: #d97706;
+  --finora-warning-soft: #fef3c7;
+  --finora-negative: #dc2626;
+  --finora-negative-soft: #fee2e2;
+  --finora-glow: transparent;
+  --finora-sidebar-bg: #0f172a;
+  --finora-sidebar-line: #1e293b;
+  --finora-sidebar-text: #cbd5e1;
+  --finora-sidebar-active-bg: #1e293b;
+  --finora-sidebar-active-text: #60a5fa;
+  --finora-sidebar-active-bar: #3b82f6;
+  --finora-mark-ink: #ffffff;
+  --finora-mark-accent: #3b82f6;
+  color-scheme: light;
+}
+
+/* 3. Dark Dashboard Theme (Financial Car / Obsidian Dashboard with Gloomy Gradient White Accent) */
+html[data-theme="dark"] {
+  --finora-dark: #090a0f;
+  --finora-on-dark: #ffffff;
+  --finora-gold-light: #ffffff;
+  --finora-chocolate: #12141c;
+  --finora-cream: #12141c;
+  --finora-orange: #ffffff;
+  --finora-accent: #ffffff;
+  --finora-accent-strong: #e2e8f0;
+  --finora-accent-soft: rgba(255, 255, 255, 0.12);
+  --finora-canvas: #090a0f;
+  --finora-surface: #12141c;
+  --finora-surface-muted: #181b26;
+  --finora-ink: #f8fafc;
+  --finora-ink-soft: #94a3b8;
+  --finora-ink-muted: #64748b;
+  --finora-border: #232736;
+  --finora-border-strong: #2f3548;
+  --finora-brand: #ffffff;
+  --finora-brand-dark: #050608;
+  --finora-brand-soft: rgba(255, 255, 255, 0.08);
+  --finora-positive: #34d399;
+  --finora-positive-soft: rgba(52, 211, 153, 0.15);
+  --finora-warning: #fbbf24;
+  --finora-warning-soft: rgba(251, 191, 36, 0.15);
+  --finora-negative: #f87171;
+  --finora-negative-soft: rgba(248, 113, 113, 0.15);
+  --finora-glow: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.06), transparent 70%);
+  --finora-sidebar-bg: #06070a;
+  --finora-sidebar-line: #1c1f2c;
+  --finora-sidebar-text: #94a3b8;
+  --finora-sidebar-active-bg: rgba(255, 255, 255, 0.07);
+  --finora-sidebar-active-text: #ffffff;
+  --finora-sidebar-active-bar: #ffffff;
+  --finora-mark-ink: #ffffff;
+  --finora-mark-accent: #cbd5e1;
+  color-scheme: dark;
+}
+
+/* Dark mode specific subtle white gloomy gradient and glows */
+html[data-theme="dark"] body {
+  background-color: var(--finora-canvas);
+  background-image: var(--finora-glow);
+}
+
+/* Adaptation for .finora-prototype */
+html[data-theme="blue"] .finora-prototype {
+  --prototype-paper: #f8fafc;
+  --prototype-surface: #ffffff;
+  --prototype-ink: #0f172a;
+  --prototype-muted: #475569;
+  --prototype-line: #cbd5e1;
+  --prototype-accent: #2563eb;
+}
+
+html[data-theme="dark"] .finora-prototype {
+  --prototype-paper: #090a0f;
+  --prototype-surface: #12141c;
+  --prototype-ink: #f8fafc;
+  --prototype-muted: #94a3b8;
+  --prototype-line: #232736;
+  --prototype-accent: #ffffff;
+}
+
+/* Sidebar styling across themes */
+.prototype-sidebar {
+  border-color: var(--finora-sidebar-line) !important;
+  background: var(--finora-sidebar-bg) !important;
+  color: var(--finora-sidebar-text) !important;
+}
+
+.prototype-sidebar .prototype-nav-link {
+  color: var(--finora-sidebar-text) !important;
+}
+
+.prototype-sidebar .prototype-nav-link:hover {
+  background: var(--finora-sidebar-active-bg) !important;
+  color: var(--finora-sidebar-active-text) !important;
+}
+
+.prototype-sidebar .prototype-nav-link.is-active {
+  background: var(--finora-sidebar-active-bg) !important;
+  color: var(--finora-sidebar-active-text) !important;
+}
+
+.prototype-sidebar .prototype-nav-link.is-active::before {
+  background: var(--finora-sidebar-active-bar) !important;
+}
+
+.prototype-sidebar-profile {
+  border-top-color: var(--finora-sidebar-line) !important;
+}
+
+/* Topbar adaptability */
+.prototype-topbar {
+  background: var(--prototype-paper) !important;
+  border-bottom-color: var(--prototype-line) !important;
+}
+
+/* Overview section adaptions for blue theme */
+html[data-theme="blue"] .finora-prototype[data-section="overview"] {
+  --workspace-surface: #ffffff;
+  --workspace-line: #cbd5e1;
+  --workspace-muted: #475569;
+  --workspace-ink: #0f172a;
+  --workspace-gold: #2563eb;
+  --workspace-green: #16a34a;
+  color: var(--workspace-ink);
+  background: var(--prototype-paper);
+}
+
+html[data-theme="blue"] [data-section="overview"] .prototype-topbar {
+  border-color: var(--workspace-line);
+  background: var(--prototype-paper);
+}
+
+html[data-theme="blue"] [data-section="overview"] .prototype-topbar-context {
+  color: var(--workspace-muted);
+}
+
+html[data-theme="blue"] [data-section="overview"] .prototype-signout {
+  border-color: var(--workspace-line);
+  color: var(--workspace-ink);
+}
+
+html[data-theme="blue"] [data-section="overview"] .workspace-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Overview section adaptions for dark gloomy monochrome theme */
+html[data-theme="dark"] .finora-prototype[data-section="overview"] {
+  --workspace-surface: #12141c;
+  --workspace-line: #232736;
+  --workspace-muted: #94a3b8;
+  --workspace-ink: #f8fafc;
+  --workspace-gold: #ffffff;
+  --workspace-green: #34d399;
+  color: var(--workspace-ink);
+  background: #090a0f;
+}
+
+html[data-theme="dark"] [data-section="overview"] .prototype-topbar {
+  border-color: var(--workspace-line);
+  background: #090a0f;
+}
+
+html[data-theme="dark"] [data-section="overview"] .prototype-topbar-context {
+  color: var(--workspace-muted);
+}
+
+html[data-theme="dark"] [data-section="overview"] .prototype-signout {
+  border-color: var(--workspace-line);
+  color: var(--workspace-ink);
+}
+
+html[data-theme="dark"] [data-section="overview"] .workspace-card {
+  background: #12141c;
+  border-color: #232736;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+/* Gloomy gradient glow highlight for cards in dark theme */
+html[data-theme="dark"] .workspace-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.02) 60%, transparent 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+html[data-theme="dark"] .prototype-primary-action {
+  background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%) !important;
+  color: #090a0f !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+html[data-theme="dark"] .prototype-primary-action:hover {
+  background: #ffffff !important;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.35);
+}
+
+html[data-theme="blue"] .prototype-primary-action {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #1d4ed8 !important;
+}
+
+html[data-theme="blue"] .prototype-primary-action:hover {
+  background: #1d4ed8 !important;
+}
