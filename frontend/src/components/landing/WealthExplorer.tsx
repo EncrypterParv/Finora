@@ -138,14 +138,15 @@ export function WealthExplorer() {
             role="img"
             aria-label={`Projected corpus ${amount(corpus)} in ${years} years, against a financial independence target of ${amount(target)}.`}
           >
-            <path d={`${line} L550,205 L40,205Z`} fill="#f0e9da" />
-            <path d="M40 205H550" stroke="#ded0b5" />
+            <path className="wealth-chart-area" d={`${line} L550,205 L40,205Z`} fill="#f0e9da" />
+            <path className="wealth-chart-axis" d="M40 205H550" stroke="#ded0b5" />
             <path
+              className="wealth-chart-target"
               d={`M40 ${targetY}H550`}
               stroke="#857168"
               strokeDasharray="5 5"
             />
-            <path d={line} stroke="#886731" fill="none" strokeWidth="2.5" />
+            <path className="wealth-chart-curve" d={line} stroke="#886731" fill="none" strokeWidth="2.5" />
           </svg>
           <div className="wealth-axis">
             <span>Today</span>

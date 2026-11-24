@@ -6,21 +6,21 @@ html[data-theme="amoled"] {
   --finora-display: "Newsreader", Georgia, serif;
   --finora-dark: #000000;
   --finora-on-dark: #ffffff;
-  --finora-gold-light: #ffffff;
+  --finora-gold-light: #d7ba82;
   --finora-chocolate: #060606;
   --finora-cream: #060606;
-  --finora-orange: #ffffff;
-  --finora-accent: #ffffff;
+  --finora-orange: #d7ba82;
+  --finora-accent: #d7ba82;
   --finora-accent-strong: #ffffff;
-  --finora-accent-soft: rgba(255, 255, 255, 0.14);
+  --finora-accent-soft: rgba(215, 186, 130, 0.15);
   --finora-canvas: #000000;
-  --finora-surface: #060606;
-  --finora-surface-muted: #0e0e0e;
+  --finora-surface: #08080a;
+  --finora-surface-muted: #101014;
   --finora-ink: #ffffff;
   --finora-ink-soft: #a1a1aa;
   --finora-ink-muted: #71717a;
-  --finora-border: #1a1a1a;
-  --finora-border-strong: #262626;
+  --finora-border: #1a1a1c;
+  --finora-border-strong: #26262a;
   --finora-brand: #ffffff;
   --finora-brand-dark: #000000;
   --finora-brand-soft: rgba(255, 255, 255, 0.1);
@@ -36,9 +36,9 @@ html[data-theme="amoled"] {
   --finora-sidebar-text: #a1a1aa;
   --finora-sidebar-active-bg: rgba(255, 255, 255, 0.12);
   --finora-sidebar-active-text: #ffffff;
-  --finora-sidebar-active-bar: #ffffff;
+  --finora-sidebar-active-bar: #d7ba82;
   --finora-mark-ink: #ffffff;
-  --finora-mark-accent: #ffffff;
+  --finora-mark-accent: #d7ba82;
   --panel-radius: 1.25rem;
   --block-radius: 0.875rem;
   color-scheme: dark;
@@ -48,13 +48,13 @@ html[data-theme="amoled"] {
 html[data-theme="dark"] {
   --finora-dark: #0c0d10;
   --finora-on-dark: #ffffff;
-  --finora-gold-light: #ffffff;
+  --finora-gold-light: #d7ba82;
   --finora-chocolate: #14151a;
   --finora-cream: #14151a;
-  --finora-orange: #ffffff;
-  --finora-accent: #ffffff;
-  --finora-accent-strong: #e5e7eb;
-  --finora-accent-soft: rgba(255, 255, 255, 0.1);
+  --finora-orange: #d7ba82;
+  --finora-accent: #d7ba82;
+  --finora-accent-strong: #ffffff;
+  --finora-accent-soft: rgba(215, 186, 130, 0.12);
   --finora-canvas: #0c0d10;
   --finora-surface: #14151a;
   --finora-surface-muted: #1b1c23;
@@ -78,9 +78,9 @@ html[data-theme="dark"] {
   --finora-sidebar-text: #9ca3af;
   --finora-sidebar-active-bg: rgba(255, 255, 255, 0.08);
   --finora-sidebar-active-text: #ffffff;
-  --finora-sidebar-active-bar: #ffffff;
+  --finora-sidebar-active-bar: #d7ba82;
   --finora-mark-ink: #ffffff;
-  --finora-mark-accent: #cbd5e1;
+  --finora-mark-accent: #d7ba82;
   --panel-radius: 1.25rem;
   --block-radius: 0.875rem;
   color-scheme: dark;
@@ -852,6 +852,758 @@ html[data-theme="amoled"] .landing-pill-btn:hover {
   border-color: #ffffff;
   background: rgba(255, 255, 255, 0.18);
   transform: translateY(-1px);
+}
+
+/* ========================================================
+   LANDING PAGE LUXURY DARK & AMOLED SYSTEM
+   ======================================================== */
+
+/* 1. Global Landing CTA Buttons */
+.finora-landing .landing-button {
+  border-radius: 9999px !important;
+  padding: 13px 26px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+html[data-theme="amoled"] .finora-landing .landing-button,
+html[data-theme="dark"] .finora-landing .landing-button {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.25) !important;
+}
+
+html[data-theme="amoled"] .finora-landing .landing-button:hover,
+html[data-theme="dark"] .finora-landing .landing-button:hover {
+  background: #f4f4f5 !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 8px 30px rgba(255, 255, 255, 0.4) !important;
+}
+
+/* 2. Hero Section */
+html[data-theme="amoled"] .masthead-scene {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .masthead-scene::before {
+  background: linear-gradient(95deg, rgba(0, 0, 0, 0.98) 0%, rgba(0, 0, 0, 0.92) 35%, rgba(0, 0, 0, 0.65) 65%, rgba(0, 0, 0, 0.15) 100%) !important;
+}
+
+html[data-theme="amoled"] .masthead-scene::after {
+  background: linear-gradient(to bottom, transparent, #000000) !important;
+}
+
+html[data-theme="dark"] .masthead-scene {
+  background: #0c0d10 !important;
+  color: #f3f4f6 !important;
+}
+
+html[data-theme="dark"] .masthead-scene::before {
+  background: linear-gradient(95deg, rgba(12, 13, 16, 0.98) 0%, rgba(12, 13, 16, 0.92) 35%, rgba(12, 13, 16, 0.65) 65%, rgba(12, 13, 16, 0.15) 100%) !important;
+}
+
+html[data-theme="dark"] .masthead-scene::after {
+  background: linear-gradient(to bottom, transparent, #0c0d10) !important;
+}
+
+html[data-theme="amoled"] .masthead-copy h1,
+html[data-theme="dark"] .masthead-copy h1 {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .masthead-copy h1 em,
+html[data-theme="dark"] .masthead-copy h1 em {
+  color: #d7ba82 !important;
+}
+
+html[data-theme="amoled"] .masthead-actions p,
+html[data-theme="dark"] .masthead-actions p {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="amoled"] .masthead-note,
+html[data-theme="dark"] .masthead-note {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .masthead-note a,
+html[data-theme="dark"] .masthead-note a {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .masthead-note a:hover,
+html[data-theme="dark"] .masthead-note a:hover {
+  color: #d7ba82 !important;
+}
+
+/* 3. Section Headings Across Landing */
+html[data-theme="amoled"] .finora-landing h2,
+html[data-theme="dark"] .finora-landing h2 {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .finora-landing h2 em,
+html[data-theme="dark"] .finora-landing h2 em {
+  color: #d7ba82 !important;
+  font-style: italic;
+}
+
+html[data-theme="amoled"] .landing-intro p,
+html[data-theme="dark"] .landing-intro p,
+html[data-theme="amoled"] .section-heading p,
+html[data-theme="dark"] .section-heading p,
+html[data-theme="amoled"] .wealth-heading > p,
+html[data-theme="dark"] .wealth-heading > p,
+html[data-theme="amoled"] .plans-heading p,
+html[data-theme="dark"] .plans-heading p,
+html[data-theme="amoled"] .honesty-section > div > p,
+html[data-theme="dark"] .honesty-section > div > p {
+  color: #a1a1aa !important;
+}
+
+/* 4. Process Section & Financial Workbench */
+html[data-theme="amoled"] .process-tabs button,
+html[data-theme="dark"] .process-tabs button {
+  border-radius: 9999px !important;
+  padding: 8px 16px !important;
+  color: #a1a1aa !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+html[data-theme="amoled"] .process-tabs button:hover,
+html[data-theme="dark"] .process-tabs button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+html[data-theme="amoled"] .process-tabs button[aria-pressed="true"],
+html[data-theme="dark"] .process-tabs button[aria-pressed="true"] {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.25) !important;
+}
+
+html[data-theme="amoled"] .financial-workbench {
+  background: #08080a !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.04) !important;
+  color: #ffffff !important;
+  overflow: hidden;
+}
+
+html[data-theme="dark"] .financial-workbench {
+  background: #14151a !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7), 0 0 1px 1px rgba(255, 255, 255, 0.04) !important;
+  color: #f3f4f6 !important;
+  overflow: hidden;
+}
+
+html[data-theme="amoled"] .workbench-title,
+html[data-theme="dark"] .workbench-title {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .workbench-body h4,
+html[data-theme="dark"] .workbench-body h4 {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .workbench-body > p,
+html[data-theme="dark"] .workbench-body > p {
+  color: #9ca3af !important;
+}
+
+html[data-theme="amoled"] .raw-transaction,
+html[data-theme="dark"] .raw-transaction {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 0.875rem !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .raw-transaction span,
+html[data-theme="dark"] .raw-transaction span {
+  color: #d7ba82 !important;
+}
+
+html[data-theme="amoled"] .record-table,
+html[data-theme="dark"] .record-table {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-theme="amoled"] .record-table > div,
+html[data-theme="dark"] .record-table > div {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme="amoled"] .record-table span,
+html[data-theme="dark"] .record-table span {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .record-table strong,
+html[data-theme="dark"] .record-table strong {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .positive-label,
+html[data-theme="dark"] .positive-label {
+  color: #34d399 !important;
+  background: rgba(52, 211, 153, 0.14) !important;
+  border: 1px solid rgba(52, 211, 153, 0.28) !important;
+  border-radius: 9999px !important;
+  padding: 2px 10px !important;
+}
+
+html[data-theme="amoled"] .week-comparison > div > span,
+html[data-theme="dark"] .week-comparison > div > span {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .week-comparison > div > div,
+html[data-theme="dark"] .week-comparison > div > div {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 4px;
+}
+
+html[data-theme="amoled"] .week-comparison > div > div > i,
+html[data-theme="dark"] .week-comparison > div > div > i {
+  background: #d7ba82 !important;
+  border-radius: 4px;
+}
+
+html[data-theme="amoled"] .week-comparison > div > small,
+html[data-theme="dark"] .week-comparison > div > small {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .workbench-observation,
+html[data-theme="dark"] .workbench-observation {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 0.875rem !important;
+}
+
+html[data-theme="amoled"] .workbench-observation span,
+html[data-theme="dark"] .workbench-observation span {
+  color: #d7ba82 !important;
+}
+
+html[data-theme="amoled"] .workbench-observation strong,
+html[data-theme="dark"] .workbench-observation strong {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .workbench-observation p,
+html[data-theme="dark"] .workbench-observation p {
+  color: #9ca3af !important;
+}
+
+html[data-theme="amoled"] .pace-result,
+html[data-theme="dark"] .pace-result {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.875rem !important;
+}
+
+html[data-theme="amoled"] .pace-result span,
+html[data-theme="dark"] .pace-result span {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .pace-result output,
+html[data-theme="dark"] .pace-result output {
+  color: #d7ba82 !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="amoled"] .pace-result small,
+html[data-theme="dark"] .pace-result small {
+  color: #34d399 !important;
+}
+
+html[data-theme="amoled"] .scenario-label,
+html[data-theme="dark"] .scenario-label {
+  color: #e5e7eb !important;
+}
+
+html[data-theme="amoled"] .scenario-label strong,
+html[data-theme="dark"] .scenario-label strong {
+  color: #d7ba82 !important;
+}
+
+html[data-theme="amoled"] .calculation-note,
+html[data-theme="dark"] .calculation-note,
+html[data-theme="amoled"] .workbench-note,
+html[data-theme="dark"] .workbench-note {
+  color: #71717a !important;
+}
+
+/* Process Stories Right Side */
+html[data-theme="amoled"] .process-number,
+html[data-theme="dark"] .process-number {
+  color: #d7ba82 !important;
+  font-family: ui-monospace, monospace;
+}
+
+html[data-theme="amoled"] .process-story h3,
+html[data-theme="dark"] .process-story h3 {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .process-story strong,
+html[data-theme="dark"] .process-story strong {
+  color: #e5e7eb !important;
+}
+
+html[data-theme="amoled"] .process-story p,
+html[data-theme="dark"] .process-story p {
+  color: #9ca3af !important;
+}
+
+html[data-theme="amoled"] .process-sample,
+html[data-theme="dark"] .process-sample {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  border-radius: 0.875rem !important;
+}
+
+html[data-theme="amoled"] .process-detail,
+html[data-theme="dark"] .process-detail {
+  color: #d7ba82 !important;
+}
+
+html[data-theme="amoled"] .figure-caption,
+html[data-theme="dark"] .figure-caption {
+  color: #71717a !important;
+}
+
+/* 5. Money Grid (Calendar and Goals Cards) */
+html[data-theme="amoled"] .money-grid article {
+  background: #08080a !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.04) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .money-grid article {
+  background: #14151a !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7), 0 0 1px 1px rgba(255, 255, 255, 0.04) !important;
+  color: #f3f4f6 !important;
+}
+
+html[data-theme="amoled"] .feature-meta,
+html[data-theme="dark"] .feature-meta {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .feature-meta > span,
+html[data-theme="dark"] .feature-meta > span {
+  color: #71717a !important;
+}
+
+html[data-theme="amoled"] .feature-still-life,
+html[data-theme="dark"] .feature-still-life {
+  background: #000000 !important;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+html[data-theme="amoled"] .mini-calendar span,
+html[data-theme="dark"] .mini-calendar span {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .mini-calendar .heat,
+html[data-theme="dark"] .mini-calendar .heat {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.75rem !important;
+}
+
+html[data-theme="amoled"] .mini-calendar .heat-4,
+html[data-theme="amoled"] .mini-calendar .heat-5,
+html[data-theme="dark"] .mini-calendar .heat-4,
+html[data-theme="dark"] .mini-calendar .heat-5 {
+  background: rgba(215, 186, 130, 0.2) !important;
+  color: #d7ba82 !important;
+  border: 1px solid rgba(215, 186, 130, 0.4) !important;
+  font-weight: 700;
+}
+
+html[data-theme="amoled"] .mini-calendar small,
+html[data-theme="dark"] .mini-calendar small {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .money-grid h3,
+html[data-theme="dark"] .money-grid h3 {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .money-grid p,
+html[data-theme="dark"] .money-grid p {
+  color: #9ca3af !important;
+}
+
+html[data-theme="amoled"] .goal-track span,
+html[data-theme="dark"] .goal-track span {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .goal-track strong,
+html[data-theme="dark"] .goal-track strong {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .goal-track strong small,
+html[data-theme="dark"] .goal-track strong small {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .goal-track > div,
+html[data-theme="dark"] .goal-track > div {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-radius: 9999px !important;
+}
+
+html[data-theme="amoled"] .goal-track i,
+html[data-theme="dark"] .goal-track i {
+  background: linear-gradient(90deg, #d7ba82, #ffffff) !important;
+  border-radius: 9999px !important;
+}
+
+/* 6. Wealth Explorer / FIRE Simulator */
+html[data-theme="amoled"] .wealth-explorer {
+  background: #08080a !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.04) !important;
+  color: #ffffff !important;
+  overflow: hidden;
+}
+
+html[data-theme="dark"] .wealth-explorer {
+  background: #14151a !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7), 0 0 1px 1px rgba(255, 255, 255, 0.04) !important;
+  color: #f3f4f6 !important;
+  overflow: hidden;
+}
+
+html[data-theme="amoled"] .wealth-controls,
+html[data-theme="dark"] .wealth-controls {
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-theme="amoled"] .wealth-controls > h3,
+html[data-theme="dark"] .wealth-controls > h3 {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .wealth-controls > p,
+html[data-theme="dark"] .wealth-controls > p {
+  color: #9ca3af !important;
+}
+
+html[data-theme="amoled"] .wealth-control label,
+html[data-theme="dark"] .wealth-control label {
+  color: #d1d5db !important;
+}
+
+html[data-theme="amoled"] .wealth-control strong,
+html[data-theme="dark"] .wealth-control strong {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="amoled"] .wealth-control input[type="range"],
+html[data-theme="dark"] .wealth-control input[type="range"] {
+  accent-color: #d7ba82 !important;
+}
+
+html[data-theme="amoled"] .wealth-total span,
+html[data-theme="dark"] .wealth-total span {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .wealth-total output,
+html[data-theme="dark"] .wealth-total output {
+  color: #d7ba82 !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="amoled"] .wealth-total p,
+html[data-theme="dark"] .wealth-total p {
+  color: #9ca3af !important;
+}
+
+html[data-theme="amoled"] .wealth-total p strong,
+html[data-theme="dark"] .wealth-total p strong {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .wealth-chart-label,
+html[data-theme="dark"] .wealth-chart-label {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .wealth-chart-label strong,
+html[data-theme="dark"] .wealth-chart-label strong {
+  color: #d7ba82 !important;
+}
+
+html[data-theme="amoled"] .wealth-chart .wealth-chart-area,
+html[data-theme="dark"] .wealth-chart .wealth-chart-area {
+  fill: rgba(215, 186, 130, 0.14) !important;
+}
+
+html[data-theme="amoled"] .wealth-chart .wealth-chart-axis,
+html[data-theme="dark"] .wealth-chart .wealth-chart-axis {
+  stroke: rgba(255, 255, 255, 0.15) !important;
+}
+
+html[data-theme="amoled"] .wealth-chart .wealth-chart-target,
+html[data-theme="dark"] .wealth-chart .wealth-chart-target {
+  stroke: rgba(255, 255, 255, 0.35) !important;
+}
+
+html[data-theme="amoled"] .wealth-chart .wealth-chart-curve,
+html[data-theme="dark"] .wealth-chart .wealth-chart-curve {
+  stroke: #d7ba82 !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 2px 8px rgba(215, 186, 130, 0.4)) !important;
+}
+
+html[data-theme="amoled"] .wealth-axis span,
+html[data-theme="dark"] .wealth-axis span {
+  color: #71717a !important;
+}
+
+html[data-theme="amoled"] .wealth-milestone,
+html[data-theme="dark"] .wealth-milestone {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 0.875rem !important;
+}
+
+html[data-theme="amoled"] .wealth-milestone strong,
+html[data-theme="dark"] .wealth-milestone strong {
+  color: #d7ba82 !important;
+}
+
+html[data-theme="amoled"] .wealth-milestone span,
+html[data-theme="dark"] .wealth-milestone span {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .wealth-disclaimer,
+html[data-theme="dark"] .wealth-disclaimer {
+  color: #71717a !important;
+}
+
+/* 7. Plans Section */
+html[data-theme="amoled"] .plans-grid {
+  background: #08080a !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.95) !important;
+  overflow: hidden;
+}
+
+html[data-theme="dark"] .plans-grid {
+  background: #14151a !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7) !important;
+  overflow: hidden;
+}
+
+html[data-theme="amoled"] .plan-column,
+html[data-theme="dark"] .plan-column {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-theme="amoled"] .plan-column-featured,
+html[data-theme="dark"] .plan-column-featured {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+html[data-theme="amoled"] .plan-column h3,
+html[data-theme="dark"] .plan-column h3 {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .plan-description,
+html[data-theme="dark"] .plan-description {
+  color: #9ca3af !important;
+}
+
+html[data-theme="amoled"] .plan-price strong,
+html[data-theme="dark"] .plan-price strong {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .plan-price span,
+html[data-theme="dark"] .plan-price span {
+  color: #71717a !important;
+}
+
+html[data-theme="amoled"] .plan-column ul li,
+html[data-theme="dark"] .plan-column ul li {
+  color: #d1d5db !important;
+}
+
+html[data-theme="amoled"] .plan-column ul li::before,
+html[data-theme="dark"] .plan-column ul li::before {
+  color: #d7ba82 !important;
+}
+
+html[data-theme="amoled"] .plan-link,
+html[data-theme="dark"] .plan-link {
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-radius: 9999px !important;
+  padding: 10px 18px !important;
+  transition: all 0.2s ease !important;
+}
+
+html[data-theme="amoled"] .plan-link:hover,
+html[data-theme="dark"] .plan-link:hover {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #ffffff !important;
+}
+
+/* 8. Honest FAQ Section */
+html[data-theme="amoled"] .instrument-preview > summary,
+html[data-theme="dark"] .instrument-preview > summary {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 9999px !important;
+}
+
+html[data-theme="amoled"] .instrument-preview .money-instrument,
+html[data-theme="dark"] .instrument-preview .money-instrument {
+  background: #08080a !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 1.5rem !important;
+  color: #ffffff !important;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.9) !important;
+}
+
+html[data-theme="amoled"] .instrument-parts button,
+html[data-theme="dark"] .instrument-parts button,
+html[data-theme="amoled"] .instrument-toolbar button,
+html[data-theme="dark"] .instrument-toolbar button {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+}
+
+html[data-theme="amoled"] .landing-faq details,
+html[data-theme="dark"] .landing-faq details {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+html[data-theme="amoled"] .landing-faq summary,
+html[data-theme="dark"] .landing-faq summary {
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+html[data-theme="amoled"] .landing-faq summary span:before,
+html[data-theme="amoled"] .landing-faq summary span:after,
+html[data-theme="dark"] .landing-faq summary span:before,
+html[data-theme="dark"] .landing-faq summary span:after {
+  background: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .landing-faq details > p,
+html[data-theme="dark"] .landing-faq details > p {
+  color: #9ca3af !important;
+}
+
+/* 9. Footer Closing Section */
+html[data-theme="amoled"] .closing-panel {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: clamp(1.5rem, 4vw, 3rem) !important;
+}
+
+html[data-theme="dark"] .closing-panel {
+  background: #0c0d10 !important;
+  color: #f3f4f6 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: clamp(1.5rem, 4vw, 3rem) !important;
+}
+
+html[data-theme="amoled"] .closing-message h2,
+html[data-theme="dark"] .closing-message h2 {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .closing-message h2 em,
+html[data-theme="dark"] .closing-message h2 em {
+  color: #d7ba82 !important;
+}
+
+html[data-theme="amoled"] .closing-message p,
+html[data-theme="dark"] .closing-message p {
+  color: #9ca3af !important;
+}
+
+html[data-theme="amoled"] .closing-links a,
+html[data-theme="dark"] .closing-links a {
+  color: #a1a1aa !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html[data-theme="amoled"] .closing-links a:hover,
+html[data-theme="dark"] .closing-links a:hover {
+  color: #ffffff !important;
+}
+
+html[data-theme="amoled"] .closing-bottom,
+html[data-theme="dark"] .closing-bottom {
+  color: #71717a !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme="amoled"] .closing-bottom a,
+html[data-theme="dark"] .closing-bottom a {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="amoled"] .closing-bottom a:hover,
+html[data-theme="dark"] .closing-bottom a:hover {
+  color: #ffffff !important;
 }
 
 /* ========================================================
