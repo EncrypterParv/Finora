@@ -10,6 +10,7 @@ import { fetchTransactionSummary, type BankAccountSummary, type CurrencyCashFlow
 import type { CanonicalTransaction } from "@/types/transaction";
 import { formatDate, money } from "./prototype-ui";
 import { OverviewChartsSkeleton, OverviewSummarySkeleton } from "./PrototypeSkeletons";
+import { StockMarketFinancialChart } from "@/components/charts/StockMarketFinancialChart";
 
 const OverviewCharts = dynamic(() => import("./WorkspaceOverviewCharts"), {
   loading: () => <OverviewChartsSkeleton />,
@@ -112,6 +113,12 @@ function OverviewSummary({ cashFlow, month, accounts, onInsights, onAccounts, on
         <button type="button" className="workspace-text-button workspace-metric-link" onClick={onTransactions}>View transactions <ArrowRight size={14} aria-hidden="true" /></button>
       </section>
     </div>
+    <div className="my-6">
+      <StockMarketFinancialChart
+        title="10-Year Financial Records & Capital Velocity"
+        subtitle="Dynamic pre-calculated monthly expenditure, annual growth, and stock-market style cash trajectory in green, red, and blue."
+      />
+    </div>
     <OverviewCharts
       key={`${month}-${currency}`}
       weeks={weeks}
@@ -125,7 +132,17 @@ function OverviewSummary({ cashFlow, month, accounts, onInsights, onAccounts, on
   </>;
 }
 
-export function WorkspaceOverview({ userName, accounts, transactions, transactionCount, onAdd, onInsights, onAccounts, onTransactions }: {
+export function WorkspaceOverview({
+  userName,
+  accounts,
+  transactions,
+  transactionCount,
+  onAdd,
+  onInsights,
+  onAccounts,
+  onTransactions,
+  workspaceMode = "demo",
+}: {
   userName: string;
   accounts: BankAccountSummary[];
   transactions: CanonicalTransaction[];
@@ -134,6 +151,7 @@ export function WorkspaceOverview({ userName, accounts, transactions, transactio
   onInsights: () => void;
   onAccounts: () => void;
   onTransactions: () => void;
+  workspaceMode?: "demo" | "live";
 }) {
   const currentMonth = `${new Date().toISOString().slice(0, 7)}-01`;
   const initialMonth = new Date(transactions[0].occurred_at).toISOString().slice(0, 7) + "-01";
@@ -167,7 +185,14 @@ export function WorkspaceOverview({ userName, accounts, transactions, transactio
   return <div className="workspace-overview">
     <header className="workspace-overview-header">
       <div>
-        <h1>Overview</h1>
+        <div className="flex items-center gap-2">
+          <h1>Overview</h1>
+          {workspaceMode === "demo" && (
+            <span className="rounded-full bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+              10-Yr Demo Mode
+            </span>
+          )}
+        </div>
         <p>{userName ? `${userName.trim().split(/\s+/)[0]}, here’s your recorded activity.` : "Here’s your recorded activity."}</p>
       </div>
       <div className="workspace-overview-actions">

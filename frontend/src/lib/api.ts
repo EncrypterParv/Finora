@@ -1,6 +1,7 @@
 import { isDemoSession } from "./demo-session";
 import { createClient as createSupabaseClient } from "./supabase/client";
 import {
+  demoAccounts,
   demoOverview,
   demoTransactions,
   demoBudgets,
@@ -383,6 +384,28 @@ export async function fetchTransactionPage(
   limit: number = 25,
   offset: number = 0,
 ): Promise<{ items: CanonicalTransaction[]; total: number }> {
+  if (isDemoSession()) {
+    let items = demoTransactions;
+    if (filters.q) {
+      const query = filters.q.toLowerCase();
+      items = items.filter(
+        (t) =>
+          t.merchant_name?.toLowerCase().includes(query) ||
+          t.category_name?.toLowerCase().includes(query) ||
+          t.raw_description.toLowerCase().includes(query)
+      );
+    }
+    if (filters.transaction_type) {
+      items = items.filter((t) => t.transaction_type === filters.transaction_type);
+    }
+    if (filters.account_id) {
+      items = items.filter((t) => t.account_id === filters.account_id);
+    }
+    return {
+      items: items.slice(offset, offset + limit),
+      total: items.length,
+    };
+  }
   const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
   for (const [key, value] of Object.entries(filters)) {
     if (value !== undefined && value !== null && value !== "") params.append(key, String(value));
@@ -403,6 +426,37 @@ export interface CurrencyCashFlow {
 }
 
 export async function fetchTransactionSummary(month: string): Promise<{ month: string; currencies: CurrencyCashFlow[] }> {
+  if (isDemoSession()) {
+    const monthTx = demoTransactions.filter((t) => t.occurred_at.startsWith(month));
+    const daysMap = new Map<string, { inflow: number; spending: number }>();
+    monthTx.forEach((t) => {
+      const day = t.occurred_at.slice(0, 10);
+      const curr = daysMap.get(day) || { inflow: 0, spending: 0 };
+      if (t.transaction_type === "CREDIT") curr.inflow += t.amount;
+      else if (t.transaction_type === "DEBIT") curr.spending += t.amount;
+      daysMap.set(day, curr);
+    });
+    const days = Array.from(daysMap.entries()).map(([day, val]) => ({
+      day,
+      inflow: String(val.inflow),
+      spending: String(val.spending),
+    }));
+    const totalSpend = monthTx
+      .filter((t) => t.transaction_type === "DEBIT")
+      .reduce((s, t) => s + t.amount, 0);
+
+    return {
+      month,
+      currencies: [
+        {
+          currency: "INR",
+          transaction_count: monthTx.length,
+          days: days.length > 0 ? days : [{ day: `${month}-01`, inflow: "0", spending: "0" }],
+          spending_by_account: { "acc-1": String(totalSpend) },
+        },
+      ],
+    };
+  }
   const params = new URLSearchParams({ month });
   const response = await apiFetch(`${API_BASE}/transactions/summary?${params}`);
   if (!response.ok) throw await responseError(response, "Could not load your monthly summary.");
@@ -651,6 +705,7 @@ export async function uploadStatement(
 }
 
 export async function fetchBankAccounts(): Promise<BankAccountSummary[]> {
+  if (isDemoSession()) return demoAccounts;
   const response = await apiFetch(`${API_BASE}/accounts`);
   if (!response.ok) throw await responseError(response, "Could not load your accounts.");
   return response.json();

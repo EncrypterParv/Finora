@@ -5,6 +5,7 @@
 Finora uses a high-density, typography-first financial aesthetic engineered for readability and cognitive calm.
 
 ### Semantic Financial Palette
+
 ```mermaid
 graph TD
     Positive["Positive / Inflow (Emerald-400 / #10B981)"]
@@ -14,13 +15,14 @@ graph TD
     Brand["Brand Accent / Intelligence (Indigo-400 / #818CF8)"]
 ```
 
-| Token | Class / Value | Semantic Use |
-| :--- | :--- | :--- |
-| `color-inflow` | `text-emerald-400`, `bg-emerald-500/10` | Salary credits, investment returns, savings growth |
-| `color-outflow`| `text-slate-100` (primary) / `text-rose-400` (overrun) | Everyday expenses, bill debits |
-| `color-warning`| `text-amber-400`, `bg-amber-500/10` | Budget velocity breaches, unusual spike anomalies |
-| `color-neutral`| `text-slate-400`, `bg-slate-800` | Transfers between owned accounts, metadata |
-| `color-brand`  | `text-indigo-400`, `bg-indigo-600` | Intelligence badges, predictive forecasts, primary CTAs |
+
+| Token           | Class / Value                                          | Semantic Use                                            |
+| :---------------- | :------------------------------------------------------- | :-------------------------------------------------------- |
+| `color-inflow`  | `text-emerald-400`, `bg-emerald-500/10`                | Salary credits, investment returns, savings growth      |
+| `color-outflow` | `text-slate-100` (primary) / `text-rose-400` (overrun) | Everyday expenses, bill debits                          |
+| `color-warning` | `text-amber-400`, `bg-amber-500/10`                    | Budget velocity breaches, unusual spike anomalies       |
+| `color-neutral` | `text-slate-400`, `bg-slate-800`                       | Transfers between owned accounts, metadata              |
+| `color-brand`   | `text-indigo-400`, `bg-indigo-600`                     | Intelligence badges, predictive forecasts, primary CTAs |
 
 ---
 

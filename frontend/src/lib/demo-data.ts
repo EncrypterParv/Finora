@@ -13,6 +13,27 @@ import type {
 
 // Entirely synthetic, fixed-date preview. No real credentials or financial data.
 export const DEMO_DATE = "2026-10-18";
+
+export const demoAccounts = [
+  {
+    id: "acc-1",
+    institution_name: "HDFC Bank",
+    account_number_masked: "•••• 4821",
+    account_type: "SAVINGS",
+    currency: "INR",
+    adapter_type: "SIMULATED",
+    created_at: "2017-01-10T00:00:00Z",
+  },
+  {
+    id: "acc-2",
+    institution_name: "State Bank of India",
+    account_number_masked: "•••• 9104",
+    account_type: "CURRENT",
+    currency: "INR",
+    adapter_type: "SIMULATED",
+    created_at: "2019-06-15T00:00:00Z",
+  },
+];
 const merchants = [
   ["Blue Tokai", "Food & Dining", 320],
   ["Namma Metro", "Transportation", 120],
@@ -416,4 +437,113 @@ export function getDemoHistoricalInsights(horizon: "30d" | "1y" | "5y" | "10y" |
       sample_iterations: 1000,
     },
   };
+}
+
+
+export interface MonthlyFinancialRecord {
+  monthKey: string; // "2017-01"
+  monthLabel: string; // "Jan 2017"
+  year: number;
+  month: number;
+  inflow: number; // Green (Credits)
+  outflow: number; // Red (Debits / Expenses)
+  net: number; // Blue (Retained)
+  cumulativeBalance: number; // Total liquid portfolio / wealth reserve
+  essentialSpend: number;
+  discretionarySpend: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number; // Transaction count
+  isBullish: boolean; // net > 0 (Green candle) vs net < 0 (Red candle)
+}
+
+// Pre-calculated continuous 10-year financial records (2017 to 2026 = 120 months)
+export function getDemo10YearMonthlyRecords(): MonthlyFinancialRecord[] {
+  const records: MonthlyFinancialRecord[] = [];
+  const startYear = 2017;
+  const endYear = 2026;
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  let runningBalance = 45000;
+
+  for (let yr = startYear; yr <= endYear; yr++) {
+    const yearProgress = (yr - startYear) / (endYear - startYear); // 0.0 to 1.0
+    // Base salary progression from ~₹32k/mo in 2017 to ~₹85k/mo in 2026
+    const baseIncome = 32000 + yearProgress * 53000;
+    // Base living expenses progression from ~₹20k/mo to ~₹52k/mo
+    const baseSpend = 20000 + yearProgress * 32000;
+
+    for (let m = 0; m < 12; m++) {
+      // Don't generate past Nov 2026 if current year
+      if (yr === 2026 && m > 10) break;
+
+      const monthName = months[m];
+      const monthNum = m + 1;
+      const monthKey = `${yr}-${String(monthNum).padStart(2, "0")}`;
+      const monthLabel = `${monthName} ${yr}`;
+
+      // Seasonal modifiers
+      let incomeMultiplier = 1.0;
+      let spendMultiplier = 1.0;
+
+      // October/November festivals / bonuses
+      if (m === 9 || m === 10) {
+        incomeMultiplier = 1.25;
+        spendMultiplier = 1.35;
+      }
+      // March appraisal / year-end
+      if (m === 2) {
+        incomeMultiplier = 1.15;
+      }
+      // Summer travel (May/June)
+      if (m === 4 || m === 5) {
+        spendMultiplier = 1.20;
+      }
+      // Post-holiday dip (January)
+      if (m === 0) {
+        spendMultiplier = 0.88;
+      }
+
+      // Small pseudo-random variations based on month and year seed
+      const pseudoNoise = Math.sin(yr * 12 + m * 7) * 0.08;
+      const inflow = Math.round((baseIncome * incomeMultiplier * (1 + pseudoNoise)) / 100) * 100;
+      const outflow = Math.round((baseSpend * spendMultiplier * (1 - pseudoNoise * 0.7)) / 100) * 100;
+
+      const net = inflow - outflow;
+      const open = runningBalance;
+      runningBalance += net;
+      const close = runningBalance;
+
+      const high = Math.max(open, close) + Math.round(inflow * 0.15);
+      const low = Math.min(open, close) - Math.round(outflow * 0.12);
+
+      const essentialShare = 0.62 - yearProgress * 0.08;
+      const essential = Math.round(outflow * essentialShare);
+      const discretionary = outflow - essential;
+      const txCount = Math.round(24 + yearProgress * 22 + Math.cos(m) * 5);
+
+      records.push({
+        monthKey,
+        monthLabel,
+        year: yr,
+        month: monthNum,
+        inflow,
+        outflow,
+        net,
+        cumulativeBalance: runningBalance,
+        essentialSpend: essential,
+        discretionarySpend: discretionary,
+        open,
+        high,
+        low,
+        close,
+        volume: txCount,
+        isBullish: net >= 0,
+      });
+    }
+  }
+
+  return records;
 }
