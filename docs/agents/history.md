@@ -1,5 +1,15 @@
 # Finora Milestone and Decision History
 
+## 2026-11-24 — Gap Report Triage (Claims A–F)
+
+Triaged external scan claims against source code and runtime test truth:
+- Claim A (Local-only auth; Supabase returns 410): TRUE (by design). `backend/app/api/v1/auth.py:21-25` raises 410 Gone for local register/login when `AUTH_PROVIDER == "supabase"` because Supabase Auth handles authentication client-side and via SSR.
+- Claim B (CORS middleware mounts only when BACKEND_CORS_ORIGINS non-empty): TRUE. `backend/app/main.py:40` checks `if settings.BACKEND_CORS_ORIGINS:` before mounting `CORSMiddleware`.
+- Claim C (Frontend build fails on Prisma types): STRAY / TRUE. Prisma schema and files are stray experiments outside repository contracts; scheduled for removal in C8.
+- Claim D (No endpoint wires historical_engine.py / Insights is static): FALSE. `backend/app/api/v1/analytics.py:270-296` wires `GET /analytics/historical` to `HistoricalMLEngine.analyze_historical_stream`. Precondition for new endpoint creation is FALSE.
+- Claim E (privacy_gate.py is never invoked): FALSE. `backend/app/domain/ml/historical_engine.py:15, 80, 83` invokes `KiteworksPrivacyGate.sanitize_batch` and `KiteworksPrivacyGate.issue_privacy_certificate`.
+- Claim F (Dark theme is bluish, not graphite): TRUE. `frontend/src/components/prototype/themes.css:48-65` uses slate tokens (`#14151a`, `#262833`, `#333645`) with elevated blue hex values rather than neutral graphite (`#20211f`).
+
 ## 2026-11-24 — TypeScript Prisma ORM layer & Amela (AMOLED) design system
 
 - Added production-grade Prisma ORM schema (`frontend/prisma/schema.prisma`) mapping all ten Supabase PostgreSQL tables: `users`, `categories`, `merchants`, `bank_accounts`, `transactions`, `budgets`, `budget_categories`, `financial_goals`, `goal_milestones`, and `ml_profiles`.
