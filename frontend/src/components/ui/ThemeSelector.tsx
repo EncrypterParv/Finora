@@ -62,7 +62,7 @@ export function ThemeSelector({
         aria-label={`Current theme: ${currentTheme.name}. Click to change theme`}
         className={
           pill
-            ? "inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 dark:border-white/20 dark:bg-black/40 backdrop-blur-md px-3.5 py-1.5 text-xs font-medium text-current transition-all hover:scale-105 active:scale-95"
+            ? "theme-selector-pill inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 dark:border-white/20 dark:bg-black/40 backdrop-blur-md px-3.5 py-1.5 text-xs font-medium text-current transition-all hover:scale-105 active:scale-95"
             : "theme-selector-trigger inline-flex items-center gap-2 rounded-lg border border-inherit px-2.5 py-1.5 text-xs font-medium transition-all hover:bg-black/5 dark:hover:bg-white/5 focus-visible:outline-2"
         }
       >

@@ -186,7 +186,7 @@ export default function LoginPage() {
             <small>Finora never asks for your bank password or full account number.</small>
           </div>
         </div>
-        <Image className="login-still-life" src="/images/savings-still-life.png" width={720} height={360} alt="" sizes="(max-width: 760px) 1px, 42vw" />
+        <Image className="login-still-life" src="/images/savings-still-life.png" width={720} height={360} alt="" sizes="(max-width: 760px) 1px, 42vw" loading="eager" fetchPriority="high" />
       </section>
       <section className="login-form-panel">
         <Link href="/" className="login-back">

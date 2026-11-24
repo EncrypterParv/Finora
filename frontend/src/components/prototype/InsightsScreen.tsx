@@ -310,7 +310,7 @@ function LocalMLEngineBar({
         <div>
           <div className="flex items-center gap-2">
             <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[#16a34a] dark:bg-[#34d399] animate-pulse" />
-            <span className="prototype-eyebrow text-[11px] font-bold text-[#16a34a] dark:text-[#34d399]">
+            <span className="prototype-eyebrow text-[11px] font-bold text-[#2f6b45] dark:text-[#34d399]">
               Local ML Engine & Historical Sampling
             </span>
           </div>
@@ -329,7 +329,7 @@ function LocalMLEngineBar({
           className="inline-flex items-center gap-2 rounded-lg border border-[#cbd5e1] dark:border-[#2f364d] bg-[#f8fafc] dark:bg-[#181b26] px-3.5 py-2 text-xs font-medium text-[#0f172a] dark:text-[#f8fafc] hover:border-[#94a3b8] dark:hover:border-[#475569] transition-colors"
           title="Click to view Kiteworks Zero-Trust Data Isolation Certificate"
         >
-          <ShieldCheck size={16} className="text-[#16a34a] dark:text-[#34d399]" />
+          <ShieldCheck size={16} className="text-[#2f6b45] dark:text-[#34d399]" />
           <span>Kiteworks Zero-Trust Gate</span>
           <span className="rounded bg-[#dcfce7] dark:bg-[#064e3b] px-1.5 py-0.5 text-[10px] font-semibold text-[#166534] dark:text-[#6ee7b7]">
             Air-Gapped
@@ -391,7 +391,7 @@ function LocalMLEngineBar({
             </div>
             <div>
               <span className="text-[#64748b] dark:text-[#94a3b8]">Isolation Level:</span>
-              <p className="font-medium text-[#16a34a] dark:text-[#34d399] mt-0.5">
+              <p className="font-medium text-[#2f6b45] dark:text-[#34d399] mt-0.5">
                 {privacyCert.security_tier}
               </p>
             </div>
@@ -457,7 +457,7 @@ function HistoricalSamplingCard({
           <dd className="mt-1 text-lg font-semibold tabular-nums text-[#20211f] dark:text-[#f8fafc]">
             {money(metrics.total_inflow)}
           </dd>
-          <span className="mt-1 block text-[11px] text-[#16a34a] dark:text-[#34d399]">
+          <span className="mt-1 block text-[11px] text-[#2f6b45] dark:text-[#34d399]">
             {data.active_months_count} months observed
           </span>
         </div>
@@ -477,7 +477,7 @@ function HistoricalSamplingCard({
           <dd className="mt-1 text-lg font-semibold tabular-nums text-[#20211f] dark:text-[#f8fafc]">
             {money(metrics.net_savings)}
           </dd>
-          <span className="mt-1 block text-[11px] font-medium text-[#16a34a] dark:text-[#34d399]">
+          <span className="mt-1 block text-[11px] font-medium text-[#2f6b45] dark:text-[#34d399]">
             {metrics.lifetime_savings_rate_pct}% lifetime rate
           </span>
         </div>
@@ -524,14 +524,14 @@ function HistoricalSamplingCard({
                     <td className="py-2.5 px-3 tabular-nums text-[#414340] dark:text-[#cbd5e1]">
                       {money(yr.total_spend)}
                     </td>
-                    <td className="py-2.5 px-3 tabular-nums font-medium text-[#16a34a] dark:text-[#34d399]">
+                    <td className="py-2.5 px-3 tabular-nums font-medium text-[#2f6b45] dark:text-[#34d399]">
                       {money(yr.net_savings)}
                     </td>
                     <td className="py-2.5 px-3 tabular-nums text-[#20211f] dark:text-[#f8fafc]">
                       {yr.savings_rate_pct}%
                     </td>
                     <td className="py-2.5 px-3">
-                      <span className="inline-flex items-center gap-1 text-[11px] text-[#16a34a] dark:text-[#34d399]">
+                      <span className="inline-flex items-center gap-1 text-[11px] text-[#2f6b45] dark:text-[#34d399]">
                         <CheckCircle2 size={12} /> Robust
                       </span>
                     </td>
@@ -632,7 +632,7 @@ function ThisMonth({
   const inspectExpected = () => {
     onInspectFormula?.({
       title: "Expected Month-End Total Expenditure",
-      formula: "E[\\text{Month End}] = \\text{Spent To Date} + (D_{\\text{remaining}} \\times \\bar{v}_{\\text{daily}})",
+      formula: "Expected month-end spend = spend so far + (days remaining × average daily spend)",
       explanation:
         "Linear stochastic projection combining deterministic recorded burn to date with velocity rate scaled across remaining calendar days.",
       inputs: [
@@ -654,7 +654,7 @@ function ThisMonth({
   const inspectRange = () => {
     onInspectFormula?.({
       title: "Likely Spending Range (80% Confidence Interval)",
-      formula: "\\text{CI}_{80\\%} = \\hat{\\mu}_{\\text{expected}} \\pm 1.282 \\times \\hat{\\sigma}_{\\text{daily}} \\times \\sqrt{D_{\\text{remaining}}}",
+      formula: "Likely range = expected spend ± 1.282 × daily variation × √(days remaining)",
       explanation:
         "Non-parametric bootstrap and variance scaling deriving an 80% confidence interval band around expected month-end outflow.",
       inputs: [
@@ -675,7 +675,7 @@ function ThisMonth({
   const inspectPace = () => {
     onInspectFormula?.({
       title: "Daily Spend Pace (Velocity)",
-      formula: "\\bar{v}_{\\text{daily}} = \\frac{\\sum_{i=1}^{D_{\\text{elapsed}}} \\text{spend}_i}{D_{\\text{elapsed}}}",
+      formula: "Average daily spend = spend so far ÷ days elapsed",
       explanation:
         "The empirical average daily cash velocity calculated across elapsed days of the active monthly statement cycle.",
       inputs: [
@@ -815,7 +815,7 @@ function SpendingHabits({
   const inspectScore = () => {
     onInspectFormula?.({
       title: "Behavioural Financial Health Score",
-      formula: "S_{\\text{behaviour}} = 100 - (\\Delta_{\\text{discretionary}} \\times 0.3) - (\\Delta_{\\text{weekend}} \\times 0.2) - (\\text{Volatility} \\times 0.5)",
+      formula: "Behaviour score = 100 − (discretionary change × 0.3) − (weekend change × 0.2) − (spending volatility × 0.5)",
       explanation:
         "Deterministic heuristic index evaluating consistency, savings discipline, discretionary containment, and weekend spending bias.",
       inputs: [
@@ -839,7 +839,7 @@ function SpendingHabits({
   const inspectWeekend = () => {
     onInspectFormula?.({
       title: "Weekend Spending Share Ratio",
-      formula: "\\text{Weekend Ratio} = \\frac{\\sum_{t \\in \\text{Saturday, Sunday}} \\text{debit}(t)}{\\sum_{t \\in \\text{All Days}} \\text{debit}(t)} \\times 100\\%",
+      formula: "Weekend spending share = weekend debits ÷ all debits × 100%",
       explanation:
         "Proportion of outgoing expenditure occurring during weekends (Saturday and Sunday UTC calendar intervals).",
       inputs: [
@@ -858,7 +858,7 @@ function SpendingHabits({
   const inspectDiscretionary = () => {
     onInspectFormula?.({
       title: "Discretionary Expenditure Ratio",
-      formula: "\\text{Discretionary Share} = \\frac{\\sum_{c \\in C_{\\text{disc}}} \\text{spend}(c)}{\\text{Total Spend}} \\times 100\\%",
+      formula: "Discretionary spending share = discretionary-category spending ÷ total spending × 100%",
       explanation:
         "Measures flexible, non-essential consumption (such as dining out, shopping, lifestyle, entertainment) versus fixed utility and contractual commitments.",
       inputs: [

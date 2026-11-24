@@ -802,9 +802,9 @@
   bottom: 32px;
   right: 36px;
   font-size: 11px;
-  color: #9b9d97;
+  color: #575953;
   text-decoration: none;
-  opacity: 0.75;
+  opacity: 1;
   transition: opacity 0.15s;
   letter-spacing: 0.01em;
 }
