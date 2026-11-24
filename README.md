@@ -49,6 +49,21 @@ Detailed system documentation is available in `docs/`:
 - [Product Requirements (PRD)](docs/product/requirements.md)
 - [Engineering Roadmap](docs/product/roadmap.md)
 
+---
+
+## 🎓 Academic Evaluation & Learning Hub (AP & DE)
+
+Curated study guides and manual coding cheatsheets for **Advanced Programming (AP)** and **Data Engineering (DE)** course evaluations at Newton School of Technology:
+- [📘 Master Evaluation Roadmap](Learning/README.md)
+- [01: JavaScript Deep Dive & Asynchronous Programming](Learning/01_JAVASCRIPT_FUNDAMENTALS_AND_ASYNC.md)
+- [02: Node.js Runtime Architecture & Core Modules](Learning/02_NODEJS_RUNTIME_AND_CORE_MODULES.md)
+- [03: HTTP Protocol, Networking & Raw Servers](Learning/03_HTTP_AND_NETWORKING_FOUNDATIONS.md)
+- [04: Express.js Architecture & Middleware Mastery](Learning/04_EXPRESSJS_AND_MIDDLEWARE_MASTERY.md)
+- [05: REST API Architecture & Design Principles](Learning/05_REST_API_ARCHITECTURE_AND_DESIGN.md)
+- [06: Finora Production Codebase Deep Dive](Learning/06_FINORA_CODEBASE_DEEP_DIVE.md)
+- [07: Pen & Paper Manual Coding Cheatsheet (15 Drills)](Learning/07_MANUAL_CODING_CHEATSHEET.md)
+- [08: Viva & Oral Evaluation Q&A (50+ Questions)](Learning/08_VIVA_AND_ORAL_EVALUATION_QA.md)
+
 Engineering and agent workflow:
 - [Agent context](docs/agents/context.md)
 - [Project continuity brief](docs/agents/project-context.md)
