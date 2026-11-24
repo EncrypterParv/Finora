@@ -1,5 +1,20 @@
 # Finora Milestone and Decision History
 
+## 2026-11-24 — Three-theme contrast and dashboard responsiveness
+
+- Fixed theme CSS leaking into public authentication screens, improved
+  contrast on the public/auth surfaces and all dashboard sections, and changed
+  raw LaTeX formula labels into readable calculation descriptions.
+- Added navigation-intent preloading for lazy dashboard sections to reduce
+  perceived first-open chunk delay without changing the Next.js/FastAPI stack.
+- Fixed narrow-screen header overflow, themed the mobile section menu, and
+  marked the login illustration as eager/high priority because it is an
+  above-the-fold LCP image.
+- Added the shared `verify-finora` browser workflow and captured synthetic
+  evidence. axe-core reported zero text contrast violations and no horizontal
+  overflow on the audited 66 desktop/mobile route/theme checks; this is not a
+  complete WCAG conformance claim.
+
 This is a curated, append-only project history for agent handoffs. Git remains
 the complete source of commit history. Each entry records what changed, why it
 mattered, and what it did **not** complete so future work does not repeat

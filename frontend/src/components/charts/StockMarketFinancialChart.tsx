@@ -267,15 +267,15 @@ export function StockMarketFinancialChart({
     : "#888982";
 
   // Financial Semantics: Green (Inflow), Red (Spend), Blue (Wealth), Gold (SMA)
-  const colorInflow = isDarkContext ? "#34d399" : "#10b981";
-  const colorOutflow = isDarkContext ? "#fb7185" : "#f43f5e";
-  const colorWealth = isDarkContext ? "#38bdf8" : "#0284c7";
-  const colorSMA = isDarkContext ? "#fbbf24" : "#d97706";
+  const colorInflow = isDarkContext ? "#34d399" : "#047857";
+  const colorOutflow = isDarkContext ? "#fb7185" : "#be123c";
+  const colorWealth = isDarkContext ? "#38bdf8" : "#0369a1";
+  const colorSMA = isDarkContext ? "#fbbf24" : "#9a3412";
 
   const inspectInflow = () => {
     setInspectingMetric({
       title: "Cumulative Inflow (Multi-Horizon Aggregate)",
-      formula: "\\text{Aggregate Inflow} = \\sum_{m=1}^{M} \\text{inflow}_m",
+      formula: "Total inflow = the sum of monthly inflows",
       explanation:
         "The cumulative sum of all salary deposits, freelance revenue, capital dividends, and liquidity injections recorded across the selected observation timeframe.",
       inputs: [
@@ -297,7 +297,7 @@ export function StockMarketFinancialChart({
   const inspectSpend = () => {
     setInspectingMetric({
       title: "Cumulative Spend (Multi-Horizon Aggregate)",
-      formula: "\\text{Aggregate Outflow} = \\sum_{m=1}^{M} \\text{outflow}_m",
+      formula: "Total outflow = the sum of monthly outflows",
       explanation:
         "The cumulative sum of living expenses, utilities, debt obligations, discretionary purchases, and card debits over the selected multi-year period.",
       inputs: [
@@ -318,7 +318,7 @@ export function StockMarketFinancialChart({
   const inspectRetained = () => {
     setInspectingMetric({
       title: "Net Retained Capital & Savings Efficiency",
-      formula: "\\text{Net Retained} = \\sum \\text{Inflow} - \\sum \\text{Outflow}, \\quad S_r = \\frac{\\text{Net Retained}}{\\sum \\text{Inflow}} \\times 100\\%",
+      formula: "Net retained = total inflow − total outflow; savings rate = net retained ÷ total inflow × 100%",
       explanation:
         "The ultimate financial health metric measuring real retained wealth generated across the timeframe. The savings rate Sr signifies what fraction of incoming liquidity converted into accumulated balance.",
       inputs: [
@@ -476,7 +476,7 @@ export function StockMarketFinancialChart({
               onClick={() => setChartMode("flow")}
               className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
                 chartMode === "flow"
-                  ? "bg-emerald-600 text-white shadow-sm"
+                  ? "bg-[#047857] text-white shadow-sm"
                   : `${textMutedClass} hover:opacity-100`
               }`}
               title="Monthly Inflow vs Outflow Cash Curves"
