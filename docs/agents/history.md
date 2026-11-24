@@ -1,5 +1,18 @@
 # Finora Milestone and Decision History
 
+## 2026-11-24 — TypeScript Prisma ORM layer & Amela (AMOLED) design system
+
+- Added production-grade Prisma ORM schema (`frontend/prisma/schema.prisma`) mapping all ten Supabase PostgreSQL tables: `users`, `categories`, `merchants`, `bank_accounts`, `transactions`, `budgets`, `budget_categories`, `financial_goals`, `goal_milestones`, and `ml_profiles`.
+- Implemented Clean Architecture Data Access Layer in TypeScript (`frontend/src/server/`):
+  - Repository interfaces (`ITransactionRepository`, `IBankAccountRepository`, `IBudgetRepository`, `IFinancialGoalRepository`, `IUserRepository`).
+  - Concrete Prisma repositories with pooled connection caching (`frontend/src/lib/prisma.ts`).
+  - Concrete in-memory typed synthetic demo repositories (`frontend/src/server/repositories/demo/`) ensuring seamless offline/preview behavior.
+  - `RepositoryFactory` dynamically toggles between live PostgreSQL persistence and demo datasets based on `DATABASE_URL` presence.
+  - Database seeder (`frontend/prisma/seed.ts`) to populate Supabase PostgreSQL with the canonical demo dataset.
+- Documented the **Amela (AMOLED Black)** design system in `DESIGN.md` (pure `#000000` pitch black OLED tokens, zero-blue cockpit ergonomics, and high-contrast typography).
+- Updated system architecture and LLD specifications (`docs/architecture/database.md`, `docs/architecture/lld.md`, `docs/architecture/hld.md`).
+- Validation: ESLint flat config passed with 0 errors; TypeScript typecheck passed; Next.js production build succeeded.
+
 ## 2026-11-24 — Three-theme contrast and dashboard responsiveness
 
 - Fixed theme CSS leaking into public authentication screens, improved

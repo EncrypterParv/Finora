@@ -189,3 +189,37 @@ class CanonicalTransactionDTO(BaseModel):
 1. **Monetary Precision**: All currency amounts use `Decimal` (Python) and `NUMERIC(14, 2)` (Postgres) to avoid floating-point errors.
 2. **Transaction Immutability**: Historical transactions cannot have amounts or timestamps mutated without generating an audit entry.
 3. **Idempotency**: All ingestion endpoints utilize deduplication hashes `SHA256(account_id + occurred_at_iso + amount + reference_id)` preventing double-counting.
+
+---
+
+## 5. TypeScript Data Access Layer & Prisma ORM Architecture
+
+To enable high-performance serverless execution on Vercel and full type safety across the Next.js tier, Finora incorporates a Clean Architecture Data Access Layer in TypeScript backed by **Prisma ORM**.
+
+```
+frontend/
+├── prisma/
+│   ├── schema.prisma         # Supabase PostgreSQL data model
+│   └── seed.ts               # Synthetic demo data database seeder
+└── src/
+    ├── lib/
+    │   └── prisma.ts         # Serverless-cached PrismaClient singleton
+    └── server/
+        ├── domain/
+        │   └── types.ts      # Domain entities & financial contracts
+        ├── repositories/
+        │   ├── interfaces.ts # Repository contracts (DIP / SOLID)
+        │   ├── factory.ts    # Dynamic provider (Prisma vs. Demo)
+        │   ├── prisma/       # Concrete Prisma ORM implementations
+        │   └── demo/         # In-memory synthetic demo repositories
+        └── services/
+            └── financial-service.ts # Domain business logic & calendar aggregation
+```
+
+### 5.1 Design Highlights
+1. **Zero-Cost & Vercel Native**: Prisma generates lightweight TypeScript client bindings without additional external microservices or expensive servers.
+2. **Dependency Inversion**: Domain services depend strictly on repository interfaces (`ITransactionRepository`, `IBankAccountRepository`), isolating core logic from database drivers.
+3. **Dual Persistence Mode**: `RepositoryFactory` automatically detects whether `DATABASE_URL` is set:
+   - When set: queries execute against hosted Supabase PostgreSQL via connection pooling.
+   - When omitted (or in demo mode): operations gracefully route to typed in-memory stores containing Finora's rich synthetic demonstration data.
+

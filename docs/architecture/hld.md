@@ -85,8 +85,9 @@ flowchart TB
 ## 4. Subsystem Breakdown
 
 ### 4.1 Frontend Client (Next.js & TypeScript)
-- **Framework**: Next.js 15+ (App Router architecture with React Server Components + Client interactivity).
-- **Design Language**: Tailored dark-mode, high-density financial layout using Tailwind CSS, Radix UI primitives, Lucide icons.
+- **Framework**: Next.js 16+ (App Router architecture with React Server Components + Client interactivity).
+- **Design Language**: Tailored AMOLED ("Amela") pitch-black, high-density financial layout using Tailwind CSS, Radix UI primitives, Lucide icons, Newsreader serif, and DM Sans.
+- **ORM & Data Access Layer**: Prisma ORM with Repository Pattern and dynamic demo-mode fallback for zero-cost, high-performance Vercel serverless persistence.
 - **State Management**: TanStack Query v5 for server state caching, optimistic updates, and cache invalidation.
 - **Visualizations**: Recharts for cash flow trajectories, budget gauges, and Framer Motion for interactive calendar transitions.
 
