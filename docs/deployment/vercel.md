@@ -41,6 +41,7 @@ they are for localhost, and `backend/.env` contains a database password.
 | Key | Value | Sensitive? |
 |---|---|---|
 | `NEXT_PUBLIC_API_URL` | `/api/v1` | No |
+| `NEXT_PUBLIC_SITE_URL` | `https://finora-sem3.vercel.app` (or the production domain assigned to Finora) | No |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase **Project URL** | No |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key (`sb_publishable_...`) | No |
 | `AUTH_PROVIDER` | `supabase` | No |
@@ -65,6 +66,18 @@ one. The frontend only gets the URL and publishable key. The database URL and
 
 Vercel applies environment-variable changes only to new deployments. After
 saving the variables, redeploy the project.
+
+The public landing page publishes canonical, Open Graph, and Twitter metadata.
+The app also serves `/opengraph-image`, `/robots.txt`, and `/sitemap.xml`. The
+sitemap intentionally lists only `/`; authenticated workspace and auth pages
+are excluded from indexing. If the production domain changes, update
+`NEXT_PUBLIC_SITE_URL` in Vercel and redeploy so share links and crawler URLs
+use the canonical host.
+
+The multi-service Vercel deployment serves checked-in public images directly.
+Next image optimization is disabled because `/_next/image` may resolve to a
+service 404 in this deployment topology. Keep using local `/images/...` assets;
+do not remove `images.unoptimized` without verifying the deployed optimizer.
 
 ## Finish Supabase Auth setup
 
