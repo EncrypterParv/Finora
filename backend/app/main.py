@@ -36,8 +36,16 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+import logging
+
+logger = logging.getLogger("finora.cors")
+
 # CORS middleware
-if settings.BACKEND_CORS_ORIGINS:
+if not settings.BACKEND_CORS_ORIGINS:
+    logger.warning("CORS: BACKEND_CORS_ORIGINS is empty; all cross-origin browser requests will be blocked.")
+else:
+    if "*" in settings.BACKEND_CORS_ORIGINS:
+        raise ValueError("Wildcard '*' CORS origin is not permitted when credentials are enabled.")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.BACKEND_CORS_ORIGINS,
