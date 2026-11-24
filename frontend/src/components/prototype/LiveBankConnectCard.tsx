@@ -69,7 +69,7 @@ export function LiveBankConnectCard({
           </span>
         </div>
         <div className="flex items-center gap-1.5 rounded-full border border-[#cbd5e1] dark:border-[#2f364d] bg-[#f8fafc] dark:bg-[#181b26] px-3 py-1 text-[11px] text-[#475569] dark:text-[#cbd5e1]">
-          <ShieldCheck size={14} className="text-[#16a34a] dark:text-[#34d399]" />
+          <ShieldCheck size={14} className="text-[#2f6b45] dark:text-[#34d399]" />
           <span>Kiteworks Zero-Trust Isolation Active</span>
         </div>
       </div>
@@ -121,7 +121,7 @@ export function LiveBankConnectCard({
                       </>
                     ) : isDone ? (
                       <>
-                        <CheckCircle2 size={12} className="text-[#16a34a]" /> Connected!
+                        <CheckCircle2 size={12} className="text-[#2f6b45] dark:text-[#34d399]" /> Connected!
                       </>
                     ) : (
                       <>

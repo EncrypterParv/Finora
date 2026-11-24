@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "../components/prototype/themes.css";
 
+/* Finora owns the theme preference; do not let OS dark mode override Fin. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @font-face {
   font-family: Newsreader;
   src: url("/fonts/newsreader-latin.woff2") format("woff2");
