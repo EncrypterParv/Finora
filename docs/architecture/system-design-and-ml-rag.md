@@ -150,15 +150,16 @@ sequenceDiagram
 
 The integration room for Kiteworks establishes a verifiable security perimeter around user financial records:
 
-| Policy Attribute | Specification | Verification Method |
-| :--- | :--- | :--- |
-| **Policy Identifier** | `KW-FIN-ZERO-LEAKAGE-2026.1` | Static enterprise policy assertion |
-| **Isolation Tier** | `AIR_GAPPED_LOCAL_PROCESS` | Strictly non-networked in-memory worker |
-| **Data Egress** | `BLOCKED (0 Bytes)` | No outbound socket connections permitted during model execution |
-| **PII Scrubbing** | PCI-DSS, GDPR, GLBA compliant | Regex scrubbing of cards, phones, and emails before ingestion |
-| **Data Anonymization** | Salted SHA-256 pseudonymization | Transaction IDs and account numbers are masked |
-| **Audit Trail** | Tamper-evident cryptographic hash | Dynamic verification hash displayed in user interface |
-| **AI Model Type** | Classical Industrial ML & Bootstrap | 100% Non-LLM; eliminates prompt injection & hallucination risks |
+
+| Policy Attribute       | Specification                       | Verification Method                                             |
+| :----------------------- | :------------------------------------ | :---------------------------------------------------------------- |
+| **Policy Identifier**  | `KW-FIN-ZERO-LEAKAGE-2026.1`        | Static enterprise policy assertion                              |
+| **Isolation Tier**     | `AIR_GAPPED_LOCAL_PROCESS`          | Strictly non-networked in-memory worker                         |
+| **Data Egress**        | `BLOCKED (0 Bytes)`                 | No outbound socket connections permitted during model execution |
+| **PII Scrubbing**      | PCI-DSS, GDPR, GLBA compliant       | Regex scrubbing of cards, phones, and emails before ingestion   |
+| **Data Anonymization** | Salted SHA-256 pseudonymization     | Transaction IDs and account numbers are masked                  |
+| **Audit Trail**        | Tamper-evident cryptographic hash   | Dynamic verification hash displayed in user interface           |
+| **AI Model Type**      | Classical Industrial ML & Bootstrap | 100% Non-LLM; eliminates prompt injection & hallucination risks |
 
 ---
 
