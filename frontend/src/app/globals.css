@@ -68,13 +68,13 @@
   --finora-display: "Newsreader", Georgia, serif;
   --finora-dark: #000000;
   --finora-on-dark: #ffffff;
-  --finora-gold-light: #ffffff;
+  --finora-gold-light: #d7ba82;
   --finora-chocolate: #060606;
   --finora-cream: #060606;
-  --finora-orange: #ffffff;
-  --finora-accent: #ffffff;
+  --finora-orange: #d7ba82;
+  --finora-accent: #d7ba82;
   --finora-accent-strong: #ffffff;
-  --finora-accent-soft: rgba(255, 255, 255, 0.14);
+  --finora-accent-soft: rgba(215, 186, 130, 0.15);
   --finora-canvas: #000000;
   --finora-surface: #060606;
   --finora-surface-muted: #0e0e0e;
