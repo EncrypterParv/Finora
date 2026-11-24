@@ -39,6 +39,31 @@ Sans for controls, tables, and long text. Both are served locally.
 
 ## Palette and hierarchy
 
+Finora supports three dynamic themes, with the **Amela (AMOLED Black)** theme acting as the default aesthetic:
+1. **Amela / AMOLED Black (`amoled`)**: 100% true pitch black (`#000000`) designed for OLED displays, maximum contrast, and zero-blue cockpit viewing.
+2. **True Dark (`dark`)**: Neutral obsidian and charcoal (`#0c0d10`, `#14151a`) for deep night viewing.
+3. **Fin Theme (`fin`)**: Editorial warm brass (`#755727`), cool stone canvas (`#f5f4f0`), and crisp paper (`#ffffff`).
+
+### 1. Amela / AMOLED Design Tokens (Default)
+
+| Role | Token / Value | Purpose |
+| --- | --- | --- |
+| Pitch Black Canvas | `#000000` | Pure OLED background, 0% power draw on black pixels |
+| Primary Surface | `#08080a` | Elevated cards, data tables, and input panels |
+| Muted Surface | `#101014` | Subdued containers and nested list blocks |
+| Primary Ink | `#ffffff` | High-contrast text, financial figures, primary labels |
+| Secondary Ink | `#a1a1aa` | Explanatory text, secondary metrics, column headers |
+| Muted Ink | `#71717a` | Inactive controls, timestamps, disabled indicators |
+| Hairline Border | `#1a1a1c` | Subtle structural division between financial elements |
+| Strong Border | `#26262a` | Focused card boundaries, active modal outlines |
+| Champagne Brass Accent | `#d7ba82` | Active navigation bars, credit amounts, key actions |
+| Accent Soft Glow | `rgba(215, 186, 130, 0.15)` | Subtle ambient backlight for selected cards |
+| Positive Indicator | `#34d399` | Net credits, positive cash flow, achieved goals |
+| Warning Indicator | `#fbbf24` | Budget threshold warnings (e.g. > 85% burn rate) |
+| Negative Indicator | `#f87171` | Debits, budget breaches, over-spend alerts |
+
+### 2. Fin Classic Palette
+
 | Role | Color |
 | --- | --- |
 | Stone canvas | `#f5f4f0` |
