@@ -20,6 +20,8 @@ import {
   IntelligenceOverviewDTO,
 } from "@/types/analytics";
 import { InsightsLoadingSkeleton } from "./PrototypeSkeletons";
+import { StockMarketFinancialChart } from "@/components/charts/StockMarketFinancialChart";
+import { LiveBankConnectCard } from "./LiveBankConnectCard";
 import {
   EmptyPanel,
   PageTitle,
@@ -44,7 +46,17 @@ const HORIZON_LABELS: { id: Horizon; label: string; description: string }[] = [
   { id: "all", label: "Full History", description: "All connected statements & account history" },
 ];
 
-export function InsightsScreen({ onAddStatement }: { onAddStatement: () => void }) {
+export function InsightsScreen({
+  onAddStatement,
+  workspaceMode = "demo",
+  onConnectBank,
+  onSwitchToDemo,
+}: {
+  onAddStatement: () => void;
+  workspaceMode?: "demo" | "live";
+  onConnectBank?: () => void;
+  onSwitchToDemo?: () => void;
+}) {
   const [data, setData] = useState<IntelligenceOverviewDTO | null>(null);
   const [historical, setHistorical] = useState<HistoricalSamplingDTO | null>(null);
   const [horizon, setHorizon] = useState<Horizon>("5y");
@@ -121,13 +133,23 @@ export function InsightsScreen({ onAddStatement }: { onAddStatement: () => void 
             <RotateCw size={15} /> Try again
           </SecondaryButton>
         </Panel>
-      ) : sufficiency?.status === "INSUFFICIENT" ? (
-        <EmptyPanel
-          title="Not enough history yet"
-          body="Insights need at least 5 transactions spread across 7 days. More history gives better results; two to three months of statements works best."
-          onAdd={onAddStatement}
-          actionLabel="Add a bank statement"
-        />
+      ) : sufficiency?.status === "INSUFFICIENT" || (workspaceMode === "live" && data.data_sufficiency?.total_transaction_count === 0) ? (
+        workspaceMode === "live" ? (
+          <LiveBankConnectCard
+            onConnected={onConnectBank}
+            onAddStatement={onAddStatement}
+            onSwitchToDemo={onSwitchToDemo}
+            title="Connect Your Bank Account to Activate Live ML Intelligence"
+            description="Finora's local machine learning model processes your real bank statements. Because you are in Live Version and have not connected an account yet, no live data is displayed. Connect a bank account below to activate live multi-horizon forecasting."
+          />
+        ) : (
+          <EmptyPanel
+            title="Not enough history yet"
+            body="Insights need at least 5 transactions spread across 7 days. More history gives better results; two to three months of statements works best."
+            onAdd={onAddStatement}
+            actionLabel="Add a bank statement"
+          />
+        )
       ) : (
         <>
           {sufficiency?.status === "PARTIAL" && sufficiency.guidance_message && (
@@ -148,6 +170,14 @@ export function InsightsScreen({ onAddStatement }: { onAddStatement: () => void 
             showPrivacyDetails={showPrivacyDetails}
             onTogglePrivacyDetails={() => setShowPrivacyDetails((prev) => !prev)}
           />
+
+          {/* 10-Year Dynamic Stock-Market Financial Chart */}
+          <div className="mb-4">
+            <StockMarketFinancialChart
+              title="10-Year Financial Records & Market-Style Trajectory"
+              subtitle="Pre-calculated 10-year monthly expenditure, yearly growth, and stock-market style cash trajectory in green, red, and blue."
+            />
+          </div>
 
           {/* Historical Sampling Multi-Year Intelligence Card */}
           {historical && (

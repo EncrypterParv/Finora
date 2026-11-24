@@ -23,6 +23,8 @@ import {
   ShieldCheck,
   Target,
   WalletCards,
+  Zap,
+  Lock,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FinoraMark } from "@/components/brand/FinoraMark";
@@ -38,11 +40,12 @@ import {
   StatementPreview,
 } from "@/lib/api";
 import { CanonicalTransaction } from "@/types/transaction";
-import { endDemoSession } from "@/lib/demo-session";
+import { endDemoSession, isDemoSession, startDemoSession } from "@/lib/demo-session";
 import { SectionLoadingSkeleton, WorkspaceLoadingSkeleton } from "./PrototypeSkeletons";
 import { PageTitle } from "./prototype-ui";
 import { WorkspaceOverview } from "./WorkspaceOverview";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
+import { LiveBankConnectCard } from "./LiveBankConnectCard";
 import "./prototype-dashboard.css";
 import "./themes.css";
 
@@ -95,6 +98,12 @@ export function PrototypeDashboard({
   const workspaceMain = useRef<HTMLElement>(null);
   const [welcomeToastState, setWelcomeToastState] = useState<"visible" | "leaving" | "hidden">(accountCreated ? "visible" : "hidden");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [workspaceMode, setWorkspaceMode] = useState<"demo" | "live">(() => {
+    if (typeof window !== "undefined") {
+      return window.location.pathname.includes("/demo") || isDemoSession() ? "demo" : "demo";
+    }
+    return "demo";
+  });
 
   useEffect(() => {
     if (!accountCreated) return;
@@ -139,7 +148,11 @@ export function PrototypeDashboard({
   }, []);
 
   useEffect(() => {
-    endDemoSession();
+    if (workspaceMode === "demo") {
+      startDemoSession();
+    } else {
+      endDemoSession();
+    }
     let active = true;
     async function loadWorkspace() {
       setLoading(true);
@@ -161,11 +174,12 @@ export function PrototypeDashboard({
     }
     void loadWorkspace();
     return () => { active = false; };
-  }, [retryKey]);
+  }, [retryKey, workspaceMode]);
 
   async function reloadWorkspace() {
     setRefreshError("");
     try {
+      if (workspaceMode === "demo") startDemoSession();
       const [loadedAccounts, loadedTransactions] = await Promise.all([
         fetchBankAccounts(),
         fetchTransactionPage({}, 5, 0),
@@ -177,6 +191,16 @@ export function PrototypeDashboard({
       setRefreshError("Your change was saved, but we couldn’t refresh the workspace. Reload the page to see the latest records.");
     }
   }
+
+  const handleModeChange = (newMode: "demo" | "live") => {
+    setWorkspaceMode(newMode);
+    if (newMode === "demo") {
+      startDemoSession();
+    } else {
+      endDemoSession();
+    }
+    setRetryKey((k) => k + 1);
+  };
 
   async function signOut() {
     setSigningOut(true);
@@ -305,7 +329,37 @@ export function PrototypeDashboard({
               <span className="hidden sm:inline" aria-hidden="true">/</span>
               <strong>{sectionLabel}</strong>
             </div>
-            <div className="flex shrink-0 items-center gap-3">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+              {/* Version Switcher: Demo (10Y Pre-calc) vs Live (Air-Gapped) */}
+              <div className="flex items-center rounded-lg border border-[#d5d4cc] dark:border-[#282d3f] bg-[#f5f4f0] dark:bg-[#181b26] p-0.5 text-xs shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => handleModeChange("demo")}
+                  className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
+                    workspaceMode === "demo"
+                      ? "bg-white text-[#20211f] shadow-sm dark:bg-[#282d3f] dark:text-white dark:font-semibold"
+                      : "text-[#62645d] hover:text-[#20211f] dark:text-[#94a3b8] dark:hover:text-white"
+                  }`}
+                  title="View 10-Year Dynamic Pre-Calculated Demo Records & Graphs"
+                >
+                  <Zap size={13} className="text-amber-500 fill-amber-500/20" />
+                  <span className="font-semibold">Demo (10Y Pre-calc)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleModeChange("live")}
+                  className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
+                    workspaceMode === "live"
+                      ? "bg-white text-[#20211f] shadow-sm dark:bg-[#282d3f] dark:text-white dark:font-semibold"
+                      : "text-[#62645d] hover:text-[#20211f] dark:text-[#94a3b8] dark:hover:text-white"
+                  }`}
+                  title="Switch to Live Version (Connect Bank Account)"
+                >
+                  <Lock size={13} className="text-blue-500" />
+                  <span>Live (Air-Gapped)</span>
+                </button>
+              </div>
+
               <ThemeSelector />
               <button
                 type="button"
@@ -356,16 +410,30 @@ export function PrototypeDashboard({
               ) : section === "calendar" ? (
                 <CalendarScreen onAddStatement={() => setSection("import")} />
               ) : section === "insights" ? (
-                <InsightsScreen onAddStatement={() => setSection("import")} />
+                <InsightsScreen
+                  onAddStatement={() => setSection("import")}
+                  workspaceMode={workspaceMode}
+                  onConnectBank={reloadWorkspace}
+                  onSwitchToDemo={() => handleModeChange("demo")}
+                />
               ) : section === "budgets" ? (
                 <BudgetsScreen />
               ) : section === "goals" ? (
                 <GoalsScreen />
+              ) : workspaceMode === "live" && accounts.length === 0 ? (
+                <LiveBankConnectCard
+                  onConnected={reloadWorkspace}
+                  onAddStatement={() => setSection("import")}
+                  onSwitchToDemo={() => handleModeChange("demo")}
+                  title="Connect Your Bank Account to Activate Live Intelligence"
+                  description="You are currently in the Live Version of Finora. Because no bank account has been connected yet, live transaction records and machine learning models are waiting for your statements. Select your bank below to begin."
+                />
               ) : transactions.length > 0 ? (
                 <WorkspaceOverview
                   userName={userName} accounts={accounts} transactions={transactions} transactionCount={transactionCount}
                   onAdd={() => setSection("import")} onInsights={() => setSection("insights")}
                   onAccounts={() => setSection("accounts")} onTransactions={() => setSection("transactions")}
+                  workspaceMode={workspaceMode}
                 />
               ) : accounts.length > 0 ? (
                 <NoTransactionsState accounts={accounts} onAdd={() => setSection("import")} />
