@@ -16,6 +16,7 @@ import {
 } from "@/lib/demo-data";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { money } from "../prototype/prototype-ui";
+import { MetricFormulaModal, type MetricFormulaData } from "@/components/modals/MetricFormulaModal";
 
 export type Timeframe = "1Y" | "3Y" | "5Y" | "10Y" | "ALL";
 export type ChartMode = "flow" | "trajectory" | "candlestick" | "volume";
@@ -49,11 +50,12 @@ export function StockMarketFinancialChart({
   const [chartMode, setChartMode] = useState<ChartMode>("flow");
   const [showSMA, setShowSMA] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [inspectingMetric, setInspectingMetric] = useState<MetricFormulaData | null>(null);
 
-  // Context-aware theme styling
+  // Context-aware theme styling (Neutral Dark / AMOLED pure black / Fin warm stone)
+  const isAmoled = theme === "amoled";
   const isDarkContext =
-    theme === "dark" || (variant === "overview" && theme === "fin");
-  const isBlueTheme = theme === "blue";
+    theme === "dark" || theme === "amoled" || (variant === "overview" && theme === "fin");
 
   // Filter records based on selected timeframe
   const filteredRecords = useMemo(() => {
@@ -225,43 +227,43 @@ export function StockMarketFinancialChart({
     ""
   );
 
-  // Colors & Aesthetic Tokens
-  const cardBgClass = isDarkContext
+  // Colors & Aesthetic Tokens (True neutral charcoal dark, pure #000000 amoled, warm stone fin)
+  const cardBgClass = isAmoled
+    ? "bg-[#000000] border-[#1a1a1a] text-[#ffffff]"
+    : isDarkContext
     ? variant === "overview" && theme === "fin"
       ? "bg-[#252622] border-[#3d3e37] text-[#f5f4f0]"
-      : "bg-[#12141c] border-[#232736] text-[#f8fafc]"
-    : isBlueTheme
-    ? "bg-white border-[#e2e8f0] text-[#0f172a]"
+      : "bg-[#14151a] border-[#262833] text-[#f3f4f6]"
     : "bg-white border-[#e5e4de] text-[#20211f]";
 
-  const subCardBgClass = isDarkContext
+  const subCardBgClass = isAmoled
+    ? "bg-[#060606] border-[#1a1a1a]"
+    : isDarkContext
     ? variant === "overview" && theme === "fin"
       ? "bg-[#1c1d1a] border-[#3d3e37]"
-      : "bg-[#181b26] border-[#282d3f]"
-    : isBlueTheme
-    ? "bg-[#f8fafc] border-[#cbd5e1]"
+      : "bg-[#1c1d22] border-[#26272e]"
     : "bg-[#faf9f5] border-[#e5e4de]";
 
-  const textMutedClass = isDarkContext
-    ? "text-[#c6c5bb]"
-    : isBlueTheme
-    ? "text-[#475569]"
+  const textMutedClass = isAmoled
+    ? "text-[#a1a1aa]"
+    : isDarkContext
+    ? "text-[#9ca3af]"
     : "text-[#575953]";
 
-  const gridStroke = isDarkContext
+  const gridStroke = isAmoled
+    ? "#1a1a1a"
+    : isDarkContext
     ? variant === "overview" && theme === "fin"
       ? "#3d3e37"
-      : "#232736"
-    : isBlueTheme
-    ? "#e2e8f0"
+      : "#26272e"
     : "#eeede8";
 
-  const axisTextFill = isDarkContext
+  const axisTextFill = isAmoled
+    ? "#a1a1aa"
+    : isDarkContext
     ? variant === "overview" && theme === "fin"
       ? "#c6c5bb"
       : "#94a3b8"
-    : isBlueTheme
-    ? "#64748b"
     : "#888982";
 
   // Financial Semantics: Green (Inflow), Red (Spend), Blue (Wealth), Gold (SMA)
@@ -269,6 +271,71 @@ export function StockMarketFinancialChart({
   const colorOutflow = isDarkContext ? "#fb7185" : "#f43f5e";
   const colorWealth = isDarkContext ? "#38bdf8" : "#0284c7";
   const colorSMA = isDarkContext ? "#fbbf24" : "#d97706";
+
+  const inspectInflow = () => {
+    setInspectingMetric({
+      title: "Cumulative Inflow (Multi-Horizon Aggregate)",
+      formula: "\\text{Aggregate Inflow} = \\sum_{m=1}^{M} \\text{inflow}_m",
+      explanation:
+        "The cumulative sum of all salary deposits, freelance revenue, capital dividends, and liquidity injections recorded across the selected observation timeframe.",
+      inputs: [
+        { label: "Selected Horizon", value: `${timeframe} (${filteredRecords.length} months)` },
+        { label: "Monthly Average Inflow", value: money(stats.monthlyAvgInflow) },
+        { label: "Peak Inflow Month", value: `${stats.peakMonth} (${money(stats.maxInflow)})` },
+        { label: "Total Aggregate Inflow", value: money(stats.totalIn) },
+      ],
+      steps: [
+        "Index all recorded months within the selected window.",
+        "Sum individual monthly credit totals: ∑ inflow(m).",
+        "Compute arithmetic moving average over active interval: Total / M.",
+      ],
+      methodology: "Historical Multi-Period Aggregate",
+      notes: "Calculated strictly on-device without exposing statements to cloud LLMs.",
+    });
+  };
+
+  const inspectSpend = () => {
+    setInspectingMetric({
+      title: "Cumulative Spend (Multi-Horizon Aggregate)",
+      formula: "\\text{Aggregate Outflow} = \\sum_{m=1}^{M} \\text{outflow}_m",
+      explanation:
+        "The cumulative sum of living expenses, utilities, debt obligations, discretionary purchases, and card debits over the selected multi-year period.",
+      inputs: [
+        { label: "Selected Horizon", value: `${timeframe} (${filteredRecords.length} months)` },
+        { label: "Monthly Average Outflow", value: money(stats.monthlyAvgOutflow) },
+        { label: "Spike Outflow Month", value: `${stats.spikeMonth} (${money(stats.maxOutflow)})` },
+        { label: "Total Aggregate Spend", value: money(stats.totalOut) },
+      ],
+      steps: [
+        "Sum all monthly debits across verified statements.",
+        "Detect outlier spending spikes using quartile inter-month spread.",
+        "Compute overall burn velocity: Total Spend / M.",
+      ],
+      methodology: "Multi-Horizon Outflow Indexing",
+    });
+  };
+
+  const inspectRetained = () => {
+    setInspectingMetric({
+      title: "Net Retained Capital & Savings Efficiency",
+      formula: "\\text{Net Retained} = \\sum \\text{Inflow} - \\sum \\text{Outflow}, \\quad S_r = \\frac{\\text{Net Retained}}{\\sum \\text{Inflow}} \\times 100\\%",
+      explanation:
+        "The ultimate financial health metric measuring real retained wealth generated across the timeframe. The savings rate Sr signifies what fraction of incoming liquidity converted into accumulated balance.",
+      inputs: [
+        { label: "Total Inflow (+)", value: money(stats.totalIn) },
+        { label: "Total Spend (-)", value: money(stats.totalOut) },
+        { label: "Net Retained Capital", value: money(stats.netRetained) },
+        { label: "Savings Rate (Sr)", value: `${stats.savingsRate.toFixed(1)}%` },
+        { label: "Net Wealth Growth %", value: `${stats.netGrowthPct >= 0 ? "+" : ""}${stats.netGrowthPct.toFixed(1)}%` },
+      ],
+      steps: [
+        "Subtract aggregate expenditure from aggregate income.",
+        "Divide retained surplus by gross income to obtain structural savings efficiency.",
+        "Assess compound balance trajectory from start month to terminal month.",
+      ],
+      methodology: "Treasury Solvency & Compounding Analysis",
+    });
+  };
 
   return (
     <section
@@ -293,58 +360,82 @@ export function StockMarketFinancialChart({
           <p className={`mt-0.5 text-xs ${textMutedClass}`}>{subtitle}</p>
         </div>
 
-        {/* Dynamic Stock-Market Stat Badges */}
+        {/* Dynamic Stock-Market Stat Badges with Click-to-Formula */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Green Inflow Ticker */}
-          <div
-            className={`rounded-lg border px-3 py-1.5 ${
+          <button
+            type="button"
+            onClick={inspectInflow}
+            title="Click to view calculation formula for Inflow"
+            className={`group rounded-lg border px-3 py-1.5 text-left transition-all hover:scale-[1.02] active:scale-[0.98] ${
               isDarkContext
-                ? "border-emerald-900/50 bg-emerald-950/30 text-emerald-400"
-                : "border-emerald-200 bg-emerald-50 text-emerald-800"
+                ? "border-emerald-900/50 bg-emerald-950/30 text-emerald-400 hover:border-emerald-700/60"
+                : "border-emerald-200 bg-emerald-50 text-emerald-800 hover:border-emerald-400"
             }`}
           >
-            <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider">
-              <ArrowDownRight size={12} className="rotate-180" />
-              Total Inflow (Credits)
-            </span>
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider">
+                <ArrowDownRight size={12} className="rotate-180" />
+                Total Inflow (Credits)
+              </span>
+              <span className="font-mono text-[9px] px-1 rounded bg-emerald-500/10 border border-emerald-500/20 group-hover:bg-emerald-500/20">
+                ƒ(x)
+              </span>
+            </div>
             <p className="font-mono text-sm font-bold tabular-nums">
               {money(stats.totalIn)}
             </p>
-          </div>
+          </button>
 
           {/* Red Outflow Ticker */}
-          <div
-            className={`rounded-lg border px-3 py-1.5 ${
+          <button
+            type="button"
+            onClick={inspectSpend}
+            title="Click to view calculation formula for Outflow"
+            className={`group rounded-lg border px-3 py-1.5 text-left transition-all hover:scale-[1.02] active:scale-[0.98] ${
               isDarkContext
-                ? "border-rose-900/50 bg-rose-950/30 text-rose-400"
-                : "border-rose-200 bg-rose-50 text-rose-800"
+                ? "border-rose-900/50 bg-rose-950/30 text-rose-400 hover:border-rose-700/60"
+                : "border-rose-200 bg-rose-50 text-rose-800 hover:border-rose-400"
             }`}
           >
-            <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider">
-              <ArrowDownRight size={12} />
-              Total Spend (Debits)
-            </span>
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider">
+                <ArrowDownRight size={12} />
+                Total Spend (Debits)
+              </span>
+              <span className="font-mono text-[9px] px-1 rounded bg-rose-500/10 border border-rose-500/20 group-hover:bg-rose-500/20">
+                ƒ(x)
+              </span>
+            </div>
             <p className="font-mono text-sm font-bold tabular-nums">
               {money(stats.totalOut)}
             </p>
-          </div>
+          </button>
 
           {/* Blue Net Retained Ticker */}
-          <div
-            className={`rounded-lg border px-3 py-1.5 ${
+          <button
+            type="button"
+            onClick={inspectRetained}
+            title="Click to view calculation formula for Net Retained & Savings Rate"
+            className={`group rounded-lg border px-3 py-1.5 text-left transition-all hover:scale-[1.02] active:scale-[0.98] ${
               isDarkContext
-                ? "border-sky-900/50 bg-sky-950/30 text-sky-400"
-                : "border-sky-200 bg-sky-50 text-sky-800"
+                ? "border-sky-900/50 bg-sky-950/30 text-sky-400 hover:border-sky-700/60"
+                : "border-sky-200 bg-sky-50 text-sky-800 hover:border-sky-400"
             }`}
           >
-            <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider">
-              <Zap size={12} />
-              Net Retained ({stats.savingsRate.toFixed(1)}%)
-            </span>
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider">
+                <Zap size={12} />
+                Net Retained ({stats.savingsRate.toFixed(1)}%)
+              </span>
+              <span className="font-mono text-[9px] px-1 rounded bg-sky-500/10 border border-sky-500/20 group-hover:bg-sky-500/20">
+                ƒ(x)
+              </span>
+            </div>
             <p className="font-mono text-sm font-bold tabular-nums">
               {money(stats.netRetained)}
             </p>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -354,12 +445,12 @@ export function StockMarketFinancialChart({
         <div className={`flex items-center gap-1 rounded-lg border p-1 ${subCardBgClass}`}>
           {(["1Y", "3Y", "5Y", "10Y", "ALL"] as Timeframe[]).map((tf) => {
             const isActive = timeframe === tf;
-            const activeClass = isDarkContext
+            const activeClass = isAmoled
+              ? "bg-white text-black font-bold shadow-sm"
+              : isDarkContext
               ? variant === "overview" && theme === "fin"
                 ? "bg-[#d7ba82] text-[#20211f] font-bold shadow-sm"
                 : "bg-white text-[#090a0f] font-bold shadow-sm"
-              : isBlueTheme
-              ? "bg-blue-600 text-white font-medium shadow-sm"
               : "bg-[#20211f] text-white font-medium shadow-sm";
 
             return (
@@ -828,6 +919,13 @@ export function StockMarketFinancialChart({
           Sampled {filteredRecords.length} Continuous Monthly Cycles • Zero Cloud Leakage
         </span>
       </div>
+
+      {/* Metric Formula Modal */}
+      <MetricFormulaModal
+        isOpen={!!inspectingMetric}
+        onClose={() => setInspectingMetric(null)}
+        data={inspectingMetric}
+      />
     </section>
   );
 }

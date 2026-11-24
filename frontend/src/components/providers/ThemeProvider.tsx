@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-export type Theme = "fin" | "blue" | "dark";
+export type Theme = "fin" | "dark" | "amoled";
 
 interface ThemeContextType {
   theme: Theme;
@@ -23,15 +23,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.setAttribute("data-theme", t);
     if (t === "dark") {
       document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("amoled");
+    } else if (t === "amoled") {
+      document.documentElement.classList.add("dark", "amoled");
     } else {
-      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.remove("dark", "amoled");
     }
   };
 
   useEffect(() => {
     try {
       const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
-      if (savedTheme && (savedTheme === "fin" || savedTheme === "blue" || savedTheme === "dark")) {
+      if (savedTheme && (savedTheme === "fin" || savedTheme === "dark" || savedTheme === "amoled")) {
         setThemeState(savedTheme);
         applyThemeToDOM(savedTheme);
       } else {

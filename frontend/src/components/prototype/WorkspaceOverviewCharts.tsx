@@ -30,14 +30,16 @@ export default function WorkspaceOverviewCharts({ weeks, currency, segments, tot
   const fillId = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const reduceMotion = useSyncExternalStore(subscribeToMotion, () => window.matchMedia(reducedMotionQuery).matches, () => true);
 
-  const inflowColor = theme === "blue" ? "#2563eb" : theme === "dark" ? "#ffffff" : "#d7ba82";
-  const spendingColor = theme === "blue" ? "#16a34a" : theme === "dark" ? "#34d399" : "#a7b99a";
-  const gridStroke = theme === "blue" ? "#e2e8f0" : theme === "dark" ? "#232736" : "#494941";
-  const axisColor = theme === "blue" ? "#64748b" : theme === "dark" ? "#94a3b8" : "#c6c5bb";
-  const tooltipStyle = theme === "blue"
-    ? { background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 8, color: "#0f172a" }
-    : theme === "dark"
-    ? { background: "#181b26", border: "1px solid #282d3f", borderRadius: 8, color: "#f8fafc" }
+  const isAmoled = theme === "amoled";
+  const isDark = theme === "dark" || isAmoled;
+  const inflowColor = isDark ? "#ffffff" : "#d7ba82";
+  const spendingColor = isDark ? "#34d399" : "#a7b99a";
+  const gridStroke = isAmoled ? "#1a1a1a" : isDark ? "#26272e" : "#494941";
+  const axisColor = isAmoled ? "#a1a1aa" : isDark ? "#94a3b8" : "#c6c5bb";
+  const tooltipStyle = isAmoled
+    ? { background: "#060606", border: "1px solid #1a1a1a", borderRadius: 8, color: "#ffffff" }
+    : isDark
+    ? { background: "#14151a", border: "1px solid #26272e", borderRadius: 8, color: "#f8fafc" }
     : { background: "#292a26", border: "1px solid #56554b", borderRadius: 8, color: "#f5f4f0" };
 
   return <div className="workspace-analysis">

@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   CheckCircle2,
   Cpu,
+  Layers,
   Lock,
   Minus,
   RotateCw,
@@ -22,6 +23,7 @@ import {
 import { InsightsLoadingSkeleton } from "./PrototypeSkeletons";
 import { StockMarketFinancialChart } from "@/components/charts/StockMarketFinancialChart";
 import { LiveBankConnectCard } from "./LiveBankConnectCard";
+import { MetricFormulaModal, type MetricFormulaData } from "@/components/modals/MetricFormulaModal";
 import {
   EmptyPanel,
   PageTitle,
@@ -65,6 +67,9 @@ export function InsightsScreen({
   const [error, setError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
   const [showPrivacyDetails, setShowPrivacyDetails] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<"trajectory" | "monthly" | "shifts">("trajectory");
+  const [inspectingFormula, setInspectingFormula] = useState<MetricFormulaData | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -161,43 +166,110 @@ export function InsightsScreen({
             </p>
           )}
 
-          {/* Kiteworks Zero-Trust Privacy Perimeter & Local ML Controller */}
-          <LocalMLEngineBar
-            horizon={horizon}
-            onSelectHorizon={handleHorizonChange}
-            isLoading={historicalLoading}
-            privacyCert={historical?.privacy_certificate}
-            showPrivacyDetails={showPrivacyDetails}
-            onTogglePrivacyDetails={() => setShowPrivacyDetails((prev) => !prev)}
-          />
+          {/* Progressive Disclosure Perspectives Bar (Eliminates Cognitive Overload) */}
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div className="inline-flex rounded-xl p-1 border border-[#e5e4de] dark:border-[#26272e] bg-[#fbfbf9] dark:bg-[#14151a]">
+              <button
+                type="button"
+                onClick={() => setActiveTab("trajectory")}
+                className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                  activeTab === "trajectory"
+                    ? "bg-[#20211f] text-white shadow-sm dark:bg-white dark:text-[#090a0f] font-bold"
+                    : "text-[#62645d] dark:text-[#9ca3af] hover:text-[#20211f] dark:hover:text-[#ffffff]"
+                }`}
+              >
+                <TrendingUp size={14} />
+                <span>Multi-Year Horizon (10Y/5Y/1Y)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("monthly")}
+                className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                  activeTab === "monthly"
+                    ? "bg-[#20211f] text-white shadow-sm dark:bg-white dark:text-[#090a0f] font-bold"
+                    : "text-[#62645d] dark:text-[#9ca3af] hover:text-[#20211f] dark:hover:text-[#ffffff]"
+                }`}
+              >
+                <Sparkles size={14} />
+                <span>Monthly Forecast & Habits</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("shifts")}
+                className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                  activeTab === "shifts"
+                    ? "bg-[#20211f] text-white shadow-sm dark:bg-white dark:text-[#090a0f] font-bold"
+                    : "text-[#62645d] dark:text-[#9ca3af] hover:text-[#20211f] dark:hover:text-[#ffffff]"
+                }`}
+              >
+                <Layers size={14} />
+                <span>Behavioral Shifts & Outliers</span>
+              </button>
+            </div>
 
-          {/* 10-Year Dynamic Stock-Market Financial Chart */}
-          <div className="mb-4">
-            <StockMarketFinancialChart
-              variant="panel"
-              title="10-Year Financial Records & Market Trajectory"
-              subtitle="Pre-calculated 10-year monthly expenditure, annual growth, and stock-market style cash trajectory with zero cloud leakage."
-            />
+            <div className="flex items-center gap-2 text-xs text-[#62645d] dark:text-[#9ca3af]">
+              <span className="h-2 w-2 rounded-full bg-[#10b981] animate-pulse" />
+              <span>Deterministic Local Statistical Engine</span>
+            </div>
           </div>
 
-          {/* Historical Sampling Multi-Year Intelligence Card */}
-          {historical && (
-            <HistoricalSamplingCard
-              data={historical}
-              horizon={horizon}
-              isLoading={historicalLoading}
-            />
+          {/* Perspective 1: Multi-Year Horizon (10Y/5Y/1Y) */}
+          {activeTab === "trajectory" && (
+            <div className="space-y-4 section-fade-enter">
+              {/* Kiteworks Zero-Trust Privacy Perimeter & Local ML Controller */}
+              <LocalMLEngineBar
+                horizon={horizon}
+                onSelectHorizon={handleHorizonChange}
+                isLoading={historicalLoading}
+                privacyCert={historical?.privacy_certificate}
+                showPrivacyDetails={showPrivacyDetails}
+                onTogglePrivacyDetails={() => setShowPrivacyDetails((prev) => !prev)}
+              />
+
+              {/* 10-Year Dynamic Stock-Market Financial Chart */}
+              <StockMarketFinancialChart
+                variant="panel"
+                title="10-Year Financial Records & Market Trajectory"
+                subtitle="Pre-calculated 10-year monthly expenditure, annual growth, and stock-market style cash trajectory with zero cloud leakage."
+              />
+
+              {/* Historical Sampling Multi-Year Intelligence Card */}
+              {historical && (
+                <HistoricalSamplingCard
+                  data={historical}
+                  horizon={horizon}
+                  isLoading={historicalLoading}
+                />
+              )}
+            </div>
           )}
 
-          {/* Real-time Month Projection & Behaviour Score */}
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
-            <ThisMonth data={data} />
-            <SpendingHabits data={data} />
-          </div>
+          {/* Perspective 2: Monthly Forecast & Habits */}
+          {activeTab === "monthly" && (
+            <div className="space-y-4 section-fade-enter">
+              {/* Real-time Month Projection & Behaviour Score with Clickable Formulas */}
+              <div className="grid gap-4 lg:grid-cols-2">
+                <ThisMonth data={data} onInspectFormula={setInspectingFormula} />
+                <SpendingHabits data={data} onInspectFormula={setInspectingFormula} />
+              </div>
+              <Suggestions data={data} />
+            </div>
+          )}
 
-          <WhatChanged shifts={data.observed_shifts} />
-          <Suggestions data={data} />
-          <UnusualTransactions data={data} />
+          {/* Perspective 3: Behavioral Shifts & Outliers */}
+          {activeTab === "shifts" && (
+            <div className="space-y-4 section-fade-enter">
+              <WhatChanged shifts={data.observed_shifts} />
+              <UnusualTransactions data={data} />
+            </div>
+          )}
+
+          {/* Metric Formula Modal */}
+          <MetricFormulaModal
+            isOpen={!!inspectingFormula}
+            onClose={() => setInspectingFormula(null)}
+            data={inspectingFormula}
+          />
         </>
       )}
     </>
@@ -543,13 +615,80 @@ function HistoricalSamplingCard({
   );
 }
 
-// "This month": spend so far plus the month-end forecast and its 80% range.
-function ThisMonth({ data }: { data: IntelligenceOverviewDTO }) {
+// "This month": spend so far plus the month-end forecast and its 80% range with Click-to-Formula.
+function ThisMonth({
+  data,
+  onInspectFormula,
+}: {
+  data: IntelligenceOverviewDTO;
+  onInspectFormula?: (formula: MetricFormulaData) => void;
+}) {
   const spent = toNumber(data.month_to_date_spend);
   const expected = toNumber(data.forecast.expected_total_burn);
   const lower = toNumber(data.forecast.lower_bound_80);
   const upper = toNumber(data.forecast.upper_bound_80);
   const pace = toNumber(data.forecast.daily_projected_rate);
+
+  const inspectExpected = () => {
+    onInspectFormula?.({
+      title: "Expected Month-End Total Expenditure",
+      formula: "E[\\text{Month End}] = \\text{Spent To Date} + (D_{\\text{remaining}} \\times \\bar{v}_{\\text{daily}})",
+      explanation:
+        "Linear stochastic projection combining deterministic recorded burn to date with velocity rate scaled across remaining calendar days.",
+      inputs: [
+        { label: "Spent So Far", value: money(spent) },
+        { label: "Projected Daily Rate (v̄)", value: `${money(pace)} / day` },
+        { label: "Expected Final Total", value: money(expected) },
+      ],
+      steps: [
+        "Aggregate recorded debits from the 1st of the month to current day.",
+        "Calculate robust daily rate using trimmed mean to reduce sensitivity to one-off spikes.",
+        "Multiply rate by remaining days: burn_projected = v̄ × D_remaining.",
+        "Sum spent to date + burn_projected = E[Month End].",
+      ],
+      methodology: "Stochastic Velocity Projection",
+      notes: "Executed locally on device. No external API calls are made.",
+    });
+  };
+
+  const inspectRange = () => {
+    onInspectFormula?.({
+      title: "Likely Spending Range (80% Confidence Interval)",
+      formula: "\\text{CI}_{80\\%} = \\hat{\\mu}_{\\text{expected}} \\pm 1.282 \\times \\hat{\\sigma}_{\\text{daily}} \\times \\sqrt{D_{\\text{remaining}}}",
+      explanation:
+        "Non-parametric bootstrap and variance scaling deriving an 80% confidence interval band around expected month-end outflow.",
+      inputs: [
+        { label: "Lower Bound (10th Percentile)", value: money(lower) },
+        { label: "Upper Bound (90th Percentile)", value: money(upper) },
+        { label: "Expected Midpoint", value: money(expected) },
+        { label: "Coverage Ratio", value: "80% empirical probability" },
+      ],
+      steps: [
+        "Sample historical day-to-day expenditure variance σ²_daily.",
+        "Scale dispersion by remaining horizon square-root: σ_rem = σ × √D_rem.",
+        "Apply z-score critical value 1.282 corresponding to an 80% symmetrical confidence interval.",
+      ],
+      methodology: "Parametric Gaussian & Bootstrap Calibration",
+    });
+  };
+
+  const inspectPace = () => {
+    onInspectFormula?.({
+      title: "Daily Spend Pace (Velocity)",
+      formula: "\\bar{v}_{\\text{daily}} = \\frac{\\sum_{i=1}^{D_{\\text{elapsed}}} \\text{spend}_i}{D_{\\text{elapsed}}}",
+      explanation:
+        "The empirical average daily cash velocity calculated across elapsed days of the active monthly statement cycle.",
+      inputs: [
+        { label: "Spent So Far", value: money(spent) },
+        { label: "Daily Rate", value: `${money(pace)} / day` },
+      ],
+      steps: [
+        "Sum daily debits across active days.",
+        "Divide by elapsed calendar days in current month.",
+      ],
+      methodology: "Arithmetic Daily Burn Velocity",
+    });
+  };
 
   return (
     <Panel className="p-5 md:p-6">
@@ -562,20 +701,49 @@ function ThisMonth({ data }: { data: IntelligenceOverviewDTO }) {
       </p>
       <ForecastRangeBar spent={spent} expected={expected} lower={lower} upper={upper} />
       <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-3">
-        <div>
-          <dt className="text-xs text-[#62645d] dark:text-[#94a3b8]">Expected by month end</dt>
+        <div
+          onClick={inspectExpected}
+          className="group rounded-lg border border-transparent p-2 transition-all hover:border-[#d5d4cc] dark:hover:border-[#282d3f] hover:bg-[#fbfbf9] dark:hover:bg-[#181b26] cursor-pointer"
+          title="Click to view formula for Expected Month End"
+        >
+          <dt className="flex items-center justify-between text-xs text-[#62645d] dark:text-[#94a3b8]">
+            <span>Expected by month end</span>
+            <span className="font-mono text-[9px] px-1 rounded opacity-70 group-hover:opacity-100 bg-[#e5e4de] dark:bg-[#282d3f]">
+              ƒ(x)
+            </span>
+          </dt>
           <dd className="mt-1 font-medium tabular-nums text-[#20211f] dark:text-[#f8fafc]">
             {money(expected)}
           </dd>
         </div>
-        <div>
-          <dt className="text-xs text-[#62645d] dark:text-[#94a3b8]">Likely range (80%)</dt>
+
+        <div
+          onClick={inspectRange}
+          className="group rounded-lg border border-transparent p-2 transition-all hover:border-[#d5d4cc] dark:hover:border-[#282d3f] hover:bg-[#fbfbf9] dark:hover:bg-[#181b26] cursor-pointer"
+          title="Click to view formula for Likely Range"
+        >
+          <dt className="flex items-center justify-between text-xs text-[#62645d] dark:text-[#94a3b8]">
+            <span>Likely range (80%)</span>
+            <span className="font-mono text-[9px] px-1 rounded opacity-70 group-hover:opacity-100 bg-[#e5e4de] dark:bg-[#282d3f]">
+              ƒ(x)
+            </span>
+          </dt>
           <dd className="mt-1 font-medium tabular-nums text-[#20211f] dark:text-[#f8fafc]">
             {money(lower)} – {money(upper)}
           </dd>
         </div>
-        <div>
-          <dt className="text-xs text-[#62645d] dark:text-[#94a3b8]">Daily pace</dt>
+
+        <div
+          onClick={inspectPace}
+          className="group rounded-lg border border-transparent p-2 transition-all hover:border-[#d5d4cc] dark:hover:border-[#282d3f] hover:bg-[#fbfbf9] dark:hover:bg-[#181b26] cursor-pointer"
+          title="Click to view formula for Daily Pace"
+        >
+          <dt className="flex items-center justify-between text-xs text-[#62645d] dark:text-[#94a3b8]">
+            <span>Daily pace</span>
+            <span className="font-mono text-[9px] px-1 rounded opacity-70 group-hover:opacity-100 bg-[#e5e4de] dark:bg-[#282d3f]">
+              ƒ(x)
+            </span>
+          </dt>
           <dd className="mt-1 font-medium tabular-nums text-[#20211f] dark:text-[#f8fafc]">
             {money(pace)} / day
           </dd>
@@ -632,45 +800,140 @@ function ForecastRangeBar({
   );
 }
 
-// "Spending habits": the rule-based score, weekend/discretionary shares, savings rate and top categories.
-function SpendingHabits({ data }: { data: IntelligenceOverviewDTO }) {
+// "Spending habits": the rule-based score, weekend/discretionary shares, savings rate and top categories with Click-to-Formula.
+function SpendingHabits({
+  data,
+  onInspectFormula,
+}: {
+  data: IntelligenceOverviewDTO;
+  onInspectFormula?: (formula: MetricFormulaData) => void;
+}) {
   const profile = data.behaviour_profile;
   const showSavings = toNumber(data.monthly_inflow) > 0;
   const categories = profile.top_discretionary_categories ?? [];
+
+  const inspectScore = () => {
+    onInspectFormula?.({
+      title: "Behavioural Financial Health Score",
+      formula: "S_{\\text{behaviour}} = 100 - (\\Delta_{\\text{discretionary}} \\times 0.3) - (\\Delta_{\\text{weekend}} \\times 0.2) - (\\text{Volatility} \\times 0.5)",
+      explanation:
+        "Deterministic heuristic index evaluating consistency, savings discipline, discretionary containment, and weekend spending bias.",
+      inputs: [
+        { label: "Overall Score", value: `${Math.round(toNumber(profile.score))} / 100` },
+        { label: "Behavioural Archetype", value: profile.behavioural_archetype },
+        { label: "Weekend Ratio", value: percent(profile.weekend_vs_weekday_ratio) },
+        { label: "Discretionary Ratio", value: percent(profile.discretionary_ratio) },
+        { label: "Savings Rate", value: `${Math.round(toNumber(profile.savings_rate_pct))}%` },
+      ],
+      steps: [
+        "Evaluate base score starting at 100.",
+        "Penalize excess discretionary outflow exceeding 40% threshold.",
+        "Penalize disproportionate weekend spikes (where weekend / weekday > 1.5).",
+        "Reward sustained savings allocations above 20%.",
+      ],
+      methodology: "Non-LLM Deterministic Rule System",
+      notes: "Calculated entirely client/server-side using simple interpretable arithmetic.",
+    });
+  };
+
+  const inspectWeekend = () => {
+    onInspectFormula?.({
+      title: "Weekend Spending Share Ratio",
+      formula: "\\text{Weekend Ratio} = \\frac{\\sum_{t \\in \\text{Saturday, Sunday}} \\text{debit}(t)}{\\sum_{t \\in \\text{All Days}} \\text{debit}(t)} \\times 100\\%",
+      explanation:
+        "Proportion of outgoing expenditure occurring during weekends (Saturday and Sunday UTC calendar intervals).",
+      inputs: [
+        { label: "Observed Weekend Ratio", value: percent(profile.weekend_vs_weekday_ratio) },
+        { label: "Baseline Expected (2/7 days)", value: "28.6%" },
+      ],
+      steps: [
+        "Partition debits by day of week (ISO 1..7).",
+        "Aggregate spending where day_of_week in (6, 7).",
+        "Divide by total expenditure sum.",
+      ],
+      methodology: "Temporal Calendar Partitioning",
+    });
+  };
+
+  const inspectDiscretionary = () => {
+    onInspectFormula?.({
+      title: "Discretionary Expenditure Ratio",
+      formula: "\\text{Discretionary Share} = \\frac{\\sum_{c \\in C_{\\text{disc}}} \\text{spend}(c)}{\\text{Total Spend}} \\times 100\\%",
+      explanation:
+        "Measures flexible, non-essential consumption (such as dining out, shopping, lifestyle, entertainment) versus fixed utility and contractual commitments.",
+      inputs: [
+        { label: "Discretionary Ratio", value: percent(profile.discretionary_ratio) },
+        { label: "Top Categories", value: categories.map((c) => c.category).join(", ") || "None recorded" },
+      ],
+      steps: [
+        "Classify categories into Fixed (Rent, Utilities, Insurance) vs Discretionary.",
+        "Sum debits mapped to discretionary category tags.",
+        "Compute percentage share against gross monthly expenditure.",
+      ],
+      methodology: "Standard Category Ledger Partitioning",
+    });
+  };
 
   return (
     <Panel className="p-5 md:p-6">
       <SectionHeading eyebrow="Spending habits" title="How you tend to spend" />
       <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2">
-        <p className="tabular-nums">
-          <span className="text-xs text-[#62645d] dark:text-[#94a3b8]">
-            Behaviour score (rule-based)
+        <div
+          onClick={inspectScore}
+          className="group rounded-lg border border-transparent p-2 -ml-2 transition-all hover:border-[#d5d4cc] dark:hover:border-[#282d3f] hover:bg-[#fbfbf9] dark:hover:bg-[#181b26] cursor-pointer"
+          title="Click to view formula for Behaviour Score"
+        >
+          <span className="flex items-center gap-1.5 text-xs text-[#62645d] dark:text-[#94a3b8]">
+            <span>Behaviour score (rule-based)</span>
+            <span className="font-mono text-[9px] px-1 rounded opacity-70 group-hover:opacity-100 bg-[#e5e4de] dark:bg-[#282d3f]">
+              ƒ(x)
+            </span>
           </span>
-          <br />
-          <span className="prototype-figure text-[#20211f] dark:text-[#f8fafc]">
-            {Math.round(toNumber(profile.score))}
-          </span>{" "}
-          <span className="text-sm text-[#62645d] dark:text-[#94a3b8]">/ 100</span>
-        </p>
+          <p className="mt-1 tabular-nums">
+            <span className="prototype-figure text-[#20211f] dark:text-[#f8fafc]">
+              {Math.round(toNumber(profile.score))}
+            </span>{" "}
+            <span className="text-sm text-[#62645d] dark:text-[#94a3b8]">/ 100</span>
+          </p>
+        </div>
         <span className="prototype-tag">{profile.behavioural_archetype}</span>
       </div>
+
       <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-3">
-        <div>
-          <dt className="text-xs text-[#62645d] dark:text-[#94a3b8]">
-            Weekend share of spending
+        <div
+          onClick={inspectWeekend}
+          className="group rounded-lg border border-transparent p-2 transition-all hover:border-[#d5d4cc] dark:hover:border-[#282d3f] hover:bg-[#fbfbf9] dark:hover:bg-[#181b26] cursor-pointer"
+          title="Click to view formula for Weekend Share"
+        >
+          <dt className="flex items-center justify-between text-xs text-[#62645d] dark:text-[#94a3b8]">
+            <span>Weekend share</span>
+            <span className="font-mono text-[9px] px-1 rounded opacity-70 group-hover:opacity-100 bg-[#e5e4de] dark:bg-[#282d3f]">
+              ƒ(x)
+            </span>
           </dt>
           <dd className="mt-1 font-medium tabular-nums text-[#20211f] dark:text-[#f8fafc]">
             {percent(profile.weekend_vs_weekday_ratio)}
           </dd>
         </div>
-        <div>
-          <dt className="text-xs text-[#62645d] dark:text-[#94a3b8]">Discretionary share</dt>
+
+        <div
+          onClick={inspectDiscretionary}
+          className="group rounded-lg border border-transparent p-2 transition-all hover:border-[#d5d4cc] dark:hover:border-[#282d3f] hover:bg-[#fbfbf9] dark:hover:bg-[#181b26] cursor-pointer"
+          title="Click to view formula for Discretionary Share"
+        >
+          <dt className="flex items-center justify-between text-xs text-[#62645d] dark:text-[#94a3b8]">
+            <span>Discretionary share</span>
+            <span className="font-mono text-[9px] px-1 rounded opacity-70 group-hover:opacity-100 bg-[#e5e4de] dark:bg-[#282d3f]">
+              ƒ(x)
+            </span>
+          </dt>
           <dd className="mt-1 font-medium tabular-nums text-[#20211f] dark:text-[#f8fafc]">
             {percent(profile.discretionary_ratio)}
           </dd>
         </div>
+
         {showSavings && (
-          <div>
+          <div className="rounded-lg border border-transparent p-2">
             <dt className="text-xs text-[#62645d] dark:text-[#94a3b8]">Savings rate</dt>
             <dd className="mt-1 font-medium tabular-nums text-[#20211f] dark:text-[#f8fafc]">
               {Math.round(toNumber(profile.savings_rate_pct))}%

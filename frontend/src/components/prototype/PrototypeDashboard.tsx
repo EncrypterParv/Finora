@@ -331,14 +331,14 @@ export function PrototypeDashboard({
             </div>
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
               {/* Version Switcher: Demo (10Y Pre-calc) vs Live (Air-Gapped) */}
-              <div className="flex items-center rounded-lg border border-[#d5d4cc] dark:border-[#282d3f] bg-[#f5f4f0] dark:bg-[#181b26] p-0.5 text-xs shadow-inner">
+              <div className="flex items-center rounded-full border border-[#d5d4cc] dark:border-[#26272e] bg-[#f5f4f0]/80 dark:bg-[#14151a]/80 backdrop-blur-md p-1 text-xs shadow-inner">
                 <button
                   type="button"
                   onClick={() => handleModeChange("demo")}
-                  className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
+                  className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
                     workspaceMode === "demo"
-                      ? "bg-white text-[#20211f] shadow-sm dark:bg-[#282d3f] dark:text-white dark:font-semibold"
-                      : "text-[#62645d] hover:text-[#20211f] dark:text-[#94a3b8] dark:hover:text-white"
+                      ? "bg-white text-[#20211f] shadow-sm dark:bg-[#26272e] dark:text-white dark:font-semibold"
+                      : "text-[#62645d] hover:text-[#20211f] dark:text-[#9ca3af] dark:hover:text-white"
                   }`}
                   title="View 10-Year Dynamic Pre-Calculated Demo Records & Graphs"
                 >
@@ -348,27 +348,27 @@ export function PrototypeDashboard({
                 <button
                   type="button"
                   onClick={() => handleModeChange("live")}
-                  className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
+                  className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
                     workspaceMode === "live"
-                      ? "bg-white text-[#20211f] shadow-sm dark:bg-[#282d3f] dark:text-white dark:font-semibold"
-                      : "text-[#62645d] hover:text-[#20211f] dark:text-[#94a3b8] dark:hover:text-white"
+                      ? "bg-white text-[#20211f] shadow-sm dark:bg-[#26272e] dark:text-white dark:font-semibold"
+                      : "text-[#62645d] hover:text-[#20211f] dark:text-[#9ca3af] dark:hover:text-white"
                   }`}
                   title="Switch to Live Version (Connect Bank Account)"
                 >
-                  <Lock size={13} className="text-blue-500" />
+                  <Lock size={13} className="text-sky-500" />
                   <span>Live (Air-Gapped)</span>
                 </button>
               </div>
 
-              <ThemeSelector />
+              <ThemeSelector pill />
               <button
                 type="button"
                 onClick={signOut}
                 disabled={signingOut}
-                className="prototype-signout inline-flex items-center gap-2 rounded-md border border-[#d5d4cc] px-3 text-sm font-medium text-[#414340] disabled:opacity-70"
+                className="prototype-signout inline-flex items-center gap-2 rounded-full border border-[#d5d4cc] dark:border-[#26272e] px-3.5 py-1.5 text-xs font-semibold text-[#414340] dark:text-[#f3f4f6] hover:bg-black/5 dark:hover:bg-white/5 transition-all disabled:opacity-70"
               >
-                <LogOut size={16} aria-hidden="true" />
-                {signingOut ? "Signing out…" : "Log out"}
+                <LogOut size={14} aria-hidden="true" />
+                <span className="hidden sm:inline">{signingOut ? "Signing out…" : "Sign out"}</span>
               </button>
             </div>
           </div>
