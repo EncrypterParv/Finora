@@ -6,5 +6,26 @@ import "@/components/landing/refinement.css";
 import "@/components/landing/identity.css";
 
 export default function Home() {
-  return <LandingPage />;
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Finora",
+    applicationCategory: "FinanceApplication",
+    operatingSystem: "Web",
+    url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://finora-sem3.vercel.app",
+    description:
+      "A personal finance workspace for reviewing bank statement records, understanding spending, and planning budgets and savings goals.",
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+        }}
+      />
+      <LandingPage />
+    </>
+  );
 }

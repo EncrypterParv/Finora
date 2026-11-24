@@ -119,6 +119,12 @@ npm run build
 Client interface available at: `http://localhost:3000`
 For Supabase sign-in and database setup, complete [the Supabase setup guide](docs/supabase/setup.md) first. Without project keys, the login page displays a configuration prompt.
 
+The public landing page includes canonical metadata and a branded social
+preview image. Production uses `NEXT_PUBLIC_SITE_URL` to set its canonical
+host; see the [Vercel deployment guide](docs/deployment/vercel.md). The app
+serves `/robots.txt` and `/sitemap.xml`; only the public landing page is
+listed for search crawlers.
+
 Keep the FastAPI and Next.js development servers running in separate terminals.
 An `ECONNREFUSED 127.0.0.1:8000` error in the Next.js log means the backend
 is unreachable. With both servers up, `http://127.0.0.1:8000/health` should respond.

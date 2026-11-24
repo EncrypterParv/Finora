@@ -20,6 +20,21 @@ the complete source of commit history. Each entry records what changed, why it
 mattered, and what it did **not** complete so future work does not repeat
 assumptions from old plans.
 
+## 2026-11-24 — Landing page SEO and social sharing
+
+- Added canonical landing-page metadata, Open Graph and Twitter cards, a
+  generated 1200×630 brand preview, and SoftwareApplication JSON-LD.
+- Added `/robots.txt` and `/sitemap.xml`; the sitemap lists only the public
+  landing page, while robots and route metadata keep auth and dashboard pages
+  out of search indexing.
+- Added `NEXT_PUBLIC_SITE_URL` configuration guidance. Hosted canonical URLs
+  default to `https://finora-sem3.vercel.app` and can be changed to a verified
+  production domain in Vercel.
+- Validation: frontend lint, typecheck, and production build passed. The build
+  emitted a valid 1200×630 PNG, canonical and social tags in the landing HTML,
+  and the expected robots/sitemap responses. No hosted search-crawler or social
+  platform debugger was available for external cache verification.
+
 ## 2026-10-06 to 2026-10-07 — Initial platform foundation
 
 - [de40408](https://github.com/TarunyaProgrammer/FinSOL2/commit/de40408) is the
