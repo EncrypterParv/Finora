@@ -59,6 +59,25 @@ const TransactionsScreen = dynamic(() => import("./TransactionsScreen").then((mo
 type Section = "overview" | "calendar" | "insights" | "transactions" | "budgets" | "goals" | "accounts" | "import";
 type AccountType = "SAVINGS" | "CURRENT" | "CREDIT";
 
+const sectionPreloaders: Partial<Record<Section, () => Promise<unknown>>> = {
+  accounts: () => import("./AccountsScreen"),
+  budgets: () => import("./BudgetsScreen"),
+  calendar: () => import("./CalendarScreen"),
+  goals: () => import("./GoalsScreen"),
+  insights: () => import("./InsightsScreen"),
+  transactions: () => import("./TransactionsScreen"),
+};
+const preloadedSections = new Map<Section, Promise<unknown>>();
+
+function preloadSection(section: Section) {
+  const load = sectionPreloaders[section];
+  if (!load || preloadedSections.has(section)) return;
+
+  const pending = load();
+  preloadedSections.set(section, pending);
+  void pending.catch(() => preloadedSections.delete(section));
+}
+
 const navigation: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "calendar", label: "Calendar", icon: CalendarDays },
@@ -271,7 +290,7 @@ export function PrototypeDashboard({
           ].map(({ label, items }) => (
             <div key={label} className="mb-4">
               {!sidebarCollapsed && (
-                <p className="px-3 mb-1 text-[10px] font-semibold tracking-wider uppercase text-[var(--finora-sidebar-text)] opacity-60">
+                <p className="px-3 mb-1 text-[10px] font-semibold tracking-wider uppercase text-[var(--finora-sidebar-text)]">
                   {label}
                 </p>
               )}
@@ -281,6 +300,9 @@ export function PrototypeDashboard({
                     key={id}
                     type="button"
                     onClick={() => setSection(id)}
+                    onPointerEnter={() => preloadSection(id)}
+                    onPointerDown={() => preloadSection(id)}
+                    onFocus={() => preloadSection(id)}
                     aria-current={section === id ? "page" : undefined}
                     title={sidebarCollapsed ? itemLabel : undefined}
                     className={`tahoe-nav-item w-full ${sidebarCollapsed ? "justify-center !px-0" : ""} ${
@@ -306,7 +328,7 @@ export function PrototypeDashboard({
                 <strong className="block truncate font-semibold text-[var(--finora-on-dark,#ffffff)]">
                   {userName || "Personal workspace"}
                 </strong>
-                <small className="block truncate opacity-70">{userEmail || "Finora"}</small>
+                <small className="block truncate">{userEmail || "Finora"}</small>
               </span>
             )}
           </div>
@@ -335,6 +357,7 @@ export function PrototypeDashboard({
                 <button
                   type="button"
                   onClick={() => handleModeChange("demo")}
+                  aria-label="Demo mode"
                   className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
                     workspaceMode === "demo"
                       ? "bg-white text-[#20211f] shadow-sm dark:bg-[#26272e] dark:text-white dark:font-semibold"
@@ -343,11 +366,12 @@ export function PrototypeDashboard({
                   title="View 10-Year Dynamic Pre-Calculated Demo Records & Graphs"
                 >
                   <Zap size={13} className="text-amber-500 fill-amber-500/20" />
-                  <span className="font-semibold">Demo (10Y Pre-calc)</span>
+                  <span className="hidden font-semibold sm:inline">Demo (10Y Pre-calc)</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleModeChange("live")}
+                  aria-label="Live mode"
                   className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
                     workspaceMode === "live"
                       ? "bg-white text-[#20211f] shadow-sm dark:bg-[#26272e] dark:text-white dark:font-semibold"
@@ -356,7 +380,7 @@ export function PrototypeDashboard({
                   title="Switch to Live Version (Connect Bank Account)"
                 >
                   <Lock size={13} className="text-sky-500" />
-                  <span>Live (Air-Gapped)</span>
+                  <span className="hidden sm:inline">Live (Air-Gapped)</span>
                 </button>
               </div>
 
@@ -380,7 +404,7 @@ export function PrototypeDashboard({
             <summary>Workspace sections <ChevronDown size={16} aria-hidden="true" /></summary>
             <nav aria-label="Workspace sections">
               {navigation.map(({ id, label, icon: Icon }) => (
-                <button key={id} type="button" onClick={() => {
+                <button key={id} type="button" onPointerEnter={() => preloadSection(id)} onPointerDown={() => preloadSection(id)} onFocus={() => preloadSection(id)} onClick={() => {
                   setSection(id);
                   if (mobileNavigation.current) mobileNavigation.current.open = false;
                   workspaceMain.current?.focus();
@@ -608,7 +632,7 @@ function StatementImportFlow({ accounts, onAccountCreated, onComplete }: { accou
 
   return <>
     <PageTitle title="Add a bank statement" description="Import a statement, review the extracted records, then choose what to save." />
-    {accounts.length > 0 && !showAccountForm && !preview && <div className="mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-[#e5e4de] bg-white px-4 py-3 text-sm">
+    {accounts.length > 0 && !showAccountForm && !preview && <div className="statement-light-panel mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-[#e5e4de] bg-white px-4 py-3 text-sm">
       <label htmlFor="statement-account" className="text-xs font-medium text-[#414340]">Save under</label>
       <select id="statement-account" value={accountId} onChange={(event) => { setAccountId(event.target.value); setNotice(""); }} className="min-h-10 rounded-md border border-[#d5d4cc] bg-white px-3 text-sm">
         {accounts.map((account) => <option key={account.id} value={account.id}>{account.institution_name} · {account.account_number_masked}</option>)}

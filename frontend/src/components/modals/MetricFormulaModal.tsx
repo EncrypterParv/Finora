@@ -173,19 +173,19 @@ export function MetricFormulaModal({
                 )}
               </p>
             </div>
-            <div className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+            <div className={`rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold flex items-center gap-1.5 ${isFin ? "text-[#176b47]" : "text-emerald-400"}`}>
               <CheckCircle2 size={13} />
               <span>Verified Exact</span>
             </div>
           </div>
 
-          {/* Mathematical Formula Box */}
+          {/* Plain-language calculation: readable without a math-rendering runtime. */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-400 dark:text-slate-500 mb-2">
-              Mathematical Formula
+            <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#575953] dark:text-[#a1a1aa]">
+              How this is calculated
             </h3>
             <div
-              className={`rounded-xl border p-4 font-mono text-sm leading-relaxed ${
+              className={`rounded-xl border p-4 ${
                 isAmoled
                   ? "border-[#262626] bg-[#000000] text-emerald-400"
                   : isDark
@@ -193,7 +193,7 @@ export function MetricFormulaModal({
                   : "border-[#e5e4de] bg-[#faf9f5] text-[#755727]"
               }`}
             >
-              <div className="font-semibold text-base mb-1">{data.formula}</div>
+              <p className="break-words text-base font-semibold leading-7 text-pretty">{data.formula}</p>
               {data.simplifiedEquation && (
                 <p className="text-xs opacity-80 mt-1">
                   Simplified: {data.simplifiedEquation}
@@ -205,7 +205,7 @@ export function MetricFormulaModal({
           {/* Dynamic Inputs Table */}
           {data.inputs && data.inputs.length > 0 && (
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-stone-400 dark:text-slate-500 mb-2">
+              <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#575953] dark:text-[#a1a1aa]">
                 Active Variable Inputs
               </h3>
               <div
@@ -227,7 +227,7 @@ export function MetricFormulaModal({
                         {inp.label}
                       </span>
                       {inp.note && (
-                        <p className="text-[11px] text-stone-400 dark:text-slate-500">
+                        <p className="text-[11px] text-[#575953] dark:text-[#a1a1aa]">
                           {inp.note}
                         </p>
                       )}
@@ -244,7 +244,7 @@ export function MetricFormulaModal({
           {/* Explanation & Financial Logic */}
           <div className="space-y-3 text-xs leading-relaxed text-stone-600 dark:text-slate-300">
             <div>
-              <h3 className="font-bold uppercase tracking-wider text-stone-400 dark:text-slate-500 mb-1">
+              <h3 className="mb-1 font-bold uppercase tracking-wider text-[#575953] dark:text-[#a1a1aa]">
                 How It Works
               </h3>
               <p>{data.explanation}</p>
@@ -252,7 +252,7 @@ export function MetricFormulaModal({
 
             {data.steps && data.steps.length > 0 && (
               <div>
-                <h3 className="font-bold uppercase tracking-wider text-stone-400 dark:text-slate-500 mb-1">
+                <h3 className="mb-1 font-bold uppercase tracking-wider text-[#575953] dark:text-[#a1a1aa]">
                   Computation Steps
                 </h3>
                 <ol className="list-decimal list-inside space-y-1 text-stone-600 dark:text-slate-300">
@@ -265,7 +265,7 @@ export function MetricFormulaModal({
 
             {data.methodology && (
               <div>
-                <h3 className="font-bold uppercase tracking-wider text-stone-400 dark:text-slate-500 mb-1">
+                <h3 className="mb-1 font-bold uppercase tracking-wider text-[#575953] dark:text-[#a1a1aa]">
                   Accounting & Statistical Methodology
                 </h3>
                 <p className="text-stone-500 dark:text-slate-400">

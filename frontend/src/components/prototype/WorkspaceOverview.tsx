@@ -160,7 +160,7 @@ function OverviewSummary({ cashFlow, month, accounts, onInsights, onAccounts, on
   const inspectMoneyIn = () => {
     setInspectingMetric({
       title: "Money In (Total Recorded Credits)",
-      formula: "\\text{Total Inflow} = \\sum_{t \\in T_{\\text{credits}}} \\text{amount}(t)",
+      formula: "Total inflow = the sum of amounts from all credit transactions",
       explanation:
         "Calculated by summing all verified positive credit transactions (including payroll salary, incoming transfers, dividend credits, and merchant refunds) for the selected monthly statement window.",
       inputs: [
@@ -182,7 +182,7 @@ function OverviewSummary({ cashFlow, month, accounts, onInsights, onAccounts, on
   const inspectMoneyOut = () => {
     setInspectingMetric({
       title: "Money Out (Total Recorded Debits)",
-      formula: "\\text{Total Outflow} = \\sum_{t \\in T_{\\text{debits}}} |\\text{amount}(t)|",
+      formula: "Total outflow = the sum of absolute amounts from all debit transactions",
       explanation:
         "Calculated by taking the absolute sum of all debit transactions (including utility bills, living expenses, card debits, and transfers out) across all linked accounts during the period.",
       inputs: [
@@ -205,7 +205,7 @@ function OverviewSummary({ cashFlow, month, accounts, onInsights, onAccounts, on
     const savingsRatio = inflow > 0 ? Math.round((net / inflow) * 100) : 0;
     setInspectingMetric({
       title: "Net Cash Flow (Retained Liquidity)",
-      formula: "\\text{Net Cash Flow} = \\text{Total Inflow} - \\text{Total Outflow}",
+      formula: "Net cash flow = total inflow − total outflow",
       explanation:
         "The fundamental liquidity equation measuring retained capital for the period. A positive value denotes net savings and surplus, while a negative value signifies net capital depletion.",
       inputs: [
@@ -227,7 +227,7 @@ function OverviewSummary({ cashFlow, month, accounts, onInsights, onAccounts, on
   const inspectTransactions = () => {
     setInspectingMetric({
       title: "Transaction Volume & Cadence",
-      formula: "N_{\\text{tx}} = |T| = \\sum_{t \\in T} 1",
+      formula: "Transaction count = the number of recorded transactions",
       explanation:
         "Total count of atomic canonical financial entries recorded, parsed, verified, and mapped to this month's ledger statement.",
       inputs: [

@@ -364,11 +364,23 @@
 }
 
 .finora-login .login-form-panel {
-  background: var(--finora-canvas);
+  background: #ffffff;
+  color: #20211f;
 }
 
 .finora-login .login-form-panel input::placeholder {
-  color: var(--finora-ink-muted);
+  color: #575953;
+}
+
+/* Keep muted labels readable on the dark illustrative surfaces in the public site. */
+html[data-theme="dark"] .finora-landing :is(.figure-caption, .workbench-footer, .feature-meta > span, .wealth-disclaimer, .plan-price span),
+html[data-theme="amoled"] .finora-landing :is(.figure-caption, .workbench-footer, .feature-meta > span, .wealth-disclaimer, .plan-price span) {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="dark"] .finora-landing .closing-bottom > small,
+html[data-theme="amoled"] .finora-landing .closing-bottom > small {
+  color: #a1a1aa !important;
 }
 
 .login-sign-out-notice {
