@@ -74,6 +74,11 @@ are excluded from indexing. If the production domain changes, update
 `NEXT_PUBLIC_SITE_URL` in Vercel and redeploy so share links and crawler URLs
 use the canonical host.
 
+The multi-service Vercel deployment serves checked-in public images directly.
+Next image optimization is disabled because `/_next/image` may resolve to a
+service 404 in this deployment topology. Keep using local `/images/...` assets;
+do not remove `images.unoptimized` without verifying the deployed optimizer.
+
 ## Finish Supabase Auth setup
 
 After Vercel assigns the production domain, open Supabase → **Authentication →
