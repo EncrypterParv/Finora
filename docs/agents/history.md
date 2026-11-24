@@ -20,6 +20,15 @@ the complete source of commit history. Each entry records what changed, why it
 mattered, and what it did **not** complete so future work does not repeat
 assumptions from old plans.
 
+## 2026-11-24 — Restore direct public image delivery
+
+- Restored `images.unoptimized` in the Next.js config. The image assets were
+  present, but the multi-service Vercel deployment returned broken image URLs
+  through `/_next/image`.
+- Documented the deployment constraint so a future optimization change is
+  checked against the live Vercel Services routing before it is enabled.
+- Validation and commit details are recorded after checks.
+
 ## 2026-11-24 — Landing page SEO and social sharing
 
 - Added canonical landing-page metadata, Open Graph and Twitter cards, a
