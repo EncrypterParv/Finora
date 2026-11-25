@@ -14,36 +14,28 @@ Instead, our intelligence subsystem follows a **three-tier progressive architect
 ## 2. ML Pipeline & Data Flow
 
 ```mermaid
-flowchart TD
-    subgraph DataIngestion [Canonical Transactions]
-        TxStream[(Canonical Transactions\nAmount, Time, Merchant, Category)]
-    end
+flowchart LR
+    Tx[Canonical transactions] --> Features[Feature extraction\nspend, time, category, cash flow]
+    Features --> Forecast[Month-end forecast\nlinear trend and EMA]
+    Tx --> Anomaly[Anomaly detector\ncategory baselines and Z-score]
+    Tx --> Changes[Change detector\nactive 30 days vs prior 60]
+    Features --> Gate{Basic sufficiency\n≥5 transactions across ≥7 days}
+    Forecast --> Gate
+    Anomaly --> Gate
+    Changes --> Gate
+    Gate -->|sufficient| Recs[Evidence-based recommendations]
+    Gate -->|insufficient| Guidance[Honest import guidance]
+    Recs --> Overview[Analytics overview]
+    Guidance --> Overview
 
-    subgraph FeatureEngineering [Feature Extraction Engine]
-        F1[Rolling Spend Velocity\n7-day, 30-day, 90-day EMA]
-        F2[Temporal Patterns\nDay-of-Week, Hour-of-Day, Weekend Ratio]
-        F3[Merchant & Category Entropy\nConcentration & Frequency Scores]
-        F4[Income vs Expense Dynamics\nSavings Rate, Burn Velocity]
-    end
-
-    subgraph IntelligenceEngines [Analytical & ML Models]
-        M_Forecaster[Spending & Cash Flow Forecaster\nLinear Regression + EMA Trends]
-        M_Exhaustion[Budget Exhaustion Predictor\nMonte Carlo / Burn Projection]
-        M_Anomaly[Anomaly & Outlier Detector\nIsolation Forest + Z-Score]
-        M_Goal[Goal Projection & Scenario Engine\nCompound Interest Simulation]
-    end
-
-    subgraph OutputSurfaces [User Experience & Nudges]
-        UI_Score[Financial Behaviour Score: 0-100]
-        UI_Calendar[Calendar Predicted Daily Burn]
-        UI_Alerts[Unusual Transaction Alerts]
-        UI_Nudges[Actionable Next-Step Recommendations]
-    end
-
-    TxStream --> FeatureEngineering
-    FeatureEngineering --> IntelligenceEngines
-    IntelligenceEngines --> OutputSurfaces
+    Tx --> Redaction[Historical sampling privacy boundary\nmask descriptions and identifiers]
+    Redaction --> Historical[Historical sampling output]
 ```
+
+The redaction boundary shown applies to the historical sampling engine, which
+sanitizes transaction dictionaries before analysis. The ordinary overview uses
+canonical records for deterministic calculations and does not log raw transaction
+descriptions or account references.
 
 ---
 

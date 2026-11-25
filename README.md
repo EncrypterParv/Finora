@@ -42,7 +42,7 @@ Detailed system documentation is available in `docs/`:
 - [Canonical Transaction Pipeline](docs/architecture/transaction-flow.md)
 - [Bank Adapter Architecture](docs/architecture/bank-adapters.md)
 - [Statement Ingestion Engine](docs/architecture/statement-import.md)
-- [ML & Behavioural Analytics](docs/architecture/ml-architecture.md)
+- [ML & Behavioural Analytics (data flow and redaction)](docs/architecture/ml-architecture.md)
 - [Security & Privacy Architecture](docs/architecture/security.md)
 - [Supabase setup and schema deployment](docs/supabase/setup.md)
 - [Vercel deployment and environment variables](docs/deployment/vercel.md)
