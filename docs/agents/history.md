@@ -9,6 +9,14 @@
 - E — FALSE: the historical engine calls `KiteworksPrivacyGate` (`backend/app/domain/ml/historical_engine.py:79-82`).
 - F — TRUE for the prototype dark theme: slate-blue surfaces appear in `frontend/src/components/prototype/themes.css:48-65`; the shared design tokens remain stone, graphite, and brass.
 
+## 2026-11-25 — Gap closure verification
+
+- Nine task commits covering triage, CORS, feature flags, frontend mode handling, the size-limited Prisma cleanup, and the analytics data-flow diagram were pushed to `origin` on `chore/2026-11-24-gap-closure`. The Prisma cleanup was split across four commits to keep every diff below about 400 changed lines.
+- C3 was skipped because `GET /analytics/historical` already wires `HistoricalMLEngine`; C4 was skipped because analytics does not log or persist raw descriptions/account references/emails and the historical engine invokes the privacy gate. C7 was skipped because the verified palette mismatch is outside the allowed palette scope and no separate elevation/border defect was verified.
+- Targeted checks: `tests/api/test_cors.py` (2 passed), `tests/api -k flags` (3 passed), and `npm run typecheck` (passed after removing the stale Prisma import).
+- Final checks: `DEBUG=false .venv/bin/python -m pytest -q` (107 passed) and `npm run build` (passed).
+- Remaining gaps: OCR accuracy and scanned-statement extraction are unverified; per-request Supabase token validity checks are not verified; the frontend has no test suite.
+
 ## 2026-11-24 — TypeScript Prisma ORM layer & Amela (AMOLED) design system
 
 - Added production-grade Prisma ORM schema (`frontend/prisma/schema.prisma`) mapping all ten Supabase PostgreSQL tables: `users`, `categories`, `merchants`, `bank_accounts`, `transactions`, `budgets`, `budget_categories`, `financial_goals`, `goal_milestones`, and `ml_profiles`.
