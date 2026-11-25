@@ -39,13 +39,13 @@ import {
   StatementDraftTransaction,
   StatementPreview,
 } from "@/lib/api";
+import { useFeatureFlags } from "@/hooks/useFinancialData";
 import { CanonicalTransaction } from "@/types/transaction";
 import { endDemoSession, isDemoSession, startDemoSession } from "@/lib/demo-session";
 import { SectionLoadingSkeleton, WorkspaceLoadingSkeleton } from "./PrototypeSkeletons";
 import { PageTitle } from "./prototype-ui";
 import { WorkspaceOverview } from "./WorkspaceOverview";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
-import { LiveBankConnectCard } from "./LiveBankConnectCard";
 import "./prototype-dashboard.css";
 import "./themes.css";
 
@@ -117,12 +117,22 @@ export function PrototypeDashboard({
   const workspaceMain = useRef<HTMLElement>(null);
   const [welcomeToastState, setWelcomeToastState] = useState<"visible" | "leaving" | "hidden">(accountCreated ? "visible" : "hidden");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [workspaceMode, setWorkspaceMode] = useState<"demo" | "live">(() => {
+  const featureFlagsQuery = useFeatureFlags(Boolean(userEmail));
+  const featureFlags = featureFlagsQuery.data;
+  const demoEnabled = !userEmail || featureFlags?.demoMode === true;
+  const liveEnabled = featureFlags?.liveMode === true;
+  const [workspaceMode, setWorkspaceMode] = useState<"demo" | "live" | "unavailable">(() => {
     if (typeof window !== "undefined") {
-      return window.location.pathname.includes("/demo") || isDemoSession() ? "demo" : "demo";
+      return !userEmail || window.location.pathname.includes("/demo") || isDemoSession() ? "demo" : "unavailable";
     }
-    return "demo";
+    return userEmail ? "unavailable" : "demo";
   });
+
+  useEffect(() => {
+    if (!userEmail || !featureFlags) return;
+    if (workspaceMode !== "unavailable") return;
+    setWorkspaceMode(featureFlags.demoMode ? "demo" : featureFlags.liveMode ? "live" : "unavailable");
+  }, [featureFlags, userEmail, workspaceMode]);
 
   useEffect(() => {
     if (!accountCreated) return;
@@ -167,6 +177,14 @@ export function PrototypeDashboard({
   }, []);
 
   useEffect(() => {
+    if (workspaceMode === "unavailable") {
+      endDemoSession();
+      setAccounts([]);
+      setTransactions([]);
+      setTransactionCount(0);
+      setLoading(false);
+      return;
+    }
     if (workspaceMode === "demo") {
       startDemoSession();
     } else {
@@ -212,6 +230,7 @@ export function PrototypeDashboard({
   }
 
   const handleModeChange = (newMode: "demo" | "live") => {
+    if ((newMode === "demo" && !demoEnabled) || (newMode === "live" && !liveEnabled)) return;
     setWorkspaceMode(newMode);
     if (newMode === "demo") {
       startDemoSession();
@@ -356,6 +375,7 @@ export function PrototypeDashboard({
               <div className="flex items-center rounded-full border border-[#d5d4cc] dark:border-[#26272e] bg-[#f5f4f0]/80 dark:bg-[#14151a]/80 backdrop-blur-md p-1 text-xs shadow-inner">
                 <button
                   type="button"
+                  disabled={!demoEnabled}
                   onClick={() => handleModeChange("demo")}
                   aria-label="Demo mode"
                   className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
@@ -370,6 +390,7 @@ export function PrototypeDashboard({
                 </button>
                 <button
                   type="button"
+                  disabled={!liveEnabled}
                   onClick={() => handleModeChange("live")}
                   aria-label="Live mode"
                   className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
@@ -377,12 +398,13 @@ export function PrototypeDashboard({
                       ? "bg-white text-[#20211f] shadow-sm dark:bg-[#26272e] dark:text-white dark:font-semibold"
                       : "text-[#62645d] hover:text-[#20211f] dark:text-[#9ca3af] dark:hover:text-white"
                   }`}
-                  title="Switch to Live Version (Connect Bank Account)"
+                  title={liveEnabled ? "Open live records" : "Live data is not configured"}
                 >
                   <Lock size={13} className="text-sky-500" />
-                  <span className="hidden sm:inline">Live (Air-Gapped)</span>
+                  <span className="hidden sm:inline">Live</span>
                 </button>
               </div>
+              {(!userEmail || featureFlagsQuery.isSuccess) && !liveEnabled && <span role="status" className="hidden text-xs text-[#62645d] md:inline">Live data not configured</span>}
 
               <ThemeSelector pill />
               <button
@@ -424,6 +446,18 @@ export function PrototypeDashboard({
           </aside>}
           {refreshError && <p role="alert" className="mb-4 rounded-md border border-[#ead7d2] bg-white p-3 text-sm text-[#9f2f2d]">{refreshError}</p>}
           {loading ? <LoadingWorkspace /> : loadError ? <LoadError message={loadError} onRetry={() => setRetryKey((key) => key + 1)} /> : (
+            workspaceMode === "unavailable" ? (
+              <section className="mx-auto max-w-2xl rounded-xl border border-[#d5d4cc] bg-white p-6 text-[#20211f] md:p-8" aria-labelledby="workspace-unavailable-title">
+                <h1 id="workspace-unavailable-title" className="text-xl font-semibold">Workspace data is not configured</h1>
+                <p className="mt-2 text-sm leading-6 text-[#62645d]">Demo data and live records are both disabled. No account balances or transactions are being shown.</p>
+              </section>
+            ) : workspaceMode === "live" && accounts.length === 0 ? (
+              <section className="mx-auto max-w-2xl rounded-xl border border-[#d5d4cc] bg-white p-6 text-[#20211f] md:p-8" aria-labelledby="live-empty-title">
+                <h1 id="live-empty-title" className="text-xl font-semibold">Live data is not configured</h1>
+                <p className="mt-2 text-sm leading-6 text-[#62645d]">No live account records are available. Finora will show your records here after a supported live data source is configured.</p>
+                {demoEnabled && <button type="button" className="mt-5 rounded-md bg-[#20211f] px-4 py-2 text-sm font-medium text-white" onClick={() => handleModeChange("demo")}>Explore labelled demo data</button>}
+              </section>
+            ) : (
             <>
               {section === "import" ? (
                 <StatementImportFlow accounts={accounts} onAccountCreated={handleAccountCreated} onComplete={handleImportComplete} />
@@ -444,14 +478,6 @@ export function PrototypeDashboard({
                 <BudgetsScreen />
               ) : section === "goals" ? (
                 <GoalsScreen />
-              ) : workspaceMode === "live" && accounts.length === 0 ? (
-                <LiveBankConnectCard
-                  onConnected={reloadWorkspace}
-                  onAddStatement={() => setSection("import")}
-                  onSwitchToDemo={() => handleModeChange("demo")}
-                  title="Connect Your Bank Account to Activate Live Intelligence"
-                  description="You are currently in the Live Version of Finora. Because no bank account has been connected yet, live transaction records and machine learning models are waiting for your statements. Select your bank below to begin."
-                />
               ) : transactions.length > 0 ? (
                 <WorkspaceOverview
                   userName={userName} accounts={accounts} transactions={transactions} transactionCount={transactionCount}
@@ -465,6 +491,7 @@ export function PrototypeDashboard({
                 <FirstUseEmptyState userName={userName} onAdd={() => setSection("import")} />
               )}
             </>
+            )
           )}
         </main>
       </div>

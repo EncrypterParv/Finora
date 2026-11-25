@@ -15,6 +15,7 @@ import {
   fetchBehaviouralChanges,
   fetchRecommendations,
   fetchAnomalies,
+  fetchFeatureFlags,
   triggerBankSync,
   uploadStatement,
 } from "@/lib/api";
@@ -24,6 +25,7 @@ import { GoalCreate } from "@/types/goal";
 
 // Keys for cache management
 export const queryKeys = {
+  featureFlags: () => ["settings", "feature-flags"] as const,
   calendar: (mode: CalendarViewMode, year?: number, month?: number) => ["calendar", mode, year, month] as const,
   transactions: (limit?: number, offset?: number) => ["transactions", limit, offset] as const,
   transactionDetail: (id: string) => ["transaction", id] as const,
@@ -36,6 +38,14 @@ export const queryKeys = {
   recommendations: () => ["analytics", "recommendations"] as const,
   anomalies: () => ["analytics", "anomalies"] as const,
 };
+
+export function useFeatureFlags(enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.featureFlags(),
+    queryFn: fetchFeatureFlags,
+    enabled,
+  });
+}
 
 // 1. Calendar Hook
 export function useCalendarData(mode: CalendarViewMode = "month", year?: number, month?: number) {

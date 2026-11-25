@@ -246,6 +246,11 @@ export interface BankAccountSummary {
   created_at?: string;
 }
 
+export interface FeatureFlags {
+  demoMode: boolean;
+  liveMode: boolean;
+}
+
 export type AccountTypeOption = "SAVINGS" | "CURRENT" | "CREDIT";
 
 // Error thrown for a failed API call; keeps the HTTP status so screens can react (e.g. 409 on delete).
@@ -314,6 +319,12 @@ async function apiFetch(input: RequestInfo | URL, init: RequestInit = {}) {
     else if (tags.length) invalidateApiCache(userId, tags);
   }
   return response;
+}
+
+export async function fetchFeatureFlags(): Promise<FeatureFlags> {
+  const response = await apiFetch(`${API_BASE}/settings/flags`);
+  if (!response.ok) throw await responseError(response, "Could not load workspace settings.");
+  return response.json();
 }
 
 // `date` (yyyy-mm-dd) picks which week or day to show; month views use year/month.
