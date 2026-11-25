@@ -1,7 +1,7 @@
 """Application configuration settings."""
 
-from typing import Any, Dict, List, Literal, Union
 import json
+from typing import Any, List, Literal
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -30,12 +30,6 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = "financialcall_db"
     POSTGRES_PORT: int = 5432
     DATABASE_URL: str = "sqlite+aiosqlite:///./financialcall.db"  # Defaults to async sqlite for immediate local dev/testing
-    
-    # Feature Flags
-    FEATURE_FLAGS: Dict[str, bool] = {
-        "demoMode": True,
-        "liveMode": False,
-    }
 
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
@@ -47,30 +41,21 @@ class Settings(BaseSettings):
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
-    def assemble_cors_origins(cls, v: Any) -> List[str]:
-        if isinstance(v, str):
-            v = v.strip()
-            if not v:
+    def parse_cors_origins(cls, value: Any) -> List[str]:
+        if isinstance(value, str):
+            value = value.strip()
+            if not value:
                 return []
-            if v.startswith("[") and v.endswith("]"):
-                try:
-                    parsed = json.loads(v)
-                    if isinstance(parsed, list):
-                        return [str(item).strip() for item in parsed if str(item).strip()]
-                except Exception:
-                    pass
-            return [origin.strip() for origin in v.split(",") if origin.strip()]
-        elif isinstance(v, (list, tuple, set)):
-            return [str(origin).strip() for origin in v if str(origin).strip()]
-        return []
-
-    @field_validator("BACKEND_CORS_ORIGINS")
-    @classmethod
-    def validate_cors_origins(cls, v: List[str]) -> List[str]:
-        for origin in v:
-            if origin == "*":
-                raise ValueError("Wildcard '*' CORS origin is not permitted when credentials are enabled.")
-        return v
+            if value.startswith("["):
+                value = json.loads(value)
+            else:
+                value = value.split(",")
+        if not isinstance(value, (list, tuple, set)):
+            raise ValueError("BACKEND_CORS_ORIGINS must be a list or comma-separated string")
+        origins = [str(origin).strip().rstrip("/") for origin in value if str(origin).strip()]
+        if "*" in origins:
+            raise ValueError("Wildcard CORS origins are not allowed with credentials")
+        return origins
 
     model_config = SettingsConfigDict(
         env_file=".env",

