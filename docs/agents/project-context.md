@@ -1,7 +1,7 @@
 # Finora Project Context
 
 Last reviewed: 2026-11-24
-Current milestone: TypeScript Prisma ORM layer implemented in Next.js frontend with clean architecture repository pattern, dynamic demo-mode fallback for Vercel serverless persistence, full Supabase PostgreSQL schema mapping, and comprehensive Amela (AMOLED Black) theme documentation. Landing page SEO and sharing metadata are active. Contrast checks pass on audited routes.
+Current milestone: The Next.js workspace uses the shared API client for private records, with Supabase Auth and SQLAlchemy-backed FastAPI. Landing page SEO and sharing metadata are active. Contrast checks pass on audited routes.
 
 This is the short continuity brief for coding agents. Read it before planning
 substantial work, then read the [context hub](context/README.md) and [history](history.md) for dated decisions and

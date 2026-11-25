@@ -1,14 +1,13 @@
 # Finora Milestone and Decision History
 
-## 2026-11-24 — Gap Report Triage (Claims A–F)
+## 2026-11-25 — Gap report triage (claims A–F)
 
-Triaged external scan claims against source code and runtime test truth:
-- Claim A (Local-only auth; Supabase returns 410): TRUE (by design). `backend/app/api/v1/auth.py:21-25` raises 410 Gone for local register/login when `AUTH_PROVIDER == "supabase"` because Supabase Auth handles authentication client-side and via SSR.
-- Claim B (CORS middleware mounts only when BACKEND_CORS_ORIGINS non-empty): TRUE. `backend/app/main.py:40` checks `if settings.BACKEND_CORS_ORIGINS:` before mounting `CORSMiddleware`.
-- Claim C (Frontend build fails on Prisma types): STRAY / TRUE. Prisma schema and files are stray experiments outside repository contracts; scheduled for removal in C8.
-- Claim D (No endpoint wires historical_engine.py / Insights is static): FALSE. `backend/app/api/v1/analytics.py:270-296` wires `GET /analytics/historical` to `HistoricalMLEngine.analyze_historical_stream`. Precondition for new endpoint creation is FALSE.
-- Claim E (privacy_gate.py is never invoked): FALSE. `backend/app/domain/ml/historical_engine.py:15, 80, 83` invokes `KiteworksPrivacyGate.sanitize_batch` and `KiteworksPrivacyGate.issue_privacy_certificate`.
-- Claim F (Dark theme is bluish, not graphite): TRUE. `frontend/src/components/prototype/themes.css:48-65` uses slate tokens (`#14151a`, `#262833`, `#333645`) with elevated blue hex values rather than neutral graphite (`#20211f`).
+- A — TRUE, by design: local register/login return 410 for Supabase deployments (`backend/app/api/v1/auth.py:20-25`); the guard does not show hosted Supabase sign-in is broken.
+- B — TRUE: CORS middleware is conditional on a non-empty origin list (`backend/app/main.py:40-44`).
+- C — STRAY: the repository factory imports Prisma repositories (`frontend/src/server/repositories/factory.ts:14`), outside the documented API client and SQLAlchemy path; current worktree removals leave this import unresolved.
+- D — FALSE: `GET /analytics/historical` calls `HistoricalMLEngine` (`backend/app/api/v1/analytics.py:270-288`).
+- E — FALSE: the historical engine calls `KiteworksPrivacyGate` (`backend/app/domain/ml/historical_engine.py:79-82`).
+- F — TRUE for the prototype dark theme: slate-blue surfaces appear in `frontend/src/components/prototype/themes.css:48-65`; the shared design tokens remain stone, graphite, and brass.
 
 ## 2026-11-24 — TypeScript Prisma ORM layer & Amela (AMOLED) design system
 
